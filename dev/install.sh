@@ -55,7 +55,7 @@ chmod go-r /etc/rancher/k3s/k3s.yaml
 
 # Set KUBECONFIG to point to k3s, so that 'kubectl' command works.
 echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >> ~/.bash_profile
-source ~/.bash_profile
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 
 ###############################################################################
