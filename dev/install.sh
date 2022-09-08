@@ -11,8 +11,8 @@ EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
 device_fs=$(lsblk "${EBS_VOLUME_DEVICE_NAME}" --noheadings --output fsType)
 if [ "${device_fs}" == "" ] ## only format the volume if it isn't already formatted
 then
-  sudo xfs_admin -L '/mnt/data' "${EBS_VOLUME_DEVICE_NAME}"
   sudo mkfs -t xfs "${EBS_VOLUME_DEVICE_NAME}"
+  sudo xfs_admin -L '/mnt/data' "${EBS_VOLUME_DEVICE_NAME}"
 fi
 sudo mkdir -p /mnt/data
 sudo mount "${EBS_VOLUME_DEVICE_NAME}" /mnt/data
