@@ -3,31 +3,19 @@
 # Creating a prototype instance
 
 1. Create an Amazon Linux 2 EC2 instance (e.g. `m5a.4xlarge`)
-2. SSH into the box
-3. Create an `override.yaml` file (use the one in this directory)
-4. Create an `ingress.yaml` file (use the one in this directory)
-5. Run `install.sh`
-6. Run `kubectl get pods` and `kubectl get svc` to see the pods/services. Wait a few minutes for them all to be running.
-7. Navigate to the public IP of the EC2 instance in a browser (you may need to create an elastic IP and pointer it at your EC2 instance)
+2. Add a 50G root EBS volume (gp3), and a 500G data EBS volume (gp3)
+3. SSH into the box, run:
 
-## Known issues
-
-### k3s config file issues
-
-I had to add `--write-kubeconfig-mode 644` to the k3s install script in order to get a working cluster, but then after doing so we get these warnings:
-
-```
-WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /etc/rancher/k3s/k3s.yaml
-WARNING: Kubernetes configuration file is world-readable. This is insecure. Location: /etc/rancher/k3s/k3s.yaml
+```sh
+sudo yum update -y
+sudo yum install -y git
+git clone https://github.com/sourcegraph/deploy
+cd deploy/dev
+./install.sh
 ```
 
-### env var to fix kubectl
-
-The install script exports this, but we need it to be persistent otherwise `kubectl` won't work when you SSH into the box:
-
-```
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-```
+4. Run `kubectl get pods` and `kubectl get svc` to see the pods/services. Wait a few minutes for them all to be running.
+5. Navigate to the public IP of the EC2 instance in a browser (you may need to create an elastic IP and associate it with your EC2 instance)
 
 ## Debugging tips
 
