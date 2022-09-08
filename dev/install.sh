@@ -44,6 +44,10 @@ sudo systemctl start iptables
 sudo iptables -I INPUT 1 -i cni0 -s 10.42.0.0/16 -j ACCEPT
 sudo service iptables save
 
+# Put ephemeral pod storage in our data disk (since it is the only large disk we have.)
+sudo mkdir -p /mnt/data/ephemeral
+sudo ln -s /mnt/data/ephemeral /var/lib/kubelet
+
 # Install k3s/kubernetes
 curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --cluster-cidr=10.10.0.0/16
 sleep 10
@@ -70,6 +74,8 @@ kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisione
 sleep 5
 kubectl -n local-path-storage get pod
 kubectl apply -f local-path-provisioner.ConfigMap.yaml
+echo "Waiting for local path provisioner to pick up new configuration.."
+sleep 30
 
 # Install Sourcegraph using Helm
 helm repo add sourcegraph https://helm.sourcegraph.com/release
