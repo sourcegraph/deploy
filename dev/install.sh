@@ -28,7 +28,12 @@ sudo mount -a
 sudo sh -c "echo 'fs.inotify.max_user_watches=128000' >> /etc/sysctl.conf"
 sudo sh -c "echo 'vm.max_map_count=300000' >> /etc/sysctl.conf"
 sudo sysctl --system # Reload configuration (no restart required.)
-​
+
+sudo sh -c "echo '* soft nproc 8192' >> /etc/security/limits.conf"
+sudo sh -c "echo '* hard nproc 16384' >> /etc/security/limits.conf"
+sudo sh -c "echo '* soft nofile 262144' >> /etc/security/limits.conf"
+sudo sh -c "echo '* hard nofile 262144' >> /etc/security/limits.conf"
+
 ###############################################################################
 # Install k3s (Kubernetes single-machine deployment)
 ###############################################################################
