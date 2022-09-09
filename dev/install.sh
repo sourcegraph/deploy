@@ -49,6 +49,17 @@ curl -sfL https://get.k3s.io | sh -s - --write-kubeconfig-mode 644 --cluster-cid
 sleep 10
 k3s kubectl get node # Confirm our installation went ok
 ​
+# Put persistent volume pod storage in our data disk.
+sudo mkdir -p /mnt/data/storage
+sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
+
+# Put k3s's embedded etcd database in our data disk. This must be kept around in order for k3s to
+# keep PVs attached to the right folder on disk if a node is lost (i.e. during an upgrade of
+# Sourcegraph), see https://github.com/rancher/local-path-provisioner/issues/26
+sudo mkdir -p /mnt/data/db
+sudo mv /var/lib/rancher/k3s/server/db /mnt/data/db
+sudo ln -s /mnt/data/db /var/lib/rancher/k3s/server/db
+​
 # Correct permissions of k3s config file
 sudo chown ec2-user /etc/rancher/k3s/k3s.yaml
 chmod go-r /etc/rancher/k3s/k3s.yaml
@@ -63,14 +74,6 @@ export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 # Install Helm
 curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm version --short
-​
-# Install local storage provisioner for k3s
-kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/v0.0.22/deploy/local-path-storage.yaml
-sleep 5
-kubectl -n local-path-storage get pod
-kubectl apply -f local-path-provisioner.ConfigMap.yaml
-echo "Waiting for local path provisioner to pick up new configuration.."
-sleep 30
 ​
 # Install Sourcegraph using Helm
 helm repo add sourcegraph https://helm.sourcegraph.com/release
