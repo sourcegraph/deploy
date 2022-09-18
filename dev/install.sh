@@ -60,7 +60,7 @@ sudo mkdir -p /mnt/data/storage
 sudo mkdir -p /var/lib/rancher/k3s
 sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 
-​# Install k3s/kubernetes
+# Install k3s/kubernetes
 curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
 	--write-kubeconfig-mode 644 \
 	--cluster-cidr=10.10.0.0/16
