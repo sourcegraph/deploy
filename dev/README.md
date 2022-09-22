@@ -47,19 +47,27 @@ To create an AMI for the given T-shirt size, follow the steps and reference this
 4. **Instance type**: refer to t-shirt size table
 5. **Key pair**: _Proceed without a keypair (Not recommended)_ (IMPORTANT if building an AMI we will release to the public!)
 6. **Network settings**:
-    a. Choose _Edit_
-    b. **VPC**: Choose the one ending in `(deploy-sourcegraph-vpc)`
-    c. **Subnet**: Choose the one starting with `deploy-sourcegraph-subnet-private1` (**IMPORTANT**: it ends with `-private`)
-    d. **Firewall**: **Select existing security group** > default
+  a. Choose _Edit_
+  b. **VPC**: Choose the one ending in `(deploy-sourcegraph-vpc)`
+  c. **Subnet**: Choose the one starting with `deploy-sourcegraph-subnet-private1` (**IMPORTANT**: it ends with `-private`)
+  d. **Firewall**: **Select existing security group** > default
 7. **Configure storage**:
-    a. Make default (root) storage: 50 GiB gp3
-    b. **Add new volume**: refer to t-shirt size table
+  a. Make default (root) storage: 50 GiB gp3
+  b. **Add new volume**: refer to t-shirt size table
 8. **Advanced details**: expand and under **user data** enter:
 
 ```sh
 #!/usr/bin/env bash
 set -exuo pipefail
-su ec2-user
+
+# If running as root, deescalate
+if [ $UID -eq 0 ]; then
+  cd /home/ec2-user
+  chown ec2-user $0 # /var/lib/cloud/instance/scripts/part-001
+  exec su ec2-user "$0" -- "$@"
+  # nothing will be executed beyond here (exec replaces the running process)
+fi
+
 sudo yum update -y
 sudo yum install -y git
 git clone https://github.com/sourcegraph/deploy
@@ -77,21 +85,21 @@ sudo systemctl stop k3s
 
 1. Navigate to EC2 load balancers
 2. **Create target group** (**You probably don't need to do this if you're in us-west-2, as it'd already be done.**)
-    a. **Create target group**
-    b. **Target type**: instances
-    c. **Target group name**: deploy-sourcegraph-rollout
-    d. **Protocol**: HTTPS : 443
-    e. **VPC**: deploy-sourcegraph-vpc
-    f. **Protocol version**: HTTP1
-    g. **Next** > **Select running instance** > **Create target group**
+  a. **Create target group**
+  b. **Target type**: instances
+  c. **Target group name**: deploy-sourcegraph-rollout
+  d. **Protocol**: HTTPS : 443
+  e. **VPC**: deploy-sourcegraph-vpc
+  f. **Protocol version**: HTTP1
+  g. **Next** > **Select running instance** > **Create target group**
 2. **Create load balancer**: Application Load Balancer  (**You probably don't need to do this if you're in us-west-2, as it'd already be done.**)
-    a. **Name**: `deploy-sourcegraph-rollout`
-    b. **Scheme**: Internet-facing
-    c. **VPC**: `deploy-sourcegraph-vpc`
-    d. **Security group:** default
-    e. **Listeners:** HTTPS, 443
-    f. **Default action**: Forward to, deplpy-sourcegraph-rollout
-    g. **Leave all as defaults, but select a TLS certificate** (rollout.sourcegraph.delivery)
+  a. **Name**: `deploy-sourcegraph-rollout`
+  b. **Scheme**: Internet-facing
+  c. **VPC**: `deploy-sourcegraph-vpc`
+  d. **Security group:** default
+  e. **Listeners:** HTTPS, 443
+  f. **Default action**: Forward to, deplpy-sourcegraph-rollout
+  g. **Leave all as defaults, but select a TLS certificate** (rollout.sourcegraph.delivery)
 
 </details>
 
