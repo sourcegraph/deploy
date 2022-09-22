@@ -12,7 +12,7 @@ frontend:
       cpu: "250m"
       memory: 256M
 
-gitServer:
+gitserver:
   replicas: 3
   resources:
     limits:
@@ -24,22 +24,23 @@ gitServer:
 
 indexedSearch:
   replicas: 3
-  webserver:
-    resources:
-      limits:
-        cpu: "8"
-        memory: 50G
-      requests:
-        cpu: "250m"
-        memory: 256M
-  indexserver:
-    resources:
-      limits:
-        cpu: "8"
-        memory: 16G
-      requests:
-        cpu: "250m"
-        memory: 256M
+  resources:
+    limits:
+      cpu: "8"
+      memory: 50G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+indexedSearchIndexer:
+  replicas: 3
+  resources:
+    limits:
+      cpu: "8"
+      memory: 16G
+    requests:
+      cpu: "250m"
+      memory: 256M
 
 searcher:
   replicas: 3
