@@ -42,7 +42,7 @@ To create an AMI for the given T-shirt size, follow the steps and reference this
 ### Creating an instance
 
 1. Navigate to **Create an EC2 instance** page
-2. **Name**: `sourcegraph-$SIZE` (if for testing, please add your name in the name too.)
+2. **Name**: e.g. `sourcegraph-XXXXL (v9.9.9)` (if for testing, please add your name in the name too.)
 3. **OS**: Latest Amazon Linux 2 (default) 64-bit (x86)
 4. **Instance type**: refer to t-shirt size table
 5. **Key pair**: _Proceed without a keypair (Not recommended)_ (IMPORTANT if building an AMI we will release to the public!)
@@ -126,3 +126,15 @@ If there are disk / persistent volume issues, you can check the storage provisio
 ```sh
 kubectl -n local-path-storage logs -f -l app=local-path-provisioner
 ```
+
+## Releases
+
+### v4.0.0
+
+#### Amazon EC2 AMIs
+
+| Size | AMI ID                | Source                                              |
+|------|-----------------------|-----------------------------------------------------|
+| XS   | ami-0efb962104746b96b | 185007729374/sourcegraph-XS (v4.0.0) (m6a.2xlarge)  |
+| L    | ami-0d8621395823a5c17 | 185007729374/sourcegraph-L (v4.0.0) (m6a.12xlarge)  |
+| XL   | ami-0b17cbd68c001710a | 185007729374/sourcegraph-XL (v4.0.0) (m6a.24xlarge) |
