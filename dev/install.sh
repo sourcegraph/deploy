@@ -90,3 +90,13 @@ helm upgrade --install --values ./override.yaml --version 3.43.1 sourcegraph sou
 
 # Create ingress
 kubectl create -f ingress.yaml
+
+# If a snapshot/AMI is taken of the entire machine, and it is restored to a new machine, the IP address
+# will have changed but k3s won't be aware of this until it restarts. One way to detect this is if kube-system
+# pods are in a crash loop. We add a cronjob that checks this and restarts k3s if so.
+cat << EOF > /tmp/restart-k3s
+*/1 * * * * root /usr/bin/env bash -c 'if [[ $(kubectl get pods -n kube-system | grep CrashLoopBackOff | wc -l) -ge 1 ]]; then systemctl restart k3s; fi;'
+EOF
+sudo chown root:root /tmp/restart-k3s
+sudo mv /tmp/restart-k3s /etc/cron.d/restart-k3s
+sudo chmod 0644 /etc/cron.d/restart-k3s

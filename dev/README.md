@@ -73,7 +73,6 @@ sudo yum install -y git
 git clone https://github.com/sourcegraph/deploy
 cd deploy/dev
 ./install.sh
-sudo systemctl stop k3s
 ```
 
 9. **Launch instance**
@@ -114,7 +113,7 @@ TODO(slimsag): write this section
 If facing networking challenges, it can be helpful to run ping etc. from inside a container in the cluster rather than on the host machine:
 
 ```sh
-kubectl run -it --rm --restart=never busybox --image=busybox sh
+kubectl run -it --rm busybox --image=busybox sh
 ```
 
 ### Checking storage provisioner logs
