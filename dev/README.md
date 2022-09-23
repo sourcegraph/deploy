@@ -54,11 +54,13 @@ To create an AMI for the given T-shirt size, follow the steps and reference this
 7. **Configure storage**:
   a. Make default (root) storage: 50 GiB gp3
   b. **Add new volume**: refer to t-shirt size table
-8. **Advanced details**: expand and under **user data** enter:
+8. **Advanced details**: expand and under **user data** enter this (replace the `size=` variable):
 
 ```sh
 #!/usr/bin/env bash
 set -exuo pipefail
+
+size=override.XS.yaml
 
 # If running as root, deescalate
 if [ $UID -eq 0 ]; then
@@ -72,6 +74,7 @@ sudo yum update -y
 sudo yum install -y git
 git clone https://github.com/sourcegraph/deploy
 cd deploy/dev
+mv $size override.yaml
 ./install.sh
 ```
 

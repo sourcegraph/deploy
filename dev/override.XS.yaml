@@ -1,0 +1,193 @@
+storageClass:
+  create: false
+  name: local-path
+
+frontend:
+  replicas: 2
+  resources:
+    limits:
+      cpu: "4"
+      memory: 8G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+gitserver:
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 8G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+# zoekt-webserver
+indexedSearch:
+  replicas: 2
+  resources:
+    limits:
+      cpu: "8"
+      memory: 50G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+indexedSearchIndexer:
+  replicas: 2
+  resources:
+    limits:
+      cpu: "4"
+      memory: 16G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+searcher:
+  replicas: 1
+  resources:
+    limits:
+      cpu: "2"
+      memory: 2G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+repoUpdater:
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 4G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+preciseCodeIntelWorker:
+  replicas: 1
+  resources:
+    limits:
+      cpu: "2"
+      memory: 4G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+worker:
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 4G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+syntectServer:
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 6G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+symbols:
+  resources:
+    limits:
+      cpu: "4"
+      memory: 4G
+    requests:
+      cpu: "250m"
+      memory: 256M
+  env:
+    # Enables Rockskip
+    USE_ROCKSKIP:
+      value: "true"
+    # Uses Rockskip for all repositories over 1GB
+    ROCKSKIP_MIN_REPO_SIZE_MB:
+      value: "1000"
+
+prometheus:
+  resources:
+    limits:
+      cpu: "4"
+      memory: 8G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+grafana:
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+minio:
+  enabled: true
+  resources:
+    limits:
+      cpu: "2"
+      memory: "2G"
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+codeInsightsDB:
+  enabled: true
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 2G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+codeIntelDB:
+  enabled: true
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 4G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+pgsql:
+  enabled: true
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 4G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+redisStore:
+  enabled: true
+  replicas: 1
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+redisCache:
+  enabled: true
+  replicas: 1
+  resources:
+    limits:
+      cpu: "1"
+      memory: 3G
+    requests:
+      cpu: "250m"
+      memory: 256M

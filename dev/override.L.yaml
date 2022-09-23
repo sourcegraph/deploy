@@ -3,37 +3,28 @@ storageClass:
   name: local-path
 
 frontend:
-  replicas: 3
+  replicas: 2
   resources:
     limits:
-      cpu: "4"
-      memory: 8G
+      cpu: "6"
+      memory: 6G
     requests:
       cpu: "250m"
       memory: 256M
 
 gitserver:
-  replicas: 3
-  resources:
-    limits:
-      cpu: "4"
-      memory: 8G
-    requests:
-      cpu: "250m"
-      memory: 256M
-
-indexedSearch:
-  replicas: 3
+  replicas: 1
   resources:
     limits:
       cpu: "8"
-      memory: 50G
+      memory: 26G
     requests:
       cpu: "250m"
       memory: 256M
 
-indexedSearchIndexer:
-  replicas: 3
+# zoekt-webserver
+indexedSearch:
+  replicas: 2
   resources:
     limits:
       cpu: "8"
@@ -42,12 +33,22 @@ indexedSearchIndexer:
       cpu: "250m"
       memory: 256M
 
-searcher:
-  replicas: 3
+indexedSearchIndexer:
+  replicas: 2
   resources:
     limits:
-      cpu: "2"
-      memory: 2G
+      cpu: "4"
+      memory: 16G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+searcher:
+  replicas: 1
+  resources:
+    limits:
+      cpu: "4"
+      memory: 6G
     requests:
       cpu: "250m"
       memory: 256M
@@ -67,7 +68,7 @@ preciseCodeIntelWorker:
   resources:
     limits:
       cpu: "2"
-      memory: 4G
+      memory: 35G
     requests:
       cpu: "250m"
       memory: 256M
@@ -100,6 +101,13 @@ symbols:
     requests:
       cpu: "250m"
       memory: 256M
+  env:
+    # Enables Rockskip
+    USE_ROCKSKIP:
+      value: "true"
+    # Uses Rockskip for all repositories over 1GB
+    ROCKSKIP_MIN_REPO_SIZE_MB:
+      value: "1000"
 
 prometheus:
   resources:
@@ -157,7 +165,7 @@ pgsql:
   resources:
     limits:
       cpu: "4"
-      memory: 4G
+      memory: 6G
     requests:
       cpu: "250m"
       memory: 256M
@@ -168,7 +176,7 @@ redisStore:
   resources:
     limits:
       cpu: "1"
-      memory: 7G
+      memory: 1G
     requests:
       cpu: "250m"
       memory: 256M
@@ -179,7 +187,7 @@ redisCache:
   resources:
     limits:
       cpu: "1"
-      memory: 7G
+      memory: 3G
     requests:
       cpu: "250m"
       memory: 256M
