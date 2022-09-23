@@ -99,9 +99,6 @@ kubectl create -f ingress.yaml
 # rather) but the exact timing is not known and that may be a while. However, k3s restarting is very graceful
 # and doesn't involve downtime of running pods generally - so once we notice this we simply restart k3s once per
 # 30s for the next 10 minutes.
-cat << EOF > /tmp/restart-k3s
-*/1 * * * * root /usr/bin/env bash -c 'if [[ $(kubectl get pods -n kube-system | grep CrashLoopBackOff | wc -l) -ge 1 ]]; then for i in `seq 1 20`; do systemctl restart k3s; sleep 30; done; fi;'
-EOF
-sudo chown root:root /tmp/restart-k3s
-sudo mv /tmp/restart-k3s /etc/cron.d/restart-k3s
+sudo cp restart-k3s /etc/cron.d/restart-k3s
+sudo chown root:root /etc/cron.d/restart-k3s
 sudo chmod 0644 /etc/cron.d/restart-k3s
