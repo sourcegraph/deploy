@@ -86,7 +86,7 @@ helm version --short
 
 # Install Sourcegraph using Helm
 helm repo add sourcegraph https://helm.sourcegraph.com/release
-helm upgrade --install --values ./override.yaml --version 3.43.1 sourcegraph sourcegraph/sourcegraph
+helm upgrade --install --values ./override.yaml --version 4.0.0 sourcegraph sourcegraph/sourcegraph
 
 # Create ingress
 kubectl create -f ingress.yaml
