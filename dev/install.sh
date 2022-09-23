@@ -94,11 +94,13 @@ kubectl create -f ingress.yaml
 # If a snapshot/AMI is taken of the entire machine, and it is restored to a new machine, the IP address
 # will have changed but k3s won't be aware of this until it restarts. One way to detect this is if kube-system
 # pods are in a crash loop. We add a cronjob that checks this and restarts k3s if so.
-# The restart must occur after all pods have started, so we restart once immediately upon seeing the issue
-# and a second time 4 minutes later. Note that while k3s is restarting, services will still be available
-# generally.
+#
+# When exactly the restart must occur is not clear: certainly after all pods have started fully (or error'd out,
+# rather) but the exact timing is not known and that may be a while. However, k3s restarting is very graceful
+# and doesn't involve downtime of running pods generally - so once we notice this we simply restart k3s once per
+# 30s for the next 10 minutes.
 cat << EOF > /tmp/restart-k3s
-*/1 * * * * root /usr/bin/env bash -c 'if [[ $(kubectl get pods -n kube-system | grep CrashLoopBackOff | wc -l) -ge 1 ]]; then systemctl restart k3s; sleep 240; systemctl restart k3s; fi;'
+*/1 * * * * root /usr/bin/env bash -c 'if [[ $(kubectl get pods -n kube-system | grep CrashLoopBackOff | wc -l) -ge 1 ]]; then for i in `seq 1 20`; do systemctl restart k3s; sleep 30; done; fi;'
 EOF
 sudo chown root:root /tmp/restart-k3s
 sudo mv /tmp/restart-k3s /etc/cron.d/restart-k3s
