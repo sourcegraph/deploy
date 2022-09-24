@@ -133,8 +133,8 @@ kubectl -n local-path-storage logs -f -l app=local-path-provisioner
 
 #### Amazon EC2 AMIs
 
-| Size | AMI ID                | Source                                              |
-|------|-----------------------|-----------------------------------------------------|
-| XS   | ami-0efb962104746b96b | 185007729374/sourcegraph-XS (v4.0.0) (m6a.2xlarge)  |
-| L    | ami-0d8621395823a5c17 | 185007729374/sourcegraph-L (v4.0.0) (m6a.12xlarge)  |
-| XL   | ami-0b17cbd68c001710a | 185007729374/sourcegraph-XL (v4.0.0) (m6a.24xlarge) |
+| Size | AMI ID                | Source                                            |
+|------|-----------------------|---------------------------------------------------|
+| XS   | ami-0ee5cdc5e89a4bee2 | 185007729374/sourcegraph-XS (v4.0.0) m6a.2xlarge  |
+| L    | ami-021db30b6db9b0634 | 185007729374/sourcegraph-L (v4.0.0) m6a.12xlarge  |
+| XL   | ami-04b10e0fabedb6eac | 185007729374/sourcegraph-XL (v4.0.0) m6a.24xlarge |
