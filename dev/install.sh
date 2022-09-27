@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -exuo pipefail
-
+###############################################################################
+# ACTION REQUIRED: REPLACE THE URL AND REVISION WITH YOUR DEPLOYMENT REPO INFO
+###############################################################################
+SOURCEGRAPH_VERSION='4.0.1'
+DEPLOY_PATH='/home/ec2-user/deploy'
 ###############################################################################
 # Configure EBS data volume
 ###############################################################################
@@ -74,7 +78,13 @@ sudo chown ec2-user /etc/rancher/k3s/k3s.yaml
 chmod go-r /etc/rancher/k3s/k3s.yaml
 
 # Set KUBECONFIG to point to k3s, so that 'kubectl' command works.
-echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
+{
+	echo "export SOURCEGRAPH_VERSION=${SOURCEGRAPH_VERSION}"
+	echo "export DEPLOY_PATH=${DEPLOY_PATH}"
+	echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml'
+	echo 'alias k="kubectl"'
+	echo 'alias sgstart="sudo tail -f /var/log/cloud-init-output.log"'
+} >>/home/ec2-user/.bash_profile
 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
 
 ###############################################################################
@@ -86,7 +96,7 @@ helm version --short
 
 # Install Sourcegraph using Helm
 helm repo add sourcegraph https://helm.sourcegraph.com/release
-helm upgrade --install --values ./override.yaml --version 4.0.0 sourcegraph sourcegraph/sourcegraph
+helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph sourcegraph/sourcegraph
 
 # Create ingress
 kubectl create -f ingress.yaml

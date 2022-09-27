@@ -73,6 +73,7 @@ fi
 sudo yum update -y
 sudo yum install -y git
 git clone https://github.com/sourcegraph/deploy
+git checkout beeupgrade
 cd deploy/dev
 mv $size override.yaml
 ./install.sh

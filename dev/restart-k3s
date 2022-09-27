@@ -1,1 +1,6 @@
-@reboot root /usr/bin/env bash -c 'for i in $(seq 1 20); do systemctl restart k3s; sleep 30; done;' >> /var/log/restart-k3s.log 2>&1
+@reboot sleep 30 && sudo systemctl restart k3s
+@reboot sleep 60 && usr/local/bin/kubectl delete ingress sourcegraph-ingress
+@reboot sleep 80 && /usr/local/bin/kubectl create -f /home/ec2-user/deploy/dev/ingress.yaml
+@reboot sleep 120 && sudo systemctl restart k3s
+@reboot sleep 180 && sudo systemctl restart k3s
+@reboot sleep 210 && /usr/bin/env bash -c '/home/ec2-user/deploy/dev/upgrade-check.sh'
