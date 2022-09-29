@@ -56,7 +56,7 @@ fi
 sudo yum update -y
 sudo yum install -y git
 git clone https://github.com/sourcegraph/deploy
-cd deploy/
+cd deploy/install
 mv $size override.yaml
 ./install.sh
 ```
