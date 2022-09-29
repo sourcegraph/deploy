@@ -31,8 +31,10 @@ To create an AMI for the given T-shirt size, follow the steps and reference this
 
 #### Amazon EC2 AMIs
 
-| Size | AMI ID                | Source                                            |
-|------|-----------------------|---------------------------------------------------|
-| XS   | ami-0ee5cdc5e89a4bee2 | 185007729374/sourcegraph-XS (v4.0.0) m6a.2xlarge  |
-| L    | ami-021db30b6db9b0634 | 185007729374/sourcegraph-L (v4.0.0) m6a.12xlarge  |
-| XL   | ami-04b10e0fabedb6eac | 185007729374/sourcegraph-XL (v4.0.0) m6a.24xlarge |
+| Size | AMI ID                | Source                                                     |
+|------|-----------------------|------------------------------------------------------------|
+| XS   | ami-0ee5cdc5e89a4bee2 | 185007729374/sourcegraph-XS (v4.0.0) m6a.2xlarge           |
+| S    | ami-09b82ce5a7b1759a8 | 185007729374/sourcegraph-s-4-0-0-m6a-4xlarge-2022-09-29    |
+| M    | ami-09fe07a328a24f288 | 185007729374/sourcegraph-m-4-0-0-m6a-8xlarge-2022-09-29    |
+| L    | ami-021db30b6db9b0634 | 185007729374/sourcegraph-L (v4.0.0) m6a.12xlarge           |
+| XL   | ami-04b10e0fabedb6eac | 185007729374/sourcegraph-XL (v4.0.0) m6a.24xlarge          |

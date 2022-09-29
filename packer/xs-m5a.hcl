@@ -1,4 +1,4 @@
-ami_name = "sourcegraph-xs-4-0-0-m5a-2xlarge-rev1"
+ami_name = "sourcegraph-xs-4-0-0-m5a-2xlarge"
 instance_type = "m5a.2xlarge"
 override_file = "override.XS.yaml"
 build_in_region = "us-west-1"
