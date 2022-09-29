@@ -1,5 +1,7 @@
 # sourcegraph/deploy developers guide
 
+This repository describes how we build the standard Sourcegraph AMIs, VM images, etc. that we distribute through various cloud providers.
+
 ## Prerequisites
 
 We use Hashicorp Packer to build the images:
@@ -7,12 +9,12 @@ We use Hashicorp Packer to build the images:
 1. [Install Packer](https://learn.hashicorp.com/tutorials/packer/get-started-install-cli?in=packer/aws-get-started#installing-packer).
 2. [Authenticate with AWS](https://www.packer.io/plugins/builders/amazon#authentication):
    * In AWS, select the username dropdown in the top right of the page and choose _User credentials_ to create an access key.
-   * Create a new file `~/.aws/credential`:
+   * In your `~/.zshrc`, `~/.bash_profile`, etc. add:
 
 ```
-[profile]
-aws_access_key_id = xxxx
-aws_secret_access_key = yyyy
+export AWS_ACCESS_KEY_ID="xxx"
+export AWS_SECRET_ACCESS_KEY="yyy"
+export AWS_DEFAULT_REGION="us-west-1"
 ```
 
 ## Creating a new AMI
