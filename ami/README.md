@@ -20,8 +20,6 @@ This directory includes scripts that are used to generate instances our AMIs / A
 - ./[launch.sh](launch.sh)
   - A script to put into `user data` when launching a base instance
   - It is only run ONCE when the instance is *FIRST* launched
-- ./traefik-config.yaml - Not available
-  - To be copy to `/var/lib/rancher/k3s/server/manifests/traefik-config.yaml` inside the instance
 
 ## Instruction
 
