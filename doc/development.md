@@ -14,3 +14,13 @@ export AWS_ACCESS_KEY_ID="xxx"
 export AWS_SECRET_ACCESS_KEY="yyy"
 export AWS_DEFAULT_REGION="us-west-1"
 ```
+
+## Project structure
+
+* `doc/`: project documentation
+* `install/`: installation scripts ran on a machine to turn it into a Sourcegraph deployment
+  * `install.sh`: primary installation script ran on EC2 instance to turn it into a Sourcegraph deployment. Installs k3s, runs helm install, etc.
+  * `ingress.yaml`: Kubernetes ingress controller configuration
+  * `restart-k3s`: a cronjob script/hack to restart k3s on machine startup, in case IP address of machine changed.
+  * `override.<size>.yaml`: The Helm override file we use for a given T-shirt size.
+* `build.sh`: builds all AMIs and publishes to all supported regions
