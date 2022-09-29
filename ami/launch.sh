@@ -2,8 +2,8 @@
 ###############################################################################
 # ACTION REQUIRED: REPLACE THE URL AND REVISION WITH YOUR DEPLOYMENT REPO INFO
 ###############################################################################
-AMI_VERSION='4.0.1'
-OVERRIDE_FILE='override.XS.yaml'
+AMI_VERSION="${INSTANCE_VERSION}"
+AMI_SIZE="${INSTANCE_SIZE}"
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
 DEPLOY_PATH='/home/ec2-user/deploy'
@@ -17,8 +17,8 @@ yum update -y
 yum install git -y
 # Clone the deployment repository
 git clone "${SOURCEGRAPH_DEPLOY_REPO_URL}" "${DEPLOY_PATH}"
-cd "${DEPLOY_PATH}"/install
-cp "${OVERRIDE_FILE}" override.yaml
+cd "${DEPLOY_PATH}"/ami
+cp override."${AMI_SIZE}".yaml override.yaml
 ###############################################################################
 # Configure EBS data volume
 ###############################################################################
@@ -91,7 +91,7 @@ echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
     echo 'alias cloudlog="sudo tail -f /var/log/cloud-init-output.log"'
 } >>/home/ec2-user/.bash_profile
 ###############################################################################
-# Install Sourcegraph using Helm into Kubernetes
+# Set up Sourcegraph Helm Charts
 ###############################################################################
 # Install Helm
 curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -100,12 +100,13 @@ helm version --short
 helm repo add sourcegraph https://helm.sourcegraph.com/release
 # Store charts locally
 helm pull sourcegraph/sourcegraph
-# helm upgrade --install --values ./override.yaml --version "${AMI_VERSION}" sourcegraph "${DEPLOY_PATH}"/install/sourcegraph-"${AMI_VERSION}".tgz --kubeconfig "${KUBE_CONFIG}"
+# Install helm chart at ami initial start up
+# helm upgrade --install --values ./override.yaml --version "${AMI_VERSION}" sourcegraph "${DEPLOY_PATH}"/ami/sourcegraph-"${AMI_VERSION}".tgz --kubeconfig "${KUBE_CONFIG}"
 [ ! -f "${DATA_VOLUME_ROOT}/.sourcegraph-version" ] && echo "${AMI_VERSION}-base" >"${DATA_VOLUME_ROOT}/.sourcegraph-version"
-# Create ingress at ami initial start up
 # Generate files to save current version in volumes for upgrade purpose
 echo "${AMI_VERSION}" >"/home/ec2-user/.sourcegraph-version"
-echo "@reboot sleep 10 && bash ${DEPLOY_PATH}/install/startup.sh" | crontab -
+echo "@reboot sleep 10 && bash ${DEPLOY_PATH}/ami/reboot.sh" | crontab -
+# Create ingress at ami initial start up
 # Stop k3s after 5 minutes (or once everything is up)
 sleep 300
 systemctl stop k3s
