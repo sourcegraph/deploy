@@ -5,7 +5,8 @@
 We use Hashicorp Packer to build images:
 
 1. [Install Packer](https://learn.hashicorp.com/tutorials/packer/get-started-install-cli?in=packer/aws-get-started#installing-packer).
-2. [Authenticate with AWS](https://www.packer.io/plugins/builders/amazon#authentication):
+2. Run `packer init ./packer` at the root of this repository.
+3. [Authenticate with AWS](https://www.packer.io/plugins/builders/amazon#authentication):
    * In AWS, select the username dropdown in the top right of the page and choose _User credentials_ to create an access key.
    * In your `~/.zshrc`, `~/.bash_profile`, etc. add:
 
@@ -44,7 +45,9 @@ packer build -var-file=./packer/test.hcl ./packer/sourcegraph.pkr.hcl
    3. Be sure not to update markdown files by accident. If we need to release a new version of the AMIs _for the same Sourcegraph version we previously released_, then open all `<size>.hcl` files and update their `ami_name` fields from `rev1` to `rev2`.
 2. Run `./build.sh` which will build all AMIs and copy them to the relevant regions.
 3. Update README.md with the AMI IDs you just published.
-4. Once the release is published, this repository is updated and all commits are merged, `git tag v4.0.0` and `git push origin v4.0.0` on the `main` branch.
+4. Go to EC2 AMI console and look up the AMI using its `AMI ID`, and then select Actions > Edit AMI permissions > Public
+5. Once the release is published, this repository is updated and all commits are merged, `git tag v4.0.0` and `git push origin v4.0.0` on the `main` branch.
+6. Update the AWS AMI links in our [deployment docs](https://docs.sourcegraph.com/admin/deploy/aws-ami?).
 
 ### Creating a subnet in a new region
 
