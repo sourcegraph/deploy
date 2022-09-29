@@ -2,20 +2,24 @@
 set -exuo pipefail
 
 ###############################################################################
-# Configure EBS data volume
+# Variables
 ###############################################################################
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
 
-# Format (if necessary) and mount EBS volume
+###############################################################################
+# Configure EBS data volume
+###############################################################################
+
+# Format (if necessary) and mount the EBS volume
 device_fs=$(lsblk "${EBS_VOLUME_DEVICE_NAME}" --noheadings --output fsType)
-if [ "${device_fs}" == "" ]; then ## only format the volume if it isn't already formatted
+if [ "${device_fs}" == "" ]; then
 	sudo mkfs -t xfs "${EBS_VOLUME_DEVICE_NAME}"
-	sudo xfs_admin -L '/mnt/data' "${EBS_VOLUME_DEVICE_NAME}"
+	sudo xfs_admin -L /mnt/data "${EBS_VOLUME_DEVICE_NAME}"
 fi
 sudo mkdir -p /mnt/data
 sudo mount "${EBS_VOLUME_DEVICE_NAME}" /mnt/data
 
-# Mount EBS volume on reboots
+# Mount data disk on reboots by linking disk label to data root path
 sudo sh -c 'echo "LABEL=/mnt/data  /mnt/data  xfs  defaults,nofail  0  2" >> /etc/fstab'
 sudo umount /mnt/data
 sudo mount -a
