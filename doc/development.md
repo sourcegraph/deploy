@@ -45,3 +45,13 @@ packer build -var-file=./packer/test.hcl ./packer/sourcegraph.pkr.hcl
 2. Run `./build.sh` which will build all AMIs and copy them to the relevant regions.
 3. Update README.md with the AMI IDs you just published.
 4. Once the release is published, this repository is updated and all commits are merged, `git tag v4.0.0` and `git push origin v4.0.0` on the `main` branch.
+
+### Creating a subnet in a new region
+
+If adding a new region, you may need to create a subnet with the `Name` tag `packer-build` (Packer finds the subnet based on the name):
+
+1. Navigate to the **Subnets**
+2. **Create subnet**
+3. **VPC**: default
+4. **Subnet name**: packer-build
+5. **IPv4 CIDR block**: 10.0.0.0/24
