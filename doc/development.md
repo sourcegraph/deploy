@@ -24,3 +24,24 @@ export AWS_DEFAULT_REGION="us-west-1"
   * `restart-k3s`: a cronjob script/hack to restart k3s on machine startup, in case IP address of machine changed.
   * `override.<size>.yaml`: The Helm override file we use for a given T-shirt size.
 * `build.sh`: builds all AMIs and publishes to all supported regions
+* `lint.sh`: run code formatters, validate Packer files, etc.
+
+## Building an AMI
+
+### A single AMI for testing
+
+To build a single AMI for testing, create a new `packer/test.hcl` file based on an existing configuration such as `xs-m5a.hcl`. This file provides the configuration which is used by `packer/sourcegraph.pkr.hcl` to build the image. At the very least, you should change the `ami_name` field to indicate this is *your* test image (include your name in it.) Then run:
+
+```
+packer build -var-file=./packer/test.hcl ./packer/sourcegraph.pkr.hcl
+```
+
+### Publishing a release
+
+1. Find-and-replace the last Sourcegraph version with the new version across this repo. For example:
+   1. `3-0-0` -> `3-0-1`
+   2. `--version 3.0.0` -> `--version 3.0.1`
+   3. Be sure not to update markdown files by accident. If we need to release a new version of the AMIs _for the same Sourcegraph version we previously released_, then open all `<size>.hcl` files and update their `ami_name` fields from `rev1` to `rev2`.
+2. Run `./build.sh` which will build all AMIs and copy them to the relevant regions.
+3. Update README.md with the AMI IDs you just published.
+4. Once the release is published, this repository is updated and all commits are merged, `git tag v4.0.0` and `git push origin v4.0.0` on the `main` branch.
