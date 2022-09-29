@@ -2,9 +2,30 @@
 set -exuo pipefail
 
 ###############################################################################
+# ACTION REQUIRED IF BUILDING MANUALLY
+###############################################################################
+SOURCEGRAPH_VERSION="${INSTANCE_VERSION}" # e.g. "4.0.1"
+AMI_SIZE="${INSTANCE_SIZE}" # XS, S, M, L, etc.
+##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
+
+###############################################################################
 # Variables
 ###############################################################################
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
+SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
+DEPLOY_PATH='/home/ec2-user/deploy'
+
+###############################################################################
+# Prepare the system
+###############################################################################
+# Install git
+yum update -y
+yum install git -y
+
+# Clone the deployment repository
+git clone "${SOURCEGRAPH_DEPLOY_REPO_URL}" "${DEPLOY_PATH}"
+cd "${DEPLOY_PATH}"/ami
+cp override."${AMI_SIZE}".yaml override.yaml
 
 ###############################################################################
 # Configure EBS data volume
@@ -39,7 +60,7 @@ sudo sh -c "echo '* soft nofile 262144' >> /etc/security/limits.conf"
 sudo sh -c "echo '* hard nofile 262144' >> /etc/security/limits.conf"
 
 ###############################################################################
-# Install k3s (Kubernetes single-machine deployment)
+# Configure network and volumes for k3s
 ###############################################################################
 # Ensure k3s cluster networking/DNS is allowed in local firewall.
 # For details see: https://github.com/k3s-io/k3s/issues/24#issuecomment-469759329
@@ -64,7 +85,9 @@ sudo mkdir -p /mnt/data/storage
 sudo mkdir -p /var/lib/rancher/k3s
 sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 
-# Install k3s/kubernetes
+###############################################################################
+# Install k3s (Kubernetes single-machine deployment)
+###############################################################################
 curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
 	--node-name sourcegraph-0 \
 	--write-kubeconfig-mode 644 \
@@ -78,31 +101,36 @@ sudo chown ec2-user /etc/rancher/k3s/k3s.yaml
 chmod go-r /etc/rancher/k3s/k3s.yaml
 
 # Set KUBECONFIG to point to k3s, so that 'kubectl' command works.
+export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+# Add standard bash aliases
+{
+	echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml'
+	echo 'alias k="kubectl"'
+	echo 'alias cloudlog="sudo tail -f /var/log/cloud-init-output.log"'
+} >>/home/ec2-user/.bash_profile
 
 ###############################################################################
-# Install Sourcegraph using Helm into Kubernetes
+# Set up Sourcegraph using Helm
 ###############################################################################
 # Install Helm
 curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm version --short
 
-# Install Sourcegraph using Helm
+# Store Sourcegraph Helm charts locally
 helm repo add sourcegraph https://helm.sourcegraph.com/release
-helm upgrade --install --values ./override.yaml --version 4.0.0 sourcegraph sourcegraph/sourcegraph
+helm pull sourcegraph/sourcegraph
 
-# Create ingress
-kubectl create -f ingress.yaml
+# Install helm chart at ami initial start up
+# helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph "${DEPLOY_PATH}"/ami/sourcegraph-"${SOURCEGRAPH_VERSION}".tgz --kubeconfig "${KUBE_CONFIG}"
+[ ! -f "/mnt/data/.sourcegraph-version" ] && echo "${SOURCEGRAPH_VERSION}-base" >"/mnt/data/.sourcegraph-version"
 
-# If a snapshot/AMI is taken of the entire machine, and it is restored to a new machine, the IP address
-# will have changed but k3s won't be aware of this until it restarts. One way to detect this is if kube-system
-# pods are in a crash loop. We add a cronjob that checks this and restarts k3s if so.
-#
-# When exactly the restart must occur is not clear: certainly after all pods have started fully (or error'd out,
-# rather) but the exact timing is not known and that may be a while. However, k3s restarting is very graceful
-# and doesn't involve downtime of running pods generally - so once we notice this we simply restart k3s once per
-# 30s for the next 10 minutes.
-sudo cp restart-k3s /etc/cron.d/restart-k3s
-sudo chown root:root /etc/cron.d/restart-k3s
-sudo chmod 0644 /etc/cron.d/restart-k3s
+# Generate files to save current version in volumes for upgrade purpose
+echo "${AMI_VERSION}" >"/home/ec2-user/.sourcegraph-version"
+echo "@reboot sleep 10 && bash ${DEPLOY_PATH}/ami/reboot.sh" | crontab -
+
+# Create ingress at ami initial start up
+# Stop k3s after 5 minutes (or once everything is up)
+sleep 300
+systemctl stop k3s
