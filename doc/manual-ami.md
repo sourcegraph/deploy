@@ -36,7 +36,7 @@
   d. **Firewall**: **Select existing security group** > default
 7. **Configure storage**:
   a. Make default (root) storage: 50 GiB gp3
-  b. **Add new volume**: refer to t-shirt size table
+  b. **Add new volume**: 500 GiB, refer to t-shirt size table
 8. **Advanced details**: expand and under **user data** enter this (replace the `size=` variable):
 
 ```sh
