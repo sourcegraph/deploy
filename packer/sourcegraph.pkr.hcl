@@ -32,7 +32,7 @@ variable "data_volume_size" {
 }
 
 source "amazon-ebs" "sourcegraph" {
-  ami_name      = "${ var.ami_name }-${ formatdate("YYYY-MM-DD", timestamp()) }"
+  ami_name      = "${var.ami_name}-${formatdate("YYYY-MM-DD", timestamp())}"
   instance_type = var.instance_type
   region        = var.build_in_region
   source_ami_filter {

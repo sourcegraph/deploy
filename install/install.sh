@@ -2,20 +2,58 @@
 set -exuo pipefail
 
 ###############################################################################
-# Configure EBS data volume
+# ACTION REQUIRED IF BUILDING MANUALLY
+###############################################################################
+SOURCEGRAPH_VERSION="${INSTANCE_VERSION}" # e.g. "4.0.1"
+SOURCEGRAPH_SIZE="${INSTANCE_SIZE}"       # XS, S, M, L, etc.
+##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
+
+###############################################################################
+# Variables
 ###############################################################################
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
+SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy'
+DEPLOY_PATH='/home/ec2-user/deploy'
 
-# Format (if necessary) and mount EBS volume
+###############################################################################
+# If running as root, de-escalate to a regular user. The remainder of this script
+# will always use `sudo` to indicate where root is required, so that it is clear
+# what does and does not require root in our installation process.
+###############################################################################
+# If running as root, deescalate
+if [ $UID -eq 0 ]; then
+	cd /home/ec2-user
+	chown ec2-user $0 # /var/lib/cloud/instance/scripts/part-001
+	exec su ec2-user "$0" -- "$@"
+	# nothing will be executed beyond here (exec replaces the running process)
+fi
+
+###############################################################################
+# Prepare the system
+###############################################################################
+# Install git
+sudo yum update -y
+sudo yum install git -y
+
+# Clone the deployment repository
+git clone "${SOURCEGRAPH_DEPLOY_REPO_URL}" "${DEPLOY_PATH}"
+cd "${DEPLOY_PATH}"/install
+cp override."${SOURCEGRAPH_SIZE}".yaml override.yaml
+
+###############################################################################
+# Configure EBS data volume
+###############################################################################
+
+# Format (if necessary) and mount the EBS volume
 device_fs=$(lsblk "${EBS_VOLUME_DEVICE_NAME}" --noheadings --output fsType)
-if [ "${device_fs}" == "" ]; then ## only format the volume if it isn't already formatted
+if [ "${device_fs}" == "" ]; then
 	sudo mkfs -t xfs "${EBS_VOLUME_DEVICE_NAME}"
-	sudo xfs_admin -L '/mnt/data' "${EBS_VOLUME_DEVICE_NAME}"
+	sudo xfs_admin -L /mnt/data "${EBS_VOLUME_DEVICE_NAME}"
 fi
 sudo mkdir -p /mnt/data
 sudo mount "${EBS_VOLUME_DEVICE_NAME}" /mnt/data
 
-# Mount EBS volume on reboots
+# Mount data disk on reboots by linking disk label to data root path
 sudo sh -c 'echo "LABEL=/mnt/data  /mnt/data  xfs  defaults,nofail  0  2" >> /etc/fstab'
 sudo umount /mnt/data
 sudo mount -a
@@ -35,7 +73,7 @@ sudo sh -c "echo '* soft nofile 262144' >> /etc/security/limits.conf"
 sudo sh -c "echo '* hard nofile 262144' >> /etc/security/limits.conf"
 
 ###############################################################################
-# Install k3s (Kubernetes single-machine deployment)
+# Configure network and volumes for k3s
 ###############################################################################
 # Ensure k3s cluster networking/DNS is allowed in local firewall.
 # For details see: https://github.com/k3s-io/k3s/issues/24#issuecomment-469759329
@@ -60,7 +98,9 @@ sudo mkdir -p /mnt/data/storage
 sudo mkdir -p /var/lib/rancher/k3s
 sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 
-# Install k3s/kubernetes
+###############################################################################
+# Install k3s (Kubernetes single-machine deployment)
+###############################################################################
 curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
 	--node-name sourcegraph-0 \
 	--write-kubeconfig-mode 644 \
@@ -74,31 +114,41 @@ sudo chown ec2-user /etc/rancher/k3s/k3s.yaml
 chmod go-r /etc/rancher/k3s/k3s.yaml
 
 # Set KUBECONFIG to point to k3s, so that 'kubectl' command works.
+export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
-export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+# Add standard bash aliases
+{
+	echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml'
+	echo 'alias k="kubectl"'
+	echo 'alias sgrestart="kubectl rollout restart deployment/sourcegraph-frontend "'
+} >>/home/ec2-user/.bash_profile
 
 ###############################################################################
-# Install Sourcegraph using Helm into Kubernetes
+# Set up Sourcegraph using Helm
 ###############################################################################
 # Install Helm
 curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm version --short
 
-# Install Sourcegraph using Helm
+# Store Sourcegraph Helm charts locally
 helm repo add sourcegraph https://helm.sourcegraph.com/release
-helm upgrade --install --values ./override.yaml --version 4.0.0 sourcegraph sourcegraph/sourcegraph
+helm pull sourcegraph/sourcegraph
 
-# Create ingress
-kubectl create -f ingress.yaml
+# Install helm chart at ami initial start up
+# helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph "${DEPLOY_PATH}"/install/sourcegraph-"${SOURCEGRAPH_VERSION}".tgz --kubeconfig "${KUBE_CONFIG}"
+# Create ingress at ami initial start up
+# kubectl create -f ingress.yaml
 
-# If a snapshot/AMI is taken of the entire machine, and it is restored to a new machine, the IP address
-# will have changed but k3s won't be aware of this until it restarts. One way to detect this is if kube-system
-# pods are in a crash loop. We add a cronjob that checks this and restarts k3s if so.
-#
-# When exactly the restart must occur is not clear: certainly after all pods have started fully (or error'd out,
-# rather) but the exact timing is not known and that may be a while. However, k3s restarting is very graceful
-# and doesn't involve downtime of running pods generally - so once we notice this we simply restart k3s once per
-# 30s for the next 10 minutes.
-sudo cp restart-k3s /etc/cron.d/restart-k3s
-sudo chown root:root /etc/cron.d/restart-k3s
-sudo chmod 0644 /etc/cron.d/restart-k3s
+# Generate files to save build status and current version in volumes for upgrade purpose
+echo "${AMI_VERSION}" >"/usr/local/bin/.sourcegraph-version"
+[ ! -f "${DEPLOY_PATH}/.status" ] && echo "building" >"${DEPLOY_PATH}/.status"
+[ ! -f "/mnt/data/.sourcegraph-version" ] && echo "${SOURCEGRAPH_VERSION}-base" >"/mnt/data/.sourcegraph-version"
+
+# Run script on next reboot
+echo "@reboot sleep 10 && bash ${DEPLOY_PATH}/ami/checks.sh" | crontab -
+
+# Stop k3s and disable k3s to prevent it from starting on next reboot
+sleep 10
+sudo systemctl disable k3s
+sudo systemctl stop k3s
