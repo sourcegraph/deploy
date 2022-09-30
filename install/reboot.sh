@@ -2,12 +2,11 @@
 set -exuo pipefail
 
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
-AMI_VERSION="${INSTANCE_VERSION}"
+AMI_VERSION=$(cat /usr/local/bin/.sourcegraph-version)
 HELM_APP_VERSION=$(/usr/local/bin/helm history sourcegraph -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | grep 'pp_version' | cut -d ":" -f 2 | xargs)
 VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
 HELM_RELEASE_STATUS=$(/usr/local/bin/helm status sourcegraph --kubeconfig /etc/rancher/k3s/k3s.yaml | grep 'STATUS' | cut -d ":" -f 2 | xargs)
 ###############################################################################
-systemctl restart k3s
 # If k3s is not starting, reset it
 if sudo systemctl status k3s.service | grep -q 'k3s.service failed'; then
     # Remove leftovers TLS certs and cred
@@ -17,21 +16,22 @@ else
     # Delete ingress
     /usr/local/bin/kubectl delete ingress sourcegraph-ingress
 fi
-systemctl restart k3s
-# Run the upgrade / install if version number stored in volume has a base tag
-# or doesn't have a .sourcegraph-version file in volume (meaning they are on 4.0.0)
-if [ "${VOLUME_VERSION}" = "${AMI_VERSION}-base" ] || [ ! -f "${DATA_VOLUME_ROOT}/.sourcegraph-version" ]; then
-    /usr/local/bin/helm upgrade --install --values /home/ec2-user/deploy/ami/override.yaml --version 4.0.1 sourcegraph /home/ec2-user/deploy/ami/sourcegraph-4.0.1.tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
-    /usr/local/bin/kubectl create -f /home/ec2-user/deploy/ami/ingress.yaml
+sudo systemctl restart k3s
+# If no .sourcegraph-version file in volume, that means they are on 4.0.0
+[ ! -f "/mnt/data/.sourcegraph-version" ] && echo "4.0.0" >"/mnt/data/.sourcegraph-version"
+# Run the upgrade / install if:
+# 1. version number stored in volume has a "base" tag with the same version number
+# 2. version number stored in volume is different than instance version number
+if [ "${VOLUME_VERSION}" = "${AMI_VERSION}-base" ] || [ "${VOLUME_VERSION}" != "${AMI_VERSION}" ]; then
+    /usr/local/bin/helm upgrade --install --values /home/ec2-user/deploy/install/override.yaml --version "${AMI_VERSION}" sourcegraph /home/ec2-user/deploy/install/sourcegraph-"${AMI_VERSION}".tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
+    sleep 10
+    /usr/local/bin/kubectl create -f /home/ec2-user/deploy/install/ingress.yaml
 fi
-sleep 10
-systemctl restart k3s
 sleep 30
-systemctl restart k3s
-sleep 60
-# Run upgrades / install
+sudo systemctl restart k3s
+sleep 30
+# Check if the upgrade / install was successed before changing the stored version number
 [ "${VOLUME_VERSION}" != "${AMI_VERSION}" ] &&
     # Update version file on disk if deployed sucessfully
     [ "${HELM_RELEASE_STATUS}" = "deployed" ] && [ "${HELM_APP_VERSION}" = "${AMI_VERSION}" ] && echo "${AMI_VERSION}" >"/mnt/data/.sourcegraph-version"
-sleep 10
-systemctl restart k3s
+sudo systemctl restart k3s

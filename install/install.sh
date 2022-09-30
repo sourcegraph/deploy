@@ -5,7 +5,7 @@ set -exuo pipefail
 # ACTION REQUIRED IF BUILDING MANUALLY
 ###############################################################################
 SOURCEGRAPH_VERSION="${INSTANCE_VERSION}" # e.g. "4.0.1"
-SOURCEGRAPH_SIZE="${INSTANCE_SIZE}" # XS, S, M, L, etc.
+SOURCEGRAPH_SIZE="${INSTANCE_SIZE}"       # XS, S, M, L, etc.
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 
 ###############################################################################
@@ -22,10 +22,10 @@ DEPLOY_PATH='/home/ec2-user/deploy'
 ###############################################################################
 # If running as root, deescalate
 if [ $UID -eq 0 ]; then
-  cd /home/ec2-user
-  chown ec2-user $0 # /var/lib/cloud/instance/scripts/part-001
-  exec su ec2-user "$0" -- "$@"
-  # nothing will be executed beyond here (exec replaces the running process)
+	cd /home/ec2-user
+	chown ec2-user $0 # /var/lib/cloud/instance/scripts/part-001
+	exec su ec2-user "$0" -- "$@"
+	# nothing will be executed beyond here (exec replaces the running process)
 fi
 
 ###############################################################################
@@ -121,7 +121,7 @@ echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
 {
 	echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml'
 	echo 'alias k="kubectl"'
-	echo 'alias cloudlog="sudo tail -f /var/log/cloud-init-output.log"'
+	echo 'alias sgrestart="kubectl rollout restart deployment/sourcegraph-frontend "'
 } >>/home/ec2-user/.bash_profile
 
 ###############################################################################
@@ -136,14 +136,19 @@ helm repo add sourcegraph https://helm.sourcegraph.com/release
 helm pull sourcegraph/sourcegraph
 
 # Install helm chart at ami initial start up
-# helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph "${DEPLOY_PATH}"/ami/sourcegraph-"${SOURCEGRAPH_VERSION}".tgz --kubeconfig "${KUBE_CONFIG}"
+# helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph "${DEPLOY_PATH}"/install/sourcegraph-"${SOURCEGRAPH_VERSION}".tgz --kubeconfig "${KUBE_CONFIG}"
+# Create ingress at ami initial start up
+# kubectl create -f ingress.yaml
+
+# Generate files to save build status and current version in volumes for upgrade purpose
+echo "${AMI_VERSION}" >"/usr/local/bin/.sourcegraph-version"
+[ ! -f "${DEPLOY_PATH}/.status" ] && echo "building" >"${DEPLOY_PATH}/.status"
 [ ! -f "/mnt/data/.sourcegraph-version" ] && echo "${SOURCEGRAPH_VERSION}-base" >"/mnt/data/.sourcegraph-version"
 
-# Generate files to save current version in volumes for upgrade purpose
-echo "${AMI_VERSION}" >"/home/ec2-user/.sourcegraph-version"
-echo "@reboot sleep 10 && bash ${DEPLOY_PATH}/ami/reboot.sh" | crontab -
+# Run script on next reboot
+echo "@reboot sleep 10 && bash ${DEPLOY_PATH}/ami/checks.sh" | crontab -
 
-# Create ingress at ami initial start up
-# Stop k3s after 5 minutes (or once everything is up)
-sleep 300
-systemctl stop k3s
+# Stop k3s and disable k3s to prevent it from starting on next reboot
+sleep 10
+sudo systemctl disable k3s
+sudo systemctl stop k3s
