@@ -37,31 +37,13 @@
 7. **Configure storage**:
   a. Make default (root) storage: 50 GiB gp3
   b. **Add new volume**: 500 GiB, refer to t-shirt size table
-8. **Advanced details**: expand and under **user data** enter this (replace the `size=` variable):
-
-```sh
-#!/usr/bin/env bash
-set -exuo pipefail
-
-size=override.XS.yaml
-
-# If running as root, deescalate
-if [ $UID -eq 0 ]; then
-  cd /home/ec2-user
-  chown ec2-user $0 # /var/lib/cloud/instance/scripts/part-001
-  exec su ec2-user "$0" -- "$@"
-  # nothing will be executed beyond here (exec replaces the running process)
-fi
-
-sudo yum update -y
-sudo yum install -y git
-git clone https://github.com/sourcegraph/deploy
-cd deploy/install
-mv $size override.yaml
-./install.sh
-```
-
-9. **Launch instance**
+9. Prepare your user data script:
+   1.  Open `install/install.sh` in this repository.
+   2.  Update `SOURCEGRAPH_VERSION` and `AMI_SIZE` at the top of the file as appropriate.
+10. **Advanced details**: expand and under **user data** enter your user data script.
+11. After about 5-8 minutes, k3s will be stopped; however, the instance will still be accessible
+12. You can now create an AMI off the running instance without stopping it
+13. **Important:** Make sure to enable `No Reboot` when creating the AMI
 
 ## Create the load balancer
 

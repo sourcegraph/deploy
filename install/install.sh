@@ -5,27 +5,40 @@ set -exuo pipefail
 # ACTION REQUIRED IF BUILDING MANUALLY
 ###############################################################################
 SOURCEGRAPH_VERSION="${INSTANCE_VERSION}" # e.g. "4.0.1"
-AMI_SIZE="${INSTANCE_SIZE}" # XS, S, M, L, etc.
+SOURCEGRAPH_SIZE="${INSTANCE_SIZE}" # XS, S, M, L, etc.
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 
 ###############################################################################
 # Variables
 ###############################################################################
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
-SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
+SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy'
 DEPLOY_PATH='/home/ec2-user/deploy'
+
+###############################################################################
+# If running as root, de-escalate to a regular user. The remainder of this script
+# will always use `sudo` to indicate where root is required, so that it is clear
+# what does and does not require root in our installation process.
+###############################################################################
+# If running as root, deescalate
+if [ $UID -eq 0 ]; then
+  cd /home/ec2-user
+  chown ec2-user $0 # /var/lib/cloud/instance/scripts/part-001
+  exec su ec2-user "$0" -- "$@"
+  # nothing will be executed beyond here (exec replaces the running process)
+fi
 
 ###############################################################################
 # Prepare the system
 ###############################################################################
 # Install git
-yum update -y
-yum install git -y
+sudo yum update -y
+sudo yum install git -y
 
 # Clone the deployment repository
 git clone "${SOURCEGRAPH_DEPLOY_REPO_URL}" "${DEPLOY_PATH}"
-cd "${DEPLOY_PATH}"/ami
-cp override."${AMI_SIZE}".yaml override.yaml
+cd "${DEPLOY_PATH}"/install
+cp override."${SOURCEGRAPH_SIZE}".yaml override.yaml
 
 ###############################################################################
 # Configure EBS data volume
