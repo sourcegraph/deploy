@@ -19,7 +19,7 @@ export AWS_DEFAULT_REGION="us-west-1"
 ## Project structure
 
 * `doc/`: project documentation
-* `install/`: installation scripts ran on a machine to turn it into a Sourcegraph deployment
+* `ami/`: installation scripts ran on a EC2 machine to turn it into a Sourcegraph deployment
   * `install.sh`: primary installation script ran on EC2 instance to turn it into a Sourcegraph deployment. Installs k3s, runs helm install, etc.
   * `ingress.yaml`: Kubernetes ingress controller configuration
   * `restart-k3s`: a cronjob script/hack to restart k3s on machine startup, in case IP address of machine changed.
@@ -39,10 +39,7 @@ packer build -var-file=./packer/test.hcl ./packer/sourcegraph.pkr.hcl
 
 ### Publishing a release
 
-1. Find-and-replace the last Sourcegraph version with the new version across this repo. For example:
-   1. `3-0-0` -> `3-0-1`
-   2. `--version 3.0.0` -> `--version 3.0.1`
-   3. Be sure not to update markdown files by accident. If we need to release a new version of the AMIs _for the same Sourcegraph version we previously released_, then open all `<size>.hcl` files and update their `ami_name` fields from `rev1` to `rev2`.
+1. Update the `instance_version` variable with the version number for the build inside the [ami-variables.hcl file](../ami/ami-variables.hcl)
 2. Run `./build.sh` which will build all AMIs and copy them to the relevant regions.
 3. Update README.md with the AMI IDs you just published.
 4. Go to EC2 AMI console and look up the AMI using its `AMI ID`, and then select Actions > Edit AMI permissions > Public
