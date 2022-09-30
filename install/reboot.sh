@@ -1,4 +1,6 @@
 #!/usr/bin/bash
+set -exuo pipefail
+
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 AMI_VERSION="${INSTANCE_VERSION}"
 HELM_APP_VERSION=$(/usr/local/bin/helm history sourcegraph -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | grep 'pp_version' | cut -d ":" -f 2 | xargs)
