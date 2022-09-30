@@ -167,26 +167,26 @@ build {
     provisioner "shell" {
         only = ["amazon-ebs.size-xs"]
         environment_vars = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}"]
-        scripts = ["../launch.sh"]
+        scripts = ["../../install/install.sh"]
     }
     provisioner "shell" {
         only = ["amazon-ebs.size-s"]
         environment_vars = ["INSTANCE_SIZE=S", "INSTANCE_VERSION=${var.instance_version}"]
-        scripts = ["../launch.sh"]
+        scripts = ["../../install/install.sh"]
     }
     provisioner "shell" {
         only = ["amazon-ebs.size-m"]
         environment_vars = ["INSTANCE_SIZE=M", "INSTANCE_VERSION=${var.instance_version}"]
-        scripts = ["../launch.sh"]
+        scripts = ["../../install/install.sh"]
     }
     provisioner "shell" {
         only = ["amazon-ebs.size-l"]
         environment_vars = ["INSTANCE_SIZE=L", "INSTANCE_VERSION=${var.instance_version}"]
-        scripts = ["../launch.sh"]
+        scripts = ["../../install/install.sh"]
     }
     provisioner "shell" {
         only = ["amazon-ebs.size-xl"]
         environment_vars = ["INSTANCE_SIZE=XL", "INSTANCE_VERSION=${var.instance_version}"]
-        scripts = ["../launch.sh"]
+        scripts = ["../../install/install.sh"]
     }
 }
