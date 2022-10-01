@@ -135,20 +135,18 @@ helm version --short
 helm repo add sourcegraph https://helm.sourcegraph.com/release
 helm pull sourcegraph/sourcegraph
 
-# Install helm chart at ami initial start up
-# helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph "${DEPLOY_PATH}"/install/sourcegraph-"${SOURCEGRAPH_VERSION}".tgz --kubeconfig "${KUBE_CONFIG}"
-# Create ingress at ami initial start up
-# kubectl create -f ingress.yaml
+# Generate files to save instance info in volumes for upgrade purpose
+echo "${SOURCEGRAPH_VERSION}" >"/home/ec2-user/.sourcegraph-version"
+# echo "${SOURCEGRAPH_VERSION}-base" >"/mnt/data/.sourcegraph-version"
+echo "${SOURCEGRAPH_SIZE}" >"/home/ec2-user/.sourcegraph-size"
 
-# Generate files to save build status and current version in volumes for upgrade purpose
-echo "${AMI_VERSION}" >"/usr/local/bin/.sourcegraph-version"
-[ ! -f "${DEPLOY_PATH}/.status" ] && echo "building" >"${DEPLOY_PATH}/.status"
-[ ! -f "/mnt/data/.sourcegraph-version" ] && echo "${SOURCEGRAPH_VERSION}-base" >"/mnt/data/.sourcegraph-version"
+# Install helm chart at initial start up
+helm upgrade --install --values ./override.yaml --version 4.0.1 sourcegraph ./sourcegraph-4.0.1.tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
+# Create ingress at next start up
 
-# Run script on next reboot
-echo "@reboot sleep 10 && bash ${DEPLOY_PATH}/ami/checks.sh" | crontab -
+# Run script on next reboot to keep track on build status
+echo "@reboot sleep 10 && bash /home/ec2-user/deploy/install/reboot.sh" | crontab -
 
 # Stop k3s and disable k3s to prevent it from starting on next reboot
-sleep 10
 sudo systemctl disable k3s
 sudo systemctl stop k3s
