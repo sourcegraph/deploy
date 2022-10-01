@@ -10,6 +10,7 @@ if sudo systemctl status k3s.service | grep -q 'k3s.service failed'; then
     # Remove leftovers TLS certs and cred
     sudo rm -rf /var/lib/rancher/k3s/server/cred/ /var/lib/rancher/k3s/server/tls/
     sudo sh /usr/local/bin/k3s-killall.sh
+    sudo systemctl enable k3s
 fi
 sleep 30
 # Run install or upgrade
