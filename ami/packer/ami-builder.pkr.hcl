@@ -43,22 +43,6 @@ variable "instance_sizes" {
   })
 }
 
-variable "ami_tags" {
-  type = object({
-    Name = string
-    Version = string
-  })
-  default = {
-    Name = "production"
-    Version = var.instance_version
-  }
-}
-
-variable "ami_description" {
-  type    = string
-  default = "Sourcegraph AMI"
-}
-
 variable "build_in_region" {
   description = "Region to build the launch instances"
   type        = string
@@ -68,15 +52,24 @@ variable "build_in_region" {
 variable "ami_regions" {
   description = "Region to copy the AMIs to"
   type        = list(string)
-  default = [ "us-west-1", "us-west-2", "us-east-1", "us-east-2"]
+}
+
+variable "ami_tags" {
+  type = object({
+    Name = string
+  })
+  default = {
+    Name = "production"
+  }
 }
 
 source "amazon-ebs" "size-xs" {
   ami_name                     = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
-  ami_description              = var.ami_description
+  ami_description              = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
   ami_regions                  = var.ami_regions
+  ami_groups                   = ["all"]
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -99,7 +92,6 @@ source "amazon-ebs" "size-xs" {
     delete_on_termination = true
     device_name           = "/dev/xvda"
     encrypted             = false
-
     volume_type = "gp3"
     volume_size = 50
   }
@@ -115,9 +107,10 @@ source "amazon-ebs" "size-xs" {
 
 source "amazon-ebs" "size-s" {
   ami_name                     = "Sourcegraph-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
-  ami_description              = var.ami_description
+  ami_description              = "Sourcegraph-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
   instance_type                = var.instance_sizes.s.instance_type
   region                       = var.build_in_region
+  ami_groups                   = ["all"]
   ami_regions                  = var.ami_regions
   associate_public_ip_address  = true
   source_ami_filter {
@@ -156,9 +149,10 @@ source "amazon-ebs" "size-s" {
 
 source "amazon-ebs" "size-m" {
   ami_name                     = "Sourcegraph-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
-  ami_description              = var.ami_description
+  ami_description              = "Sourcegraph-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
   instance_type                = var.instance_sizes.m.instance_type
   region                       = var.build_in_region
+  ami_groups                   = ["all"]
   ami_regions                  = var.ami_regions
   associate_public_ip_address  = true
   source_ami_filter {
@@ -198,9 +192,10 @@ source "amazon-ebs" "size-m" {
 
 source "amazon-ebs" "size-l" {
   ami_name                     = "Sourcegraph-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
-  ami_description              = var.ami_description
+  ami_description              = "Sourcegraph-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
   instance_type                = var.instance_sizes.l.instance_type
   region                       = var.build_in_region
+  ami_groups                   = ["all"]
   ami_regions                  = var.ami_regions
   associate_public_ip_address  = true
   source_ami_filter {
@@ -224,14 +219,14 @@ source "amazon-ebs" "size-l" {
     delete_on_termination = true
     device_name           = "/dev/xvda"
     encrypted             = false
-
-    volume_type = "gp3"
-    volume_size = 50
+    volume_type           = "gp3"
+    volume_size           = 50
   }
   launch_block_device_mappings {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
+    iops                  = "16000"
     volume_type           = var.instance_sizes.l.data_volume_type
     volume_size           = var.instance_sizes.l.data_volume_size
   }
@@ -240,9 +235,10 @@ source "amazon-ebs" "size-l" {
 
 source "amazon-ebs" "size-xl" {
   ami_name                     = "Sourcegraph-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
-  ami_description              = var.ami_description
+  ami_description              = "Sourcegraph-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
   instance_type                = var.instance_sizes.xl.instance_type
   region                       = var.build_in_region
+  ami_groups                   = ["all"]
   ami_regions                  = var.ami_regions
   associate_public_ip_address  = true
   source_ami_filter {
@@ -256,7 +252,7 @@ source "amazon-ebs" "size-xl" {
   }
   subnet_filter {
     filters = {
-      "tag:Name" : "packer-build"
+      "tag:Name" : "k3s-west-2b"
     }
     most_free = true
     random    = false
@@ -266,7 +262,6 @@ source "amazon-ebs" "size-xl" {
     delete_on_termination = true
     device_name           = "/dev/xvda"
     encrypted             = false
-
     volume_type = "gp3"
     volume_size = 50
   }
@@ -274,6 +269,7 @@ source "amazon-ebs" "size-xl" {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
+    iops                  = "16000"
     volume_type           = var.instance_sizes.xl.data_volume_type
     volume_size           = var.instance_sizes.xl.data_volume_size
   }

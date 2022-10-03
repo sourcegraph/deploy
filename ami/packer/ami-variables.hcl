@@ -1,5 +1,5 @@
 instance_version = "4.0.1"
-build_in_region = "us-west-1"
+build_in_region = "us-west-2"
 instance_sizes = { 
     xs = {
         instance_type = "m6a.2xlarge"
