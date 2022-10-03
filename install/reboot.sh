@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
-AMI_VERSION=$(cat /home/ec2-user/sourcegraph-version)
+AMI_VERSION=$(cat /home/ec2-user/.sourcegraph-version)
 ###############################################################################
 # Delete ingress
 /usr/local/bin/kubectl delete ingress sourcegraph-ingress

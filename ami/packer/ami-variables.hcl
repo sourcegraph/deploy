@@ -9,22 +9,22 @@ instance_sizes = {
     s = {
         instance_type = "m6a.4xlarge"
         data_volume_type = "gp3"
-        data_volume_size = 1000
+        data_volume_size = 500
     },
     m = {
         instance_type = "m6a.8xlarge"
         data_volume_type = "gp3"
-        data_volume_size = 2000
+        data_volume_size = 500
     },
     l = {
         instance_type = "m6a.12xlarge"
         data_volume_type = "io2"
-        data_volume_size = 5000
+        data_volume_size = 500
     },
     xl = {
         instance_type = "m6a.24xlarge"
         data_volume_type = "io2"
-        data_volume_size = 5000
+        data_volume_size = 500
     }
 }
 ami_regions = [
