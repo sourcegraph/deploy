@@ -43,6 +43,17 @@ variable "instance_sizes" {
   })
 }
 
+variable "ami_tags" {
+  type = object({
+    Name = string
+    Version = string
+  })
+  default = {
+    Name = "production"
+    Version = var.instance_version
+  }
+}
+
 variable "ami_description" {
   type    = string
   default = "Sourcegraph AMI"
@@ -57,10 +68,11 @@ variable "build_in_region" {
 variable "ami_regions" {
   description = "Region to copy the AMIs to"
   type        = list(string)
+  default = [ "us-west-1", "us-west-2", "us-east-1", "us-east-2"]
 }
 
 source "amazon-ebs" "size-xs" {
-  ami_name                     = "test-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_name                     = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   ami_description              = var.ami_description
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
@@ -98,10 +110,11 @@ source "amazon-ebs" "size-xs" {
     volume_type           = var.instance_sizes.xs.data_volume_type
     volume_size           = var.instance_sizes.xs.data_volume_size
   }
+  tags = var.ami_tags
 }
 
 source "amazon-ebs" "size-s" {
-  ami_name                     = "test-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
+  ami_name                     = "Sourcegraph-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
   ami_description              = var.ami_description
   instance_type                = var.instance_sizes.s.instance_type
   region                       = var.build_in_region
@@ -128,7 +141,6 @@ source "amazon-ebs" "size-s" {
     delete_on_termination = true
     device_name           = "/dev/xvda"
     encrypted             = false
-
     volume_type = "gp3"
     volume_size = 50
   }
@@ -139,10 +151,11 @@ source "amazon-ebs" "size-s" {
     volume_type           = var.instance_sizes.s.data_volume_type
     volume_size           = var.instance_sizes.s.data_volume_size
   }
+  tags = var.ami_tags
 }
 
 source "amazon-ebs" "size-m" {
-  ami_name                     = "test-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
+  ami_name                     = "Sourcegraph-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
   ami_description              = var.ami_description
   instance_type                = var.instance_sizes.m.instance_type
   region                       = var.build_in_region
@@ -180,10 +193,11 @@ source "amazon-ebs" "size-m" {
     volume_type           = var.instance_sizes.m.data_volume_type
     volume_size           = var.instance_sizes.m.data_volume_size
   }
+  tags = var.ami_tags
 }
 
 source "amazon-ebs" "size-l" {
-  ami_name                     = "test-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
+  ami_name                     = "Sourcegraph-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
   ami_description              = var.ami_description
   instance_type                = var.instance_sizes.l.instance_type
   region                       = var.build_in_region
@@ -221,10 +235,11 @@ source "amazon-ebs" "size-l" {
     volume_type           = var.instance_sizes.l.data_volume_type
     volume_size           = var.instance_sizes.l.data_volume_size
   }
+  tags = var.ami_tags
 }
 
 source "amazon-ebs" "size-xl" {
-  ami_name                     = "test-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
+  ami_name                     = "Sourcegraph-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
   ami_description              = var.ami_description
   instance_type                = var.instance_sizes.xl.instance_type
   region                       = var.build_in_region
@@ -262,6 +277,7 @@ source "amazon-ebs" "size-xl" {
     volume_type           = var.instance_sizes.xl.data_volume_type
     volume_size           = var.instance_sizes.xl.data_volume_size
   }
+  tags = var.ami_tags
 }
 
 

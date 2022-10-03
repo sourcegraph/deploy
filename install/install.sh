@@ -104,7 +104,8 @@ sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
 	--node-name sourcegraph-0 \
 	--write-kubeconfig-mode 644 \
-	--cluster-cidr=10.10.0.0/16
+	--cluster-cidr=10.10.0.0/16 \
+	--kubelet-arg containerd=/run/k3s/containerd/containerd.sock
 
 sleep 10
 k3s kubectl get node # Confirm our installation went ok
@@ -121,8 +122,8 @@ echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
 {
 	echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml'
 	echo 'alias k="kubectl"'
-	echo 'alias sgrestart="kubectl rollout restart deployment/sourcegraph-frontend "'
-} >>/home/ec2-user/.bash_profile
+	echo 'alias sgrestart="kubectl rollout restart deployment/sourcegraph-frontend"'
+} | tee --append /home/ec2-user/.bash_profile
 
 ###############################################################################
 # Set up Sourcegraph using Helm
@@ -136,12 +137,12 @@ helm repo add sourcegraph https://helm.sourcegraph.com/release
 helm pull sourcegraph/sourcegraph
 
 # Generate files to save instance info in volumes for upgrade purpose
-echo "${SOURCEGRAPH_VERSION}" >"/home/ec2-user/.sourcegraph-version"
-# echo "${SOURCEGRAPH_VERSION}-base" >"/mnt/data/.sourcegraph-version"
-echo "${SOURCEGRAPH_SIZE}" >"/home/ec2-user/.sourcegraph-size"
+echo "${SOURCEGRAPH_VERSION}" | sudo tee /home/ec2-user/.sourcegraph-version
+echo "${SOURCEGRAPH_VERSION}-base" | sudo tee /mnt/data/.sourcegraph-version
+echo "${SOURCEGRAPH_SIZE}" | sudo tee /home/ec2-user/.sourcegraph-size
 
 # Install helm chart at initial start up
-helm upgrade --install --values ./override.yaml --version 4.0.1 sourcegraph ./sourcegraph-4.0.1.tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
+helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph ./sourcegraph-"${SOURCEGRAPH_VERSION}".tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
 # Create ingress at next start up
 
 # Run script on next reboot to keep track on build status
