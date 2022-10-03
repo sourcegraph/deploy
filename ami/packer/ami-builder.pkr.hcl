@@ -10,7 +10,6 @@ packer {
 variable "instance_version" {
   description = "Version number for the AMI build"
   type        = string
-  default = "4.0.1"
 }
 
 variable "instance_sizes" {
@@ -54,15 +53,6 @@ variable "ami_regions" {
   type        = list(string)
 }
 
-variable "ami_tags" {
-  type = object({
-    Name = string
-  })
-  default = {
-    Name = "production"
-  }
-}
-
 source "amazon-ebs" "size-xs" {
   ami_name                     = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   ami_description              = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
@@ -72,28 +62,28 @@ source "amazon-ebs" "size-xs" {
   ami_groups                   = ["all"]
   associate_public_ip_address  = true
   source_ami_filter {
-    filters = {
-      name                = "amzn2-ami-kernel-*-hvm-*-x86_64-gp2"
-      root-device-type    = "ebs"
-      virtualization-type = "hvm"
+    filters                    = {
+      name                     = "amzn2-ami-kernel-*-hvm-*-x86_64-gp2"
+      root-device-type         = "ebs"
+      virtualization-type      = "hvm"
     }
-    most_recent = true
-    owners      = ["amazon"]
+    most_recent                = true
+    owners                     = ["amazon"]
   }
   subnet_filter {
-    filters = {
+    filters                    = {
       "tag:Name" : "packer-build"
     }
-    most_free = true
-    random    = false
+    most_free                  = true
+    random                     = false
   }
   ssh_username                 = "ec2-user"
   launch_block_device_mappings {
-    delete_on_termination = true
-    device_name           = "/dev/xvda"
-    encrypted             = false
-    volume_type = "gp3"
-    volume_size = 50
+    delete_on_termination      = true
+    device_name                = "/dev/xvda"
+    encrypted                  = false
+    volume_type                = "gp3"
+    volume_size                = 50
   }
   launch_block_device_mappings {
     device_name           = "/dev/sdb"
@@ -102,7 +92,10 @@ source "amazon-ebs" "size-xs" {
     volume_type           = var.instance_sizes.xs.data_volume_type
     volume_size           = var.instance_sizes.xs.data_volume_size
   }
-  tags = var.ami_tags
+  tags                    = {
+    Name                  = "production"
+    Version               = var.instance_version
+  }
 }
 
 source "amazon-ebs" "size-s" {
@@ -144,7 +137,10 @@ source "amazon-ebs" "size-s" {
     volume_type           = var.instance_sizes.s.data_volume_type
     volume_size           = var.instance_sizes.s.data_volume_size
   }
-  tags = var.ami_tags
+  tags                    = {
+    Name                  = "production"
+    Version               = var.instance_version
+  }
 }
 
 source "amazon-ebs" "size-m" {
@@ -187,7 +183,10 @@ source "amazon-ebs" "size-m" {
     volume_type           = var.instance_sizes.m.data_volume_type
     volume_size           = var.instance_sizes.m.data_volume_size
   }
-  tags = var.ami_tags
+  tags                    = {
+    Name                  = "production"
+    Version               = var.instance_version
+  }
 }
 
 source "amazon-ebs" "size-l" {
@@ -226,11 +225,14 @@ source "amazon-ebs" "size-l" {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
-    iops                  = "16000"
+    iops                  = "1600"
     volume_type           = var.instance_sizes.l.data_volume_type
     volume_size           = var.instance_sizes.l.data_volume_size
   }
-  tags = var.ami_tags
+  tags                    = {
+    Name                  = "production"
+    Version               = var.instance_version
+  }
 }
 
 source "amazon-ebs" "size-xl" {
@@ -252,7 +254,7 @@ source "amazon-ebs" "size-xl" {
   }
   subnet_filter {
     filters = {
-      "tag:Name" : "k3s-west-2b"
+      "tag:Name" : "packer-build-2b"
     }
     most_free = true
     random    = false
@@ -269,11 +271,14 @@ source "amazon-ebs" "size-xl" {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
-    iops                  = "16000"
+    iops                  = "1600"
     volume_type           = var.instance_sizes.xl.data_volume_type
     volume_size           = var.instance_sizes.xl.data_volume_size
   }
-  tags = var.ami_tags
+  tags                    = {
+    Name                  = "production"
+    Version               = var.instance_version
+  }
 }
 
 

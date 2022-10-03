@@ -23,10 +23,11 @@ To create an AMI for the given T-shirt size, follow the steps and reference this
 | M    | 05,000 | 50,000       | 23GB              | 1,000            | m6a.8xlarge   | gp3       |        |
 | L    | 10,000 | 100,000      | 35GB              | 2,000            | m6a.12xlarge  | io2       | 16,000 |
 | XL   | 20,000 | 250,000      | 35GB              | 4,000            | m6a.24xlarge  | io2       | 16,000 |
-| 2XL  | 40,000 | 500,000      | 60GB              | 8,000            | m6a.48xlarge  | io2       | 16,000 |
 
 ## Releases
 
 ### Amazon EC2 AMIs
 
 See [CHANGLOG.md](CHANGELOG.md) for the completed list.
+
+> NOTE: The default AMI user name is `**ec2-user**`.
