@@ -2,18 +2,21 @@
 set -exuo pipefail
 
 ###############################################################################
-# ACTION REQUIRED IF BUILDING MANUALLY
+# ACTION REQUIRED IF RUNNING THIS SCRIPT MANUALLY
+# IMPORTANT: Keep this commented when building with the packer pipeline
 ###############################################################################
-SOURCEGRAPH_VERSION="${INSTANCE_VERSION}" # e.g. "4.0.1"
-SOURCEGRAPH_SIZE="${INSTANCE_SIZE}"       # XS, S, M, L, etc.
-##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
+# INSTANCE_VERSION="4.0.0" # e.g. 4.0.1
+# INSTANCE_SIZE="XS"        # e.g. XS / S / M / L / XL
 
-###############################################################################
+##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Variables
 ###############################################################################
+SOURCEGRAPH_VERSION=$INSTANCE_VERSION
+SOURCEGRAPH_SIZE=$INSTANCE_SIZE
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
 SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy'
-DEPLOY_PATH='/home/ec2-user/deploy'
+DEPLOY_PATH='/home/ec2-user/deploy/install'
+KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 
 ###############################################################################
 # If running as root, de-escalate to a regular user. The remainder of this script
@@ -23,7 +26,7 @@ DEPLOY_PATH='/home/ec2-user/deploy'
 # If running as root, deescalate
 if [ $UID -eq 0 ]; then
 	cd /home/ec2-user
-	chown ec2-user $0 # /var/lib/cloud/instance/scripts/part-001
+	chown ec2-user "$0" # /var/lib/cloud/instance/scripts/part-001
 	exec su ec2-user "$0" -- "$@"
 	# nothing will be executed beyond here (exec replaces the running process)
 fi
@@ -36,22 +39,22 @@ sudo yum update -y
 sudo yum install git -y
 
 # Clone the deployment repository
-git clone "${SOURCEGRAPH_DEPLOY_REPO_URL}" "${DEPLOY_PATH}"
-cd "${DEPLOY_PATH}"/install
-cp override."${SOURCEGRAPH_SIZE}".yaml override.yaml
+cd /home/ec2-user
+git clone $SOURCEGRAPH_DEPLOY_REPO_URL
+cd $DEPLOY_PATH
+cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
 
 ###############################################################################
 # Configure EBS data volume
 ###############################################################################
-
 # Format (if necessary) and mount the EBS volume
-device_fs=$(lsblk "${EBS_VOLUME_DEVICE_NAME}" --noheadings --output fsType)
-if [ "${device_fs}" == "" ]; then
-	sudo mkfs -t xfs "${EBS_VOLUME_DEVICE_NAME}"
-	sudo xfs_admin -L /mnt/data "${EBS_VOLUME_DEVICE_NAME}"
+device_fs=$(lsblk $EBS_VOLUME_DEVICE_NAME --noheadings --output fsType)
+if [ "$device_fs" == "" ]; then
+	sudo mkfs -t xfs $EBS_VOLUME_DEVICE_NAME
+	sudo xfs_admin -L /mnt/data $EBS_VOLUME_DEVICE_NAME
 fi
 sudo mkdir -p /mnt/data
-sudo mount "${EBS_VOLUME_DEVICE_NAME}" /mnt/data
+sudo mount $EBS_VOLUME_DEVICE_NAME /mnt/data
 
 # Mount data disk on reboots by linking disk label to data root path
 sudo sh -c 'echo "LABEL=/mnt/data  /mnt/data  xfs  defaults,nofail  0  2" >> /etc/fstab'
@@ -104,26 +107,24 @@ sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
 	--node-name sourcegraph-0 \
 	--write-kubeconfig-mode 644 \
-	--cluster-cidr=10.10.0.0/16 \
-	--kubelet-arg containerd=/run/k3s/containerd/containerd.sock
+	--cluster-cidr 10.10.0.0/16 \
+	--kubelet-arg containerd=/run/k3s/containerd/containerd.sock \
+	--etcd-expose-metrics=true
 
-sleep 10
-k3s kubectl get node # Confirm our installation went ok
+# Confirm k3s and kubectl are up and running
+sleep 5 && k3s kubectl get node
 
 # Correct permissions of k3s config file
 sudo chown ec2-user /etc/rancher/k3s/k3s.yaml
 chmod go-r /etc/rancher/k3s/k3s.yaml
 
-# Set KUBECONFIG to point to k3s, so that 'kubectl' command works.
+# Set KUBECONFIG to point to k3s for 'kubectl' commands to work
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
-echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
+cp /etc/rancher/k3s/k3s.yaml /home/ec2-user/.kube/config
 
 # Add standard bash aliases
-{
-	echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml'
-	echo 'alias k="kubectl"'
-	echo 'alias sgrestart="kubectl rollout restart deployment/sourcegraph-frontend"'
-} | tee --append /home/ec2-user/.bash_profile
+echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' | tee --append /home/ec2-user/.bash_profile
+echo 'alias k="kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml"' | tee --append /home/ec2-user/.bash_profile
 
 ###############################################################################
 # Set up Sourcegraph using Helm
@@ -132,9 +133,10 @@ echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' >>~/.bash_profile
 curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm version --short
 
-# Store Sourcegraph Helm charts locally
-helm repo add sourcegraph https://helm.sourcegraph.com/release
-helm pull sourcegraph/sourcegraph
+# Store Sourcegraph Helm charts locally, rename the file to 'sourcegraph-charts.tgz'
+helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph.com/release
+helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
+mv ./sourcegraph-"$SOURCEGRAPH_VERSION".tgz ./sourcegraph-charts.tgz
 
 # Generate files to save instance info in volumes for upgrade purpose
 echo "${SOURCEGRAPH_VERSION}" | sudo tee /home/ec2-user/.sourcegraph-version
@@ -142,12 +144,13 @@ echo "${SOURCEGRAPH_VERSION}-base" | sudo tee /mnt/data/.sourcegraph-version
 echo "${SOURCEGRAPH_SIZE}" | sudo tee /home/ec2-user/.sourcegraph-size
 
 # Install helm chart at initial start up
-helm upgrade --install --values ./override.yaml --version "${SOURCEGRAPH_VERSION}" sourcegraph ./sourcegraph-"${SOURCEGRAPH_VERSION}".tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
-# Create ingress at next start up
+helm --kubeconfig $KUBECONFIG_FILE upgrade --install --values ./override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph ./sourcegraph-charts.tgz
+# Create ingress at next start up: kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
 
 # Run script on next reboot to keep track on build status
-echo "@reboot sleep 10 && bash /home/ec2-user/deploy/install/reboot.sh" | crontab -
+echo "@reboot sleep 10 && bash $DEPLOY_PATH/reboot.sh" | crontab -
 
 # Stop k3s and disable k3s to prevent it from starting on next reboot
+sleep 180 # allows 3 mins for services to stand up before disabling k3s
 sudo systemctl disable k3s
 sudo systemctl stop k3s

@@ -40,6 +40,33 @@ variable "instance_sizes" {
       data_volume_size = string
     })
   })
+  default = { 
+    xs = {
+        instance_type = "m6a.2xlarge"
+        data_volume_type = "gp3"
+        data_volume_size = 500
+    },
+    s = {
+        instance_type = "m6a.4xlarge"
+        data_volume_type = "gp3"
+        data_volume_size = 500
+    },
+    m = {
+        instance_type = "m6a.8xlarge"
+        data_volume_type = "gp3"
+        data_volume_size = 500
+    },
+    l = {
+        instance_type = "m6a.12xlarge"
+        data_volume_type = "io2"
+        data_volume_size = 500
+    },
+    xl = {
+        instance_type = "m6a.24xlarge"
+        data_volume_type = "io2"
+        data_volume_size = 500
+    }
+  }
 }
 
 variable "build_in_region" {
@@ -51,6 +78,7 @@ variable "build_in_region" {
 variable "ami_regions" {
   description = "Region to copy the AMIs to"
   type        = list(string)
+  default     = ["us-west-2"]
 }
 
 source "amazon-ebs" "size-xs" {

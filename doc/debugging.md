@@ -25,8 +25,11 @@ kubectl -n local-path-storage logs -f -l app=local-path-provisioner
 ## Stopping/starting/restarting k3s
 
 ```sh
+# Stop
 systemctl stop k3s
+# Start
 systemctl start k3s
+# Restart
 systemctl restart k3s
 ```
 
@@ -69,5 +72,25 @@ sh /usr/local/bin/k3s-killall.sh
 A: Check the logs for clues:
 
 ```bash
-tail -f /var/log/cloud-init-output.log
+sudo tail -f /var/log/cloud-init-output.log
+```
+
+
+## Deploy using local helm charts
+
+```bash
+helm upgrade --install --values /home/ec2-user/deploy/install/override.yaml --version 4.0.1 sourcegraph /home/ec2-user/deploy/install/sourcegraph-4.0.1.tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
+```
+
+## Check prometheus metrics
+
+1: kubectl port-forward <prometheus-pod-name> 9090:9090
+2: ssh -i ~/.ssh/delivery -L 9090:localhost:9090 ec2-user@<instance-ip>
+3: Go to http://localhost:9090 in your browser
+
+## Check metrics scrapped by cadvisor
+
+```bash
+# sourcegraph-0 is the name of the node
+kubectl get --raw /api/v1/nodes/sourcegraph-0/proxy/metrics/cadvisor --kubeconfig /etc/rancher/k3s/k3s.yaml
 ```

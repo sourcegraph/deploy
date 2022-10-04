@@ -1,1 +1,0 @@
-@reboot root /usr/bin/env bash -c 'for i in $(seq 1 20); do systemctl restart k3s; sleep 30; done;' >> /var/log/restart-k3s.log 2>&1

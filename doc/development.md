@@ -32,20 +32,29 @@ export AWS_DEFAULT_REGION="us-west-1"
 
 ### A single AMI for testing
 
-To build a single AMI for testing, create a new `packer/test.hcl` file based on an existing configuration such as `xs-m5a.hcl`. This file provides the configuration which is used by `packer/sourcegraph.pkr.hcl` to build the image. At the very least, you should change the `ami_name` field to indicate this is *your* test image (include your name in it.) Then run:
+To build a single AMI for testing, update the `dev-variables.hcl` file with the instance version and instance size. This file provides the configuration which is used by `/ami/packer/dev-builder.pkr.hcl` to build a single image using XS instance setting. The name of the output AMI will be `"Sourcegraph-DEV-v${var.instance_version}-${formatdate("YYYY-MM-DD", timestamp())}"`, with the `NAME=ami-dev` tag.
+Then run:
 
 ```
-packer build -var-file=./packer/test.hcl ./packer/sourcegraph.pkr.hcl
+packer build -var-file=/ami/packer/dev-variables.hcl /ami/packer/dev-builder.pkr.hcl
 ```
 
 ### Publishing a release
 
-1. Update the `instance_version` variable with the version number for the build inside the [ami-variables.hcl file](../ami/ami-variables.hcl)
-2. Run `./build.sh` which will build all AMIs and copy them to the relevant regions.
-3. Update README.md with the AMI IDs you just published.
-4. Go to EC2 AMI console and look up the AMI using its `AMI ID`, and then select Actions > Edit AMI permissions > Public
-5. Once the release is published, this repository is updated and all commits are merged, `git tag v4.0.0` and `git push origin v4.0.0` on the `main` branch.
-6. Update the AWS AMI links in our [deployment docs](https://docs.sourcegraph.com/admin/deploy/aws-ami?).
+1. Update the `instance_version` variable on line 1 inside the [ami-variables.hcl file](../ami/packer/ami-variables.hcl) with the version number for the build 
+2. Run `bash build.sh` from the root of this repository, which will:
+   - Build the AMIs for all sizes
+   - Copy them to the relevant regions.
+3. Update [CHANGELOG.md](/CHANGELOG.md) with the list of AMI IDs you just published for the new version
+4. Once the release is published with all the commits merged, run the following commands on the `main` branch:
+```bash
+# e.g. git tag v4.0.1 
+git tag v${instance_version}
+# e.g. git push origin v4.0.1
+git push origin v${instance_version}
+```
+
+> IMPORTANT: AMI will be published to **all** regions by default.
 
 ### Creating a subnet in a new region
 
