@@ -109,15 +109,6 @@ symbols:
     ROCKSKIP_MIN_REPO_SIZE_MB:
       value: "1000"
 
-prometheus:
-  resources:
-    limits:
-      cpu: "4"
-      memory: 8G
-    requests:
-      cpu: "250m"
-      memory: 256M
-
 grafana:
   resources:
     limits:
@@ -191,3 +182,14 @@ redisCache:
     requests:
       cpu: "250m"
       memory: 256M
+
+prometheus:
+  resources:
+    limits:
+      cpu: "4"
+      memory: 8G
+    requests:
+      cpu: "250m"
+      memory: 256M
+  existingConfig: prometheus-override
+

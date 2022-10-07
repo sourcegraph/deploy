@@ -3,10 +3,11 @@
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # VARIABLES
 ###############################################################################
-AMI_VERSION=$(cat /home/ec2-user/.sourcegraph-version)
-KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
-DEPLOY_PATH='/home/ec2-user/deploy/install'
+[ "$(whoami)" == 'sourcegraph' ] && INSTANCE_USERNAME='sourcegraph' || INSTANCE_USERNAME='ec2-user'
+AMI_VERSION=$(cat /home/"$INSTANCE_USERNAME"/.sourcegraph-version)
+DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
 LOCAL_BIN_PATH='/usr/local/bin'
+KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 
 ###############################################################################
@@ -27,8 +28,9 @@ if sudo systemctl status k3s.service | grep -q 'k3s.service failed'; then
 fi
 
 # Install or upgrade Sourcegraph and create ingress
-# TODO: B - Compare versions before performing upgrades
 sleep 10
-$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f $DEPLOY_PATH/override.yaml --version "$AMI_VERSION" sourcegraph $DEPLOY_PATH/sourcegraph-charts.tgz
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
+cd "$DEPLOY_PATH" || exit
+$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" sourcegraph ./sourcegraph-charts.tgz
+echo "$AMI_VERSION" | sudo tee /mnt/data/.sourcegraph-version
+$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f ./ingress.yaml
 sleep 60 && sudo systemctl restart k3s

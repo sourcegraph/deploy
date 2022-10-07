@@ -117,6 +117,7 @@ prometheus:
     requests:
       cpu: "250m"
       memory: 256M
+  existingConfig: prometheus-override
 
 grafana:
   resources:

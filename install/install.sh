@@ -109,7 +109,7 @@ curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
 	--write-kubeconfig-mode 644 \
 	--cluster-cidr 10.10.0.0/16 \
 	--kubelet-arg containerd=/run/k3s/containerd/containerd.sock \
-	--etcd-expose-metrics=true
+	--etcd-expose-metrics true
 
 # Confirm k3s and kubectl are up and running
 sleep 5 && k3s kubectl get node
@@ -143,11 +143,13 @@ echo "${SOURCEGRAPH_VERSION}" | sudo tee /home/ec2-user/.sourcegraph-version
 echo "${SOURCEGRAPH_VERSION}-base" | sudo tee /mnt/data/.sourcegraph-version
 echo "${SOURCEGRAPH_SIZE}" | sudo tee /home/ec2-user/.sourcegraph-size
 
-# Install helm chart at initial start up
-helm --kubeconfig $KUBECONFIG_FILE upgrade --install --values ./override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph ./sourcegraph-charts.tgz
-# Create ingress at next start up: kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
+# Create override configMap for prometheus before startup Sourcegraph
+kubectl apply -f ./prometheus-override.ConfigMap.yaml
+helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph ./sourcegraph-charts.tgz
+# Skip ingress start-up during AMI creation step:
+# kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
 
-# Run script on next reboot to keep track on build status
+# Start Sourcegraph on next reboot
 echo "@reboot sleep 10 && bash $DEPLOY_PATH/reboot.sh" | crontab -
 
 # Stop k3s and disable k3s to prevent it from starting on next reboot

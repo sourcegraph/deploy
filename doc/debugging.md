@@ -1,5 +1,18 @@
 # Debugging Sourcegraph AMI deployments
 
+Run all the commands listed below from the root of this repository.
+
+## Missing cluster metrics in Grafana
+
+This is a known issue for AMI instances on v4.0.0 and v4.0.1 as an updated configMap is required:
+
+```bash
+# Step 1: Install the configMap override file for prometheus
+kubectl apply -f ./install/prometheus-override.ConfigMap.yaml
+# Step 2: Delete the existing prometheus pod so that a new one will be created with the new configMap
+kubectl delete pod <prometheus pod>
+```
+
 ## Checking the state of the system
 
 ```sh
@@ -26,11 +39,11 @@ kubectl -n local-path-storage logs -f -l app=local-path-provisioner
 
 ```sh
 # Stop
-systemctl stop k3s
+sudo systemctl stop k3s
 # Start
-systemctl start k3s
+sudo systemctl start k3s
 # Restart
-systemctl restart k3s
+sudo systemctl restart k3s
 ```
 
 ## Killing k3s
@@ -40,10 +53,10 @@ By default, k3s allows high availability during upgrades, so the K3s containers 
 To stop all of the K3s containers and reset the containerd state, the `k3s-killall.sh` script (on the PATH already) can be used:
 
 ```sh
-k3s-killall.sh
+bash k3s-killall.sh
 ```
 
-Once ran, `systemctl start k3s` can bring back k3s (no Sourcegraph data would be lost)
+Once ran, `sudo k get systemctl start k3s` can bring back k3s (no Sourcegraph data would be lost)
 
 ## Error: cluster outage:
 
@@ -75,18 +88,24 @@ A: Check the logs for clues:
 sudo tail -f /var/log/cloud-init-output.log
 ```
 
-
 ## Deploy using local helm charts
 
 ```bash
-helm upgrade --install --values /home/ec2-user/deploy/install/override.yaml --version 4.0.1 sourcegraph /home/ec2-user/deploy/install/sourcegraph-4.0.1.tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
+# Update 4.0.0 with your version number when needed
+helm upgrade -i -f /home/ec2-user/deploy/install/override.yaml --version 4.0.0 sourcegraph /home/ec2-user/deploy/install/sourcegraph-charts.tgz --kubeconfig /etc/rancher/k3s/k3s.yaml
+# v.s. using remote helm charts
+helm upgrade -i -f /home/ec2-user/deploy/install/override.yaml --version 4.0.0 sourcegraph sourcegraph/sourcegraph --kubeconfig /etc/rancher/k3s/k3s.yaml
 ```
 
 ## Check prometheus metrics
 
-1: kubectl port-forward <prometheus-pod-name> 9090:9090
-2: ssh -i ~/.ssh/delivery -L 9090:localhost:9090 ec2-user@<instance-ip>
-3: Go to http://localhost:9090 in your browser
+```bash
+# 1: Port forward the Prometheus deployment to port 9090 
+kubectl port-forward deploy/prometheus 9090:9090
+# 2: Connect the AWS VM port 9090 to your localhost port 9090
+ssh -i ~/.ssh/<ssh-key> -L 9090:localhost:9090 ec2-user@<instance-ip>
+```
+You now have access to Prometheus on http://localhost:9090 in your browser
 
 ## Check metrics scrapped by cadvisor
 

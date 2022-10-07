@@ -1,5 +1,19 @@
 # Amazon EC2 AMIs
 
+## Next release
+
+- Fix: display resource usage in Grafana [issues/42667](https://github.com/sourcegraph/sourcegraph/issues/42667)
+
+<!-- ### XS
+
+### S
+
+### M
+
+### L
+
+### XL -->
+
 ## 4.0.1
 
 ### XS
