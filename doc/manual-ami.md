@@ -38,7 +38,7 @@
   a. Make default (root) storage: 50 GiB gp3
   b. **Add new volume**: 500 GiB, refer to t-shirt size table
 9. Prepare your user data script:
-   1.  Open `ami/install.sh` in this repository.
+   1.  Open `install/install.sh` in this repository.
    2.  Update `SOURCEGRAPH_VERSION` and `AMI_SIZE` at the top of the file as appropriate.
 10. **Advanced details**: expand and under **user data** enter your user data script.
 11. After about 5-8 minutes, k3s will be stopped; however, the instance will still be accessible

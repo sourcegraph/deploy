@@ -75,7 +75,7 @@ variable "build_in_region" {
   default     = "us-west-2"
 }
 
-variable "ami_regions" {
+variable "ami_regions_aws" {
   description = "Region to copy the AMIs to"
   type        = list(string)
   default     = ["us-west-2"]
@@ -86,7 +86,7 @@ source "amazon-ebs" "size-xs" {
   ami_description              = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
-  ami_regions                  = var.ami_regions
+  ami_regions                  = var.ami_regions_aws
   ami_groups                   = ["all"]
   associate_public_ip_address  = true
   source_ami_filter {
@@ -132,7 +132,7 @@ source "amazon-ebs" "size-s" {
   instance_type                = var.instance_sizes.s.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions
+  ami_regions                  = var.ami_regions_aws
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -177,7 +177,7 @@ source "amazon-ebs" "size-m" {
   instance_type                = var.instance_sizes.m.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions
+  ami_regions                  = var.ami_regions_aws
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -223,7 +223,7 @@ source "amazon-ebs" "size-l" {
   instance_type                = var.instance_sizes.l.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions
+  ami_regions                  = var.ami_regions_aws
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -269,7 +269,7 @@ source "amazon-ebs" "size-xl" {
   instance_type                = var.instance_sizes.xl.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions
+  ami_regions                  = var.ami_regions_aws
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {

@@ -116,7 +116,7 @@ sleep 5 && k3s kubectl get node
 
 # Correct permissions of k3s config file
 sudo chown ec2-user /etc/rancher/k3s/k3s.yaml
-chmod go-r /etc/rancher/k3s/k3s.yaml
+sudo chmod go-r /etc/rancher/k3s/k3s.yaml
 
 # Set KUBECONFIG to point to k3s for 'kubectl' commands to work
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
@@ -144,7 +144,7 @@ echo "${SOURCEGRAPH_VERSION}-base" | sudo tee /mnt/data/.sourcegraph-version
 echo "${SOURCEGRAPH_SIZE}" | sudo tee /home/ec2-user/.sourcegraph-size
 
 # Create override configMap for prometheus before startup Sourcegraph
-kubectl apply -f ./prometheus-override.ConfigMap.yaml
+kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-override.ConfigMap.yaml
 helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph ./sourcegraph-charts.tgz
 # Skip ingress start-up during AMI creation step:
 # kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml

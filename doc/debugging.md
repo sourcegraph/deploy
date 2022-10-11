@@ -113,3 +113,9 @@ You now have access to Prometheus on http://localhost:9090 in your browser
 # sourcegraph-0 is the name of the node
 kubectl get --raw /api/v1/nodes/sourcegraph-0/proxy/metrics/cadvisor --kubeconfig /etc/rancher/k3s/k3s.yaml
 ```
+
+## Upgrade
+
+```bash
+helm --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade -i -f /home/sourcegraph/deploy/install/override.yaml sourcegraph sourcegraph/sourcegraph
+```
