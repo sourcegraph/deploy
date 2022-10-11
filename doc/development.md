@@ -19,7 +19,7 @@ export AWS_DEFAULT_REGION="us-west-1"
 ## Project structure
 
 * `doc/`: project documentation
-* `ami/` Amazon AMI-specific build scripts (Packer files)
+* `packer/` AMI-specific build scripts (Packer files)
 * `install/`: installation scripts ran on a machine to turn it into a Sourcegraph deployment
   * `install.sh`: primary installation script ran on machine to turn it into a Sourcegraph deployment. Installs k3s, runs helm install, etc.
   * `ingress.yaml`: Kubernetes ingress controller configuration
@@ -32,17 +32,17 @@ export AWS_DEFAULT_REGION="us-west-1"
 
 ### A single AMI for testing
 
-To build a single AMI for testing, update the `dev/dev-variables.hcl` file with the instance version and instance size. This file provides the configuration which is used by `/ami/packer/dev/dev-builder.pkr.hcl` to build a single image using XS instance setting. The name of the output AMI will be `"Sourcegraph-DEV-v${var.instance_version}-${formatdate("YYYY-MM-DD", timestamp())}"`, with the `NAME=ami-dev` tag.
+To build a single AMI for testing, update the `packer/dev/dev-variables.hcl` file with the instance version and instance size. This file provides the configuration which is used by `/packer/dev/dev-builder.pkr.hcl` to build a single image using XS instance setting. The name of the output AMI will be `"Sourcegraph-DEV-v${var.instance_version}-${formatdate("YYYY-MM-DD", timestamp())}"`, with the `NAME=ami-dev` tag.
 Then run:
 
 ```
-packer init ami/packer/dev
-packer build -var-file=/ami/packer/dev/dev-variables.hcl /ami/packer/dev/dev-builder.pkr.hcl
+packer init packer/dev
+packer build -var-file=/packer/dev/dev-variables.hcl /packer/dev/dev-builder.pkr.hcl
 ```
 
 ### Publishing a release
 
-1. Update the `instance_version` variable on line 1 inside the [ami-variables.hcl file](../ami/packer/ami-variables.hcl) with the version number for the build 
+1. Update the `instance_version` variable on line 1 inside the [packer/aws/aws-variables.hcl file](../packer/aws-variables.hcl) with the version number for the build 
 2. Run `bash build.sh` from the root of this repository, which will:
    - Build the AMIs for all sizes
    - Copy them to the relevant regions.

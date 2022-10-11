@@ -1,23 +1,24 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Variables
 ###############################################################################
-SOURCEGRAPH_VERSION=$INSTANCE_VERSION
+SOURCEGRAPH_VERSION=$(cat /home/"$INSTANCE_USERNAME"/.sourcegraph-version)
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 INSTANCE_USERNAME='sourcegraph'
-DEPLOY_PATH='/root/deploy/install'
 VOLUME_DEVICE_NAME='/dev/sdb'
-USER_ROOT_PATH="/home/sourcegraph"
 LOCAL_BIN_PATH='/usr/local/bin'
+SHELL='/bin/bash'
+
 ###############################################################################
 # Prepare the system
 ###############################################################################
-# Clone the deployment repository
-DEPLOY_PATH="$USER_ROOT_PATH/deploy/install"
+# cd into the deployment repository
+DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
 cd $DEPLOY_PATH || exit
+
+# Add version number to disk for future upgrades purpose
 sudo mkdir -p /mnt/data
-echo "$SOURCEGRAPH_VERSION" | sudo tee /mnt/data/.sourcegraph-version
 
 ###############################################################################
 # Configure data volumes
@@ -27,11 +28,12 @@ device_fs=$(sudo lsblk $VOLUME_DEVICE_NAME --noheadings --output fsType)
 if [ "$device_fs" == "" ]; then
     sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard $VOLUME_DEVICE_NAME
     sudo e2label $VOLUME_DEVICE_NAME /mnt/data
+    echo "$SOURCEGRAPH_VERSION" | sudo tee /mnt/data/.sourcegraph-version
 else
     sleep 30 && bash $DEPLOY_PATH/reboot.sh
     exit 0
 fi
-sudo mkdir -p /mnt/data
+
 sudo mount $VOLUME_DEVICE_NAME /mnt/data
 # Mount data disk on reboots by linking disk label to data root path
 sudo echo "LABEL=/mnt/data  /mnt/data  ext4  discard,defaults,nofail  0  2" | sudo tee -a /etc/fstab
@@ -72,22 +74,28 @@ sudo chmod go-r /etc/rancher/k3s/k3s.yaml
 
 # Set KUBECONFIG to point to k3s for 'kubectl' commands to work
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
-cp /etc/rancher/k3s/k3s.yaml "$USER_ROOT_PATH"/.kube/config
 
 ###############################################################################
 # Set up Sourcegraph using Helm
 ###############################################################################
 # Install Helm
-curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 $LOCAL_BIN_PATH/helm version --short
 
-# Store Sourcegraph Helm charts locally
+# # Store Sourcegraph Helm charts locally
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph.com/release
 
 # Create override configMap for prometheus before startup Sourcegraph
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f /home/sourcegraph/deploy/install/prometheus-override.ConfigMap.yaml
-$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f $DEPLOY_PATH/override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
+$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f /home/sourcegraph/deploy/install/prometheus-override.ConfigMap.yaml
+$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f /home/sourcegraph/deploy/install/override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f /home/sourcegraph/deploy/install/ingress.yaml
 
 # Start Sourcegraph on next reboot
-echo "@reboot sleep 10 && bash $DEPLOY_PATH/reboot.sh" | crontab -
+echo "@reboot sleep 30 && bash $DEPLOY_PATH/reboot.sh" | crontab -
+
+# Store the version number from helm chart history
+HELM_APP_VERSION=$(/usr/local/bin/helm history sourcegraph -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | grep 'pp_version' | cut -d ":" -f 2 | xargs)
+[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
+
+# Clearn up files
+sudo cp /etc/rancher/k3s/k3s.yaml /home/sourcegraph/.kube/config
+sudo rm -f /home/sourcegraph/install.sh
