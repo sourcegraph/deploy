@@ -18,7 +18,7 @@ variable "dev" {
 variable "instance_version" {
   description = "Version number for the AMI build"
   type        = string
-  default     = "4.0.1"
+  default     = "4.0.0"
 }
 variable "instance_sizes" {
   default = { 
@@ -193,12 +193,12 @@ source "googlecompute" "XL" {
 build {
   name = "sourcegraph-amis"
   sources = [
-    // "source.googlecompute.dev",
+    "source.googlecompute.dev",
     "source.googlecompute.XS",
     "source.googlecompute.S",
-    // "source.googlecompute.M",
-    // "source.googlecompute.L",
-    // "source.googlecompute.XL",
+    "source.googlecompute.M",
+    "source.googlecompute.L",
+    "source.googlecompute.XL",
   ]
   // Move the install.sh script to VM to run on next reboot 
   provisioner "file" {
