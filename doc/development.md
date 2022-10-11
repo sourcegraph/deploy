@@ -32,11 +32,12 @@ export AWS_DEFAULT_REGION="us-west-1"
 
 ### A single AMI for testing
 
-To build a single AMI for testing, update the `dev-variables.hcl` file with the instance version and instance size. This file provides the configuration which is used by `/ami/packer/dev-builder.pkr.hcl` to build a single image using XS instance setting. The name of the output AMI will be `"Sourcegraph-DEV-v${var.instance_version}-${formatdate("YYYY-MM-DD", timestamp())}"`, with the `NAME=ami-dev` tag.
+To build a single AMI for testing, update the `dev/dev-variables.hcl` file with the instance version and instance size. This file provides the configuration which is used by `/ami/packer/dev/dev-builder.pkr.hcl` to build a single image using XS instance setting. The name of the output AMI will be `"Sourcegraph-DEV-v${var.instance_version}-${formatdate("YYYY-MM-DD", timestamp())}"`, with the `NAME=ami-dev` tag.
 Then run:
 
 ```
-packer build -var-file=/ami/packer/dev-variables.hcl /ami/packer/dev-builder.pkr.hcl
+packer init ami/packer/dev
+packer build -var-file=/ami/packer/dev/dev-variables.hcl /ami/packer/dev/dev-builder.pkr.hcl
 ```
 
 ### Publishing a release

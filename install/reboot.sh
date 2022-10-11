@@ -3,8 +3,9 @@
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # VARIABLES
 ###############################################################################
-[ "$(whoami)" == 'sourcegraph' ] && INSTANCE_USERNAME='sourcegraph' || INSTANCE_USERNAME='ec2-user'
+[ "$(whoami)" == 'ec2-user' ] && INSTANCE_USERNAME='ec2-user' || INSTANCE_USERNAME='sourcegraph'
 AMI_VERSION=$(cat /home/"$INSTANCE_USERNAME"/.sourcegraph-version)
+VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
 DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
 LOCAL_BIN_PATH='/usr/local/bin'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
@@ -16,15 +17,22 @@ RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 ###############################################################################
 # Delete any existing ingress from old instances before restarting k3s
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE delete ingress sourcegraph-ingress
-sleep 5 && sudo systemctl restart k3s
+sleep 5
+
+# Exit if AMI version is the same version as the volume
+if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
+    exit 0
+fi
 
 # Reset the containerd state if k3s is not starting ( data will not be deleted)
-if sudo systemctl status k3s.service | grep -q 'k3s.service failed'; then
+if ! sudo systemctl status k3s.service | grep -q 'active (running)'; then
     # Stop all of the K3s containers and reset the containerd state
     sudo sh $LOCAL_BIN_PATH/k3s-killall.sh
     # Remove leftovers TLS certs and cred
     sudo rm -rf $RANCHER_SERVER_PATH/cred/ $RANCHER_SERVER_PATH/tls/
     sudo systemctl enable k3s
+else
+    sudo systemctl restart k3s
 fi
 
 # Install or upgrade Sourcegraph and create ingress
