@@ -12,13 +12,14 @@ packer {
 }
 
 variable "dev" {
+  description = "When dev mode is on, only the dev source will be run, and the skip_create_image will be turned on for the production sources "
   type        = bool
   default     = true
 }
 variable "instance_version" {
   description = "Version number for the AMI build"
   type        = string
-  default     = "4.0.0"
+  default     = ""
 }
 variable "instance_sizes" {
   default = { 
@@ -35,7 +36,7 @@ variable "instance_sizes" {
         instance_type_gcp = "n2-standard-48"
     },
     xl = {
-        instance_type_gcp = "n2-standard-64"
+        instance_type_gcp = "n2-standard-96"
     }
   }
 }
@@ -55,6 +56,8 @@ locals {
   build_date              = formatdate("YYYYMMDD", timestamp())
   image_version           = replace(var.instance_version, ".", "")
   gcp_regions             = "${ var.dev ? var.location.gcp.destinations_dev : var.location.gcp.destinations}"
+  build_sources           = ${ var.dev ? ["source.googlecompute.dev"] : ["source.googlecompute.dev","source.googlecompute.XS","source.googlecompute.S","source.googlecompute.M","source.googlecompute.L","source.googlecompute.XL",]
+  }
 }
 
 source "googlecompute" "dev" {
@@ -192,15 +195,8 @@ source "googlecompute" "XL" {
 
 build {
   name = "sourcegraph-amis"
-  sources = [
-    "source.googlecompute.dev",
-    "source.googlecompute.XS",
-    "source.googlecompute.S",
-    "source.googlecompute.M",
-    "source.googlecompute.L",
-    "source.googlecompute.XL",
-  ]
-  // Move the install.sh script to VM to run on next reboot 
+  sources = local.build_sources
+  // Copy the install.sh script into the VM to run on next boot aka when AMI first launched 
   provisioner "file" {
     source = "./packer/gcp/install.sh"
     destination = "/home/sourcegraph/install.sh"
@@ -223,8 +219,10 @@ build {
     }
     post-processor "shell-local" {
       except                  = ["googlecompute.dev"]
-      inline                = [ 
+      inline                  = [ 
         "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-${lower(source.name)}-v${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imageUser'",
+        "gsutil -m cp -r .ami-output/** gs://sourcegraph-amis/latest",
+        "rm -rf .ami-output"
       ]
     }
   }

@@ -30,8 +30,8 @@ if [ "$device_fs" == "" ]; then
     sudo e2label $VOLUME_DEVICE_NAME /mnt/data
     echo "$SOURCEGRAPH_VERSION" | sudo tee /mnt/data/.sourcegraph-version
 else
-    sleep 30 && bash $DEPLOY_PATH/reboot.sh
-    exit 0
+    # Run reboot script directly when k4 is already running
+    [ -f /var/lib/rancher/k3s/server ] && sleep 30 && bash $DEPLOY_PATH/reboot.sh && exit 0
 fi
 
 sudo mount $VOLUME_DEVICE_NAME /mnt/data
@@ -78,23 +78,32 @@ export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 ###############################################################################
 # Set up Sourcegraph using Helm
 ###############################################################################
-# Install Helm
+# Check if Helm is running
 $LOCAL_BIN_PATH/helm version --short
 
 # # Store Sourcegraph Helm charts locally
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph.com/release
 
 # Create override configMap for prometheus before startup Sourcegraph
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f /home/sourcegraph/deploy/install/prometheus-override.ConfigMap.yaml
-$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f /home/sourcegraph/deploy/install/override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f /home/sourcegraph/deploy/install/ingress.yaml
+$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-override.ConfigMap.yaml
+if [ -f ./sourcegraph-charts.tgz ]; then
+    $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" sourcegraph ./sourcegraph-charts.tgz
+else
+    $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml sourcegraph sourcegraph/sourcegraph
+fi
+$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f ./ingress.yaml
 
 # Start Sourcegraph on next reboot
 echo "@reboot sleep 30 && bash $DEPLOY_PATH/reboot.sh" | crontab -
 
 # Store the version number from helm chart history
 HELM_APP_VERSION=$(/usr/local/bin/helm history sourcegraph -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | grep 'pp_version' | cut -d ":" -f 2 | xargs)
-[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
+
+if [ "$HELM_APP_VERSION" != "" ]; then
+    echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
+    echo "$HELM_APP_VERSION" | sudo tee /home/sourcegraph/.sourcegraph-version
+    echo "export INSTANCE_VERSION='$HELM_APP_VERSION'" | tee -a /home/sourcegraph/.bash_profile
+fi
 
 # Clearn up files
 sudo cp /etc/rancher/k3s/k3s.yaml /home/sourcegraph/.kube/config
