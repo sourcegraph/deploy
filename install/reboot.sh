@@ -12,7 +12,7 @@ DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
 LOCAL_BIN_PATH='/usr/local/bin'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
-
+HELM_APP_VERSION=$(/usr/local/bin/helm history sourcegraph -o yaml --kubeconfig /etc/rancher/k3s/k3s.yaml | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
 ###############################################################################
 # Installation and upgrade prep
 ###############################################################################

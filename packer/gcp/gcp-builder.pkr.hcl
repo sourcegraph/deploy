@@ -19,6 +19,7 @@ variable "dev" {
 variable "instance_version" {
   description = "Version number for the AMI build"
   type        = string
+  default     = ""
 }
 variable "instance_sizes" {
   default = { 

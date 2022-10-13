@@ -10,7 +10,6 @@ SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
 DEPLOY_PATH='/root/deploy/install'
 USER_ROOT_PATH="/home/sourcegraph"
 SHELL=/bin/bash
-
 ###############################################################################
 # Prepare the system
 ###############################################################################
