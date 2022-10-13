@@ -19,7 +19,6 @@ variable "dev" {
 variable "instance_version" {
   description = "Version number for the AMI build"
   type        = string
-  default     = ""
 }
 variable "instance_sizes" {
   default = { 
@@ -50,14 +49,25 @@ variable "location" {
     }
   }
 }
+variable "build_sources" {
+  default                 = {
+    production            = [
+      "source.googlecompute.XS", 
+      "source.googlecompute.S", 
+      "source.googlecompute.M", 
+      "source.googlecompute.L", 
+      "source.googlecompute.XL"
+    ],
+    dev                   = [ "source.googlecompute.dev" ]
+  }
+}
 
 locals {
   timestamp               = regex_replace(timestamp(), "[- TZ:]", "")
   build_date              = formatdate("YYYYMMDD", timestamp())
   image_version           = replace(var.instance_version, ".", "")
   gcp_regions             = "${ var.dev ? var.location.gcp.destinations_dev : var.location.gcp.destinations}"
-  build_sources           = ${ var.dev ? ["source.googlecompute.dev"] : ["source.googlecompute.dev","source.googlecompute.XS","source.googlecompute.S","source.googlecompute.M","source.googlecompute.L","source.googlecompute.XL",]
-  }
+  build_sources           = "${ var.dev ? var.build_sources.dev : var.build_sources.production}"
 }
 
 source "googlecompute" "dev" {
@@ -220,8 +230,11 @@ build {
     post-processor "shell-local" {
       except                  = ["googlecompute.dev"]
       inline                  = [ 
+        // Configure images to public
         "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-${lower(source.name)}-v${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imageUser'",
+        // upload images to gs store
         "gsutil -m cp -r .ami-output/** gs://sourcegraph-amis/latest",
+        // remove local images
         "rm -rf .ami-output"
       ]
     }

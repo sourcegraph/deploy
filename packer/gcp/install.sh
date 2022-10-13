@@ -1,6 +1,9 @@
 #!/usr/bin/bash
 
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
+# GCE ONLY - This script will run when AMI was first launched because GCE does
+# not allow attaching data disk to boot images
+#
 # Variables
 ###############################################################################
 SOURCEGRAPH_VERSION=$(cat /home/"$INSTANCE_USERNAME"/.sourcegraph-version)

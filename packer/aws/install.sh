@@ -25,10 +25,10 @@ KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 ###############################################################################
 # If running as root, deescalate
 if [ $UID -eq 0 ]; then
-	cd /home/ec2-user
-	chown ec2-user "$0" # /var/lib/cloud/instance/scripts/part-001
-	exec su ec2-user "$0" -- "$@"
-	# nothing will be executed beyond here (exec replaces the running process)
+    cd /home/ec2-user
+    chown ec2-user "$0" # /var/lib/cloud/instance/scripts/part-001
+    exec su ec2-user "$0" -- "$@"
+    # nothing will be executed beyond here (exec replaces the running process)
 fi
 
 ###############################################################################
@@ -50,8 +50,8 @@ cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
 # Format (if necessary) and mount the EBS volume
 device_fs=$(lsblk $EBS_VOLUME_DEVICE_NAME --noheadings --output fsType)
 if [ "$device_fs" == "" ]; then
-	sudo mkfs -t xfs $EBS_VOLUME_DEVICE_NAME
-	sudo xfs_admin -L /mnt/data $EBS_VOLUME_DEVICE_NAME
+    sudo mkfs -t xfs $EBS_VOLUME_DEVICE_NAME
+    sudo xfs_admin -L /mnt/data $EBS_VOLUME_DEVICE_NAME
 fi
 sudo mkdir -p /mnt/data
 sudo mount $EBS_VOLUME_DEVICE_NAME /mnt/data
@@ -105,11 +105,11 @@ sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 # Install k3s (Kubernetes single-machine deployment)
 ###############################################################################
 curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
-	--node-name sourcegraph-0 \
-	--write-kubeconfig-mode 644 \
-	--cluster-cidr 10.10.0.0/16 \
-	--kubelet-arg containerd=/run/k3s/containerd/containerd.sock \
-	--etcd-expose-metrics true
+    --node-name sourcegraph-0 \
+    --write-kubeconfig-mode 644 \
+    --cluster-cidr 10.10.0.0/16 \
+    --kubelet-arg containerd=/run/k3s/containerd/containerd.sock \
+    --etcd-expose-metrics true
 
 # Confirm k3s and kubectl are up and running
 sleep 5 && k3s kubectl get node
