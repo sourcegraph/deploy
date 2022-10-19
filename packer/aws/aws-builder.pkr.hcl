@@ -76,17 +76,42 @@ variable "build_in_region" {
 }
 
 variable "ami_regions_aws" {
-  description = "Region to copy the AMIs to"
-  type        = list(string)
-  default     = ["us-west-2"]
+  description   = "Region to copy the AMIs to"
+  default       = {
+    dev         = [ "us-west-2" ],
+    production  = [
+      "us-west-1",
+      "us-west-2",
+      "us-east-1",
+      "us-east-2",
+      "eu-west-1",
+      "eu-central-1",
+      "ap-northeast-1",
+      "ap-northeast-2",
+      "ap-southeast-1",
+      "ap-southeast-2",
+      "ap-south-1",
+      "sa-east-1",
+      "eu-west-2", 
+      "eu-west-3",
+      "eu-south-1",
+      "eu-north-1",
+      "ca-central-1",
+      "me-south-1",
+      "me-central-1",
+      "ap-east-1",
+      "af-south-1",
+      "ap-southeast-3"
+    ]
+  }
 }
 
-source "amazon-ebs" "size-xs" {
+source "amazon-ebs" "xs" {
   ami_name                     = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   ami_description              = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
-  ami_regions                  = var.ami_regions_aws
+  ami_regions                  = var.ami_regions_aws.production
   ami_groups                   = ["all"]
   associate_public_ip_address  = true
   source_ami_filter {
@@ -126,13 +151,13 @@ source "amazon-ebs" "size-xs" {
   }
 }
 
-source "amazon-ebs" "size-s" {
+source "amazon-ebs" "s" {
   ami_name                     = "Sourcegraph-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
   ami_description              = "Sourcegraph-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
   instance_type                = var.instance_sizes.s.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws
+  ami_regions                  = var.ami_regions_aws.production
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -171,13 +196,13 @@ source "amazon-ebs" "size-s" {
   }
 }
 
-source "amazon-ebs" "size-m" {
+source "amazon-ebs" "m" {
   ami_name                     = "Sourcegraph-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
   ami_description              = "Sourcegraph-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
   instance_type                = var.instance_sizes.m.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws
+  ami_regions                  = var.ami_regions_aws.production
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -217,13 +242,13 @@ source "amazon-ebs" "size-m" {
   }
 }
 
-source "amazon-ebs" "size-l" {
+source "amazon-ebs" "L" {
   ami_name                     = "Sourcegraph-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
   ami_description              = "Sourcegraph-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
   instance_type                = var.instance_sizes.l.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws
+  ami_regions                  = var.ami_regions_aws.production
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -263,13 +288,13 @@ source "amazon-ebs" "size-l" {
   }
 }
 
-source "amazon-ebs" "size-xl" {
+source "amazon-ebs" "XL" {
   ami_name                     = "Sourcegraph-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
   ami_description              = "Sourcegraph-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
   instance_type                = var.instance_sizes.xl.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws
+  ami_regions                  = var.ami_regions_aws.production
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -320,28 +345,7 @@ build {
     "source.amazon-ebs.size-xl"
   ]
   provisioner "shell" {
-    only             = ["amazon-ebs.size-xs"]
-    environment_vars = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}"]
-    scripts          = ["./install/install.sh"]
-  }
-  provisioner "shell" {
-    only             = ["amazon-ebs.size-s"]
-    environment_vars = ["INSTANCE_SIZE=S", "INSTANCE_VERSION=${var.instance_version}"]
-    scripts          = ["./install/install.sh"]
-  }
-  provisioner "shell" {
-    only             = ["amazon-ebs.size-m"]
-    environment_vars = ["INSTANCE_SIZE=M", "INSTANCE_VERSION=${var.instance_version}"]
-    scripts          = ["./install/install.sh"]
-  }
-  provisioner "shell" {
-    only             = ["amazon-ebs.size-l"]
-    environment_vars = ["INSTANCE_SIZE=L", "INSTANCE_VERSION=${var.instance_version}"]
-    scripts          = ["./install/install.sh"]
-  }
-  provisioner "shell" {
-    only             = ["amazon-ebs.size-xl"]
-    environment_vars = ["INSTANCE_SIZE=XL", "INSTANCE_VERSION=${var.instance_version}"]
+    environment_vars = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}"]
     scripts          = ["./install/install.sh"]
   }
 }

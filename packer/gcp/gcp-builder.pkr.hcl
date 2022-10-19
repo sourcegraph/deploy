@@ -18,24 +18,24 @@ variable "dev" {
 variable "instance_version" {
   description = "Version number for the AMI build"
   type        = string
-  default     = "4.0.0"
+  default     = ""
 }
 variable "instance_sizes" {
-  default = { 
-    xs = {
-        instance_type_gcp = "n2-standard-8"
+  default               = {
+    xs                  = {
+      instance_type_gcp = "n2-standard-8"
     },
-    s = {
-        instance_type_gcp = "n2-standard-16"
+    s                   = {
+      instance_type_gcp = "n2-standard-16"
     },
-    m = {
-        instance_type_gcp = "n2-standard-32"
+    m                   = {
+      instance_type_gcp = "n2-standard-32"
     },
-    l = {
-        instance_type_gcp = "n2-standard-48"
+    l                   = {
+      instance_type_gcp = "n2-standard-48"
     },
-    xl = {
-        instance_type_gcp = "n2-standard-64"
+    xl                  = {
+      instance_type_gcp = "n2-standard-64"
     }
   }
 }
@@ -49,20 +49,27 @@ variable "location" {
     }
   }
 }
+variable "sources" {
+  default                 = {
+    dev                     = [ "source.googlecompute.dev" ]
+    production              = [ "source.googlecompute.XS", "source.googlecompute.S", "source.googlecompute.M", "source.googlecompute.L", "source.googlecompute.XL" ]
+  }
+}
 
 locals {
   timestamp               = regex_replace(timestamp(), "[- TZ:]", "")
   build_date              = formatdate("YYYYMMDD", timestamp())
-  image_version           = replace(var.instance_version, ".", "")
-  gcp_regions             = "${ var.dev ? var.location.gcp.destinations_dev : var.location.gcp.destinations}"
+  image_version           = var.instance_version != "" ? replace(var.instance_version, ".", "") : "latest"
+  gcp_regions             = var.dev ? var.location.gcp.destinations_dev : var.location.gcp.destinations
+  source_group            = var.dev ? var.sources.dev : var.sources.production
 }
 
 source "googlecompute" "dev" {
   skip_create_image           = "${!var.dev}"
   project_id                  = "delivery-tiger-team"
-  instance_name               = "dev-v${local.image_version}-${local.timestamp}"
-  image_name                  = "dev-v${local.image_version}-${local.timestamp}"
-  image_description           = "Dev Compute Image v${local.image_version} - ${local.timestamp}"
+  instance_name               = "sg-dev-${local.image_version}-${local.timestamp}"
+  image_name                  = "sg-dev-${local.image_version}-${local.timestamp}"
+  image_description           = "Sourcegraph Dev Compute Image ${local.image_version} - ${local.timestamp}"
   source_image                = "ubuntu-1804-bionic-v20221005"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.xs.instance_type_gcp
@@ -82,9 +89,9 @@ source "googlecompute" "dev" {
 source "googlecompute" "XS" {
   skip_create_image           = var.dev
   project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-xs-v${local.image_version}"
-  image_name                  = "sourcegraph-xs-v${local.image_version}"
-  image_description           = "Sourcegraph Compute Image v${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
+  instance_name               = "sourcegraph-xs-${local.image_version}"
+  image_name                  = "sourcegraph-xs-${local.image_version}"
+  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
   source_image                = "ubuntu-1804-bionic-v20221005"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.xs.instance_type_gcp
@@ -104,9 +111,9 @@ source "googlecompute" "XS" {
 source "googlecompute" "S" {
   skip_create_image           = var.dev
   project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-s-v${local.image_version}"
-  image_name                  = "sourcegraph-s-v${local.image_version}"
-  image_description           = "Sourcegraph Compute Image v${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
+  instance_name               = "sourcegraph-s-${local.image_version}"
+  image_name                  = "sourcegraph-s-${local.image_version}"
+  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
   source_image                = "ubuntu-1804-bionic-v20221005"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.s.instance_type_gcp
@@ -126,9 +133,9 @@ source "googlecompute" "S" {
 source "googlecompute" "M" {
   skip_create_image           = var.dev
   project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-m-v${local.image_version}"
-  image_name                  = "sourcegraph-m-v${local.image_version}"
-  image_description           = "Sourcegraph Compute Image v${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
+  instance_name               = "sourcegraph-m-${local.image_version}"
+  image_name                  = "sourcegraph-m-${local.image_version}"
+  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
   source_image                = "ubuntu-1804-bionic-v20221005"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.m.instance_type_gcp
@@ -148,9 +155,9 @@ source "googlecompute" "M" {
 source "googlecompute" "L" {
   skip_create_image           = var.dev
   project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-l-v${local.image_version}"
-  image_name                  = "sourcegraph-l-v${local.image_version}"
-  image_description           = "Sourcegraph Compute Image v${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
+  instance_name               = "sourcegraph-l-${local.image_version}"
+  image_name                  = "sourcegraph-l-${local.image_version}"
+  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
   source_image                = "ubuntu-1804-bionic-v20221005"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.l.instance_type_gcp
@@ -170,9 +177,9 @@ source "googlecompute" "L" {
 source "googlecompute" "XL" {
   skip_create_image           = var.dev
   project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-xl-v${local.image_version}"
-  image_name                  = "sourcegraph-xl-v${local.image_version}"
-  image_description           = "Sourcegraph Compute Image v${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
+  instance_name               = "sourcegraph-xl-${local.image_version}"
+  image_name                  = "sourcegraph-xl-${local.image_version}"
+  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
   source_image                = "ubuntu-1804-bionic-v20221005"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.xl.instance_type_gcp
@@ -192,14 +199,7 @@ source "googlecompute" "XL" {
 
 build {
   name = "sourcegraph-amis"
-  sources = [
-    "source.googlecompute.dev",
-    "source.googlecompute.XS",
-    "source.googlecompute.S",
-    "source.googlecompute.M",
-    "source.googlecompute.L",
-    "source.googlecompute.XL",
-  ]
+  sources = local.source_group
   // Move the install.sh script to VM to run on next reboot 
   provisioner "file" {
     source = "./packer/gcp/install.sh"
@@ -215,17 +215,20 @@ build {
     environment_vars  = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}"]
     scripts           = ["./packer/gcp/init.sh"]
   }
-  //  Post processors: export the image as a gzipped tarball locally, and mark images as public 
   post-processors{
-    post-processor "compress" {
-      output                = ".ami-output/${source.name}.tar.gz"
-      keep_input_artifact   = true
-    }
+    //  Post processors: mark images as public 
     post-processor "shell-local" {
-      except                  = ["googlecompute.dev"]
-      inline                = [ 
-        "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-${lower(source.name)}-v${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imageUser'",
+      except              = ["googlecompute.dev"]
+      inline              = [ 
+        "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-${lower(source.name)}-${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imageUser'",
       ]
+    }
+    post-processor "googlecompute-export" {
+      except              = ["googlecompute.dev"]
+      machine_type        = "n1-highcpu-16"
+      disk_size           = 100
+      disk_type           = "pd-ssd"
+      paths               = ["gs://sourcegraph-images/latest/Sourcegraph-${source.name}.tar.gz"]
     }
   }
 }

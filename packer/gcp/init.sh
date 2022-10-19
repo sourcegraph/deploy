@@ -10,18 +10,18 @@ SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
 DEPLOY_PATH='/root/deploy/install'
 USER_ROOT_PATH="/home/sourcegraph"
 SHELL=/bin/bash
+
 ###############################################################################
 # Prepare the system
 ###############################################################################
 # Install git
 sudo apt-get update -y
-sudo apt-get install -y git
-
+# sudo apt-get install -y git
 # Clone the deployment repository
 DEPLOY_PATH="$USER_ROOT_PATH/deploy/install"
-cd "$USER_ROOT_PATH"
+cd $USER_ROOT_PATH
 git clone $SOURCEGRAPH_DEPLOY_REPO_URL
-cd "$DEPLOY_PATH"
+cd $DEPLOY_PATH
 cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
 
 # ###############################################################################
@@ -52,20 +52,6 @@ sudo iptables -I INPUT 1 -i cni0 -s 10.42.0.0/16 -j ACCEPT
 sudo iptables-save | sudo tee /etc/iptables/rules.v4
 sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
 
-echo '@reboot sleep 5 && bash /home/sourcegraph/install.sh' | crontab -
-
-# Add standard bash aliases
-echo "export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'" | tee -a "$USER_ROOT_PATH"/.bash_profile
-echo "export INSTANCE_VERSION='$SOURCEGRAPH_VERSION'" | tee -a /home/sourcegraph/.bash_profile
-echo "export INSTANCE_SIZE='$INSTANCE_SIZE'" | tee -a /home/sourcegraph/.bash_profile
-echo "export SHELL='/bin/bash'" | tee -a "$USER_ROOT_PATH"/.bash_profile
-echo "alias h='helm --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a "$USER_ROOT_PATH"/.bash_profile
-echo "alias k='kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a "$USER_ROOT_PATH"/.bash_profile
-echo "alias sgupgrade='helm --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade -i -f /home/sourcegraph/deploy/install/override.yaml sourcegraph sourcegraph/sourcegraph'" | tee -a "$USER_ROOT_PATH"/.bash_profile
-
-# Generate files to save instance info in volumes for upgrade purpose
-[ "$SOURCEGRAPH_VERSION" != "" ] && echo "$SOURCEGRAPH_VERSION" | sudo tee "$USER_ROOT_PATH"/.sourcegraph-version
-
 ###############################################################################
 # Set up Sourcegraph using Helm
 ###############################################################################
@@ -73,8 +59,16 @@ echo "alias sgupgrade='helm --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade -i -f
 curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 helm version --short
 
-# Store Sourcegraph Helm charts locally
-helm repo add sourcegraph https://helm.sourcegraph.com/release
-helm pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
-sleep 5
-sudo mv -f sourcegraph-"$SOURCEGRAPH_VERSION".tgz sourcegraph-charts.tgz
+# Add a cron job to format the data volume on next reboot
+echo '@reboot sleep 10 && bash /home/sourcegraph/install.sh' | crontab -
+
+# Add standard bash aliases
+echo "export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'" | tee -a $USER_ROOT_PATH/.bash_profile
+echo "export INSTANCE_SIZE='$INSTANCE_SIZE'" | tee -a $USER_ROOT_PATH/.bash_profile
+echo "export SHELL='/bin/bash'" | tee -a $USER_ROOT_PATH/.bash_profile
+echo "alias h='helm --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a $USER_ROOT_PATH/.bash_profile
+echo "alias k='kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a $USER_ROOT_PATH/.bash_profile
+echo "alias sgupgrade='helm --kubeconfig /etc/rancher/k3s/k3s.yaml upgrade -i -f /home/sourcegraph/deploy/install/override.yaml sourcegraph sourcegraph/sourcegraph'" | tee -a $USER_ROOT_PATH/.bash_profile
+
+# Generate files to save instance info in volumes for upgrade purpose
+echo "$SOURCEGRAPH_VERSION" | sudo tee $USER_ROOT_PATH/.sourcegraph-version
