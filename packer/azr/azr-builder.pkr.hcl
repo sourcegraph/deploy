@@ -15,7 +15,6 @@ variable "dev" {
 variable "instance_version" {
   description = "Version number for the image build"
   type        = string
-  default     = "4.0.1"
 }
 
 variable "image_regions_azr" {
