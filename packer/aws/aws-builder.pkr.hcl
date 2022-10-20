@@ -107,7 +107,7 @@ variable "ami_regions_aws" {
 }
 
 locals {
-  regions            = var.dev ? var.sources.dev : var.sources.production
+  regions            = var.dev ? var.ami_regions_aws.dev : var.ami_regions_aws.production
 }
 
 source "amazon-ebs" "xs" {
