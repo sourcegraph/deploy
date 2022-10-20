@@ -111,7 +111,7 @@ source "amazon-ebs" "xs" {
   ami_description              = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
-  ami_regions                  = var.ami_regions_aws.production
+  ami_regions                  = var.dev ? var.ami_regions_aws.dev : var.ami_regions_aws.production
   ami_groups                   = ["all"]
   associate_public_ip_address  = true
   source_ami_filter {

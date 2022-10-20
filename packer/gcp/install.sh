@@ -97,7 +97,7 @@ HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml hi
 [ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
 [ "$SOURCEGRAPH_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee "$USER_ROOT_PATH"/.sourcegraph-version
 
-# Clearn up files
+# Clean up files
 sudo cp /etc/rancher/k3s/k3s.yaml /home/sourcegraph/.kube/config
 sudo rm -f /home/sourcegraph/install.sh
 sudo mv -f sourcegraph-"$HELM_APP_VERSION".tgz sourcegraph-charts.tgz
