@@ -9,15 +9,7 @@ This repository is home of Sourcegraph one-click deployments (AMIs, VM images, e
 * [Development](./doc/development.md)
 * [Debugging](./doc/debugging.md)
 * [Manual AMI creation](./doc/manual-ami.md)
-
-## Sourcegraph AMI instance
-
-Sourcegraph Amazon Machine Images (AMIs) allow you to quickly deploy a production-ready Sourcegraph instance tuned to your organization’s scale in just a few clicks.
-
-A Sourcegraph AMI instance includes:
-- A pre-configured Sourcegraph instance for your deployment
-- A root EBS volume with 50GB of storage
-- An additional EBS volume with 500GB of storage for storing code and search indices
+* [Official Docs](https://docs.sourcegraph.com/admin/deploy/machine-images)
 
 ## T-shirt sizing
 
@@ -33,10 +25,17 @@ To create an AMI for the given T-shirt size, follow the steps and reference this
 | L    | 10,000 | 100,000      | 35GB              | 2,000            | m6a.12xlarge  | io2       | 16,000  |
 | XL   | 20,000 | 250,000      | 35GB              | 4,000            | m6a.24xlarge  | io2       | 16,000  |
 
+## Sourcegraph AMI instance
+
+Sourcegraph Amazon Machine Images (AMIs) allow you to quickly deploy a production-ready Sourcegraph instance tuned to your organization’s scale in just a few clicks.
+
+A Sourcegraph AMI instance includes:
+- A pre-configured Sourcegraph instance for your deployment
+- A root EBS volume with 50GB of storage
+- An additional EBS volume with 500GB of storage for storing code and search indices
+
 ## Releases
 
-### Amazon EC2 AMIs
-
-See [CHANGLOG.md](CHANGELOG.md) for the completed list.
+See our [Releases](https://github.com/sourcegraph/deploy/releases) page for detailed information.
 
 > NOTE: The default AMI user name is `**ec2-user**`.
