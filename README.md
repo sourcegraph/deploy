@@ -19,9 +19,9 @@ To create an AMI for the given T-shirt size, follow the steps and reference this
 
 | Size | Users  | Repositories | Largest Repo Size | Concurrent Users | Instance type | Storage   | IOPS    |
 | ---- | ------ | ------------ | ----------------- | ---------------- | ------------- | --------- | ------- |
-| XS   | 00,500 | 1,000        | 5GB               | 100              | m6a.2xlarge   | gp3       | default |
-| S    | 01,000 | 10,000       | 23GB              | 200              | m6a.4xlarge   | gp3       | default |
-| M    | 05,000 | 50,000       | 23GB              | 1,000            | m6a.8xlarge   | gp3       | default |
+| XS   | 500    | 1,000        | 5GB               | 100              | m6a.2xlarge   | gp3       | default |
+| S    | 1,000  | 10,000       | 23GB              | 200              | m6a.4xlarge   | gp3       | default |
+| M    | 5,000  | 50,000       | 23GB              | 1,000            | m6a.8xlarge   | gp3       | default |
 | L    | 10,000 | 100,000      | 35GB              | 2,000            | m6a.12xlarge  | io2       | 16,000  |
 | XL   | 20,000 | 250,000      | 35GB              | 4,000            | m6a.24xlarge  | io2       | 16,000  |
 
