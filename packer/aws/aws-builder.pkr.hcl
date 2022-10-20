@@ -106,12 +106,16 @@ variable "ami_regions_aws" {
   }
 }
 
+locals {
+  regions            = var.dev ? var.sources.dev : var.sources.production
+}
+
 source "amazon-ebs" "xs" {
   ami_name                     = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   ami_description              = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
-  ami_regions                  = var.dev ? var.ami_regions_aws.dev : var.ami_regions_aws.production
+  ami_regions                  = local.regions
   ami_groups                   = ["all"]
   associate_public_ip_address  = true
   source_ami_filter {
@@ -157,7 +161,7 @@ source "amazon-ebs" "s" {
   instance_type                = var.instance_sizes.s.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws.production
+  ami_regions                  = local.regions
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -202,7 +206,7 @@ source "amazon-ebs" "m" {
   instance_type                = var.instance_sizes.m.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws.production
+  ami_regions                  = local.regions
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -248,7 +252,7 @@ source "amazon-ebs" "L" {
   instance_type                = var.instance_sizes.l.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws.production
+  ami_regions                  = local.regions
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
@@ -294,7 +298,7 @@ source "amazon-ebs" "XL" {
   instance_type                = var.instance_sizes.xl.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
-  ami_regions                  = var.ami_regions_aws.production
+  ami_regions                  = local.regions
   associate_public_ip_address  = true
   source_ami_filter {
     filters = {
