@@ -141,8 +141,6 @@ us-west-2: ami-0d92a3aeb57511d75
 
 ## 4.0.1
 
-**WARNING: All images for this version have been deregistered and deprecated.**
-
 ### XS 
 
 - af-south-1: ami-0152ca5b4c38d32e5
@@ -269,8 +267,6 @@ us-west-2: ami-0d92a3aeb57511d75
 - us-west-2: ami-0e38e2a01e42c8b28
 
 ## 4.0.0
-
-**WARNING: All images for this version have been deregistered and deprecated.** 
 
 ### XS
 
