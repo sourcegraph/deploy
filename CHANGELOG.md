@@ -1,8 +1,6 @@
-# Amazon EC2 AMIs
+# CHANGELOG
 
 ## Next release
-
-- Fix: display resource usage in Grafana [issues/42667](https://github.com/sourcegraph/sourcegraph/issues/42667)
 
 <!-- ### XS
 
@@ -14,9 +12,138 @@
 
 ### XL -->
 
-## 4.0.1
+## 4.1.0
+
+### Updates
+
+- Fix: display resource usage in Grafana [issues/42667](https://github.com/sourcegraph/sourcegraph/issues/42667)
 
 ### XS
+
+af-south-1: ami-06bc95aadde481216
+ap-east-1: ami-06e48a58b460b06ed
+ap-northeast-1: ami-09f58ef05090ce7ab
+ap-northeast-2: ami-0d07e218d9bda52a1
+ap-south-1: ami-033f2ff2427d08a3a
+ap-southeast-1: ami-0b898462e80896e48
+ap-southeast-2: ami-0f904f89c5c90a8b7
+ap-southeast-3: ami-0007c36efdf6ca08d
+ca-central-1: ami-01cc1e87db421a2d7
+eu-central-1: ami-0b26fac3231cbc06b
+eu-north-1: ami-03c02a0d95ff607ab
+eu-south-1: ami-0b965f5b7590b7370
+eu-west-1: ami-0597717e1b3fabedd
+eu-west-2: ami-060452ec7725c3508
+eu-west-3: ami-051873c72ec0ace77
+me-central-1: ami-04dc59408fcfe8dcb
+me-south-1: ami-06825afc7d97b5342
+sa-east-1: ami-0cb6b4df95dd790ad
+us-east-1: ami-0a893fe1778f059b0
+us-east-2: ami-06d0eef2094a4792f
+us-west-1: ami-06cd867a4ec092271
+us-west-2: ami-091bbb4765db59905
+
+### S
+
+af-south-1: ami-02c0a2c396647f83f
+ap-east-1: ami-057a3e780a1ae736e
+ap-northeast-1: ami-0b005c0cc0cb2a841
+ap-northeast-2: ami-074c6e594f8df0470
+ap-south-1: ami-03c6c01f91274e0d0
+ap-southeast-1: ami-02c2e27070926d112
+ap-southeast-2: ami-0834bc5077c23b2f3
+ap-southeast-3: ami-0ea5a0df366217346
+ca-central-1: ami-0bff617076f9374b2
+eu-central-1: ami-00ca1daf0ef23c592
+eu-north-1: ami-01c935ba129c50aae
+eu-south-1: ami-0a763de2a42029b8f
+eu-west-1: ami-037b2fad3ad2e69b4
+eu-west-2: ami-016533c8ba785be8b
+me-central-1: ami-073b57d5144cba555
+me-south-1: ami-06a3043ab8a2d166d
+sa-east-1: ami-007a55187ed32fc61
+us-east-1: ami-0fcdabd2cd1b7f656
+us-east-2: ami-01dafbe097d9d9f78
+us-west-1: ami-0a0f5c94f072f9d4e
+us-west-2: ami-01832a56873bb2ca4
+
+### M
+
+af-south-1: ami-0e31a68e9f168c608
+ap-east-1: ami-00505bbd17d5d6c80
+ap-northeast-1: ami-06994e82ee884723a
+ap-northeast-2: ami-0c3e6b9942841f618
+ap-south-1: ami-0095db61619eb66db
+ap-southeast-1: ami-0ed8ccdc3de217f56
+ap-southeast-2: ami-0f6212b12cdbc677e
+ap-southeast-3: ami-0ffb2ee3400150f7e
+ca-central-1: ami-0bff617076f9374b2
+eu-central-1: ami-06279217ea18281ba
+eu-north-1: ami-0692b3051990899e5
+eu-south-1: ami-00451ebbc03a501ee
+eu-west-1: ami-0107f9cbcb7b2923f
+eu-west-2: ami-0d3db354cae429692
+me-central-1: ami-0a1853e7993be28b9
+me-south-1: ami-05f3a68b9ea543e49
+sa-east-1: ami-0dfc12df0d1f6809d
+us-east-1: ami-050992337bc3bbd4e
+us-east-2: ami-0f447c4a54deeecc8
+us-west-1: ami-03ea72f0ec39ff3e6
+us-west-2: ami-01465baffd6b75278
+
+### L
+
+af-south-1: ami-0c02ba6b727cad4f8
+ap-east-1: ami-0c7a39c174e57a1c0
+ap-northeast-1: ami-0e46f1d77fffa16f6
+ap-northeast-2: ami-0fa89308a9c42fa2b
+ap-south-1: ami-01a8a8e15762c70ae
+ap-southeast-1: ami-0858ec23b6e931b3d
+ap-southeast-2: ami-02400d6d93b712ef8
+ap-southeast-3: ami-038307596e1d54ccf
+ca-central-1: ami-00b1e6e5267571dca
+eu-central-1: ami-02b7b3bda9ca9e2f0
+eu-north-1: ami-03f3bc7a2e3921498
+eu-south-1: ami-06512f7c70e3cd12d
+eu-west-1: ami-0777393fa2927cbd6
+eu-west-2: ami-01584c4e69a421c73
+me-central-1: ami-0c51c7da535d2ac05
+me-south-1: ami-06841827e8587a6b7
+sa-east-1: ami-0354789d69b61cbf1
+us-east-1: ami-061909ccd64d67fd6
+us-east-2: ami-06f30b5e002f51822
+us-west-1: ami-0b58c668548fda48b
+us-west-2: ami-04dbedb21b16305b8
+
+### XL
+
+af-south-1: ami-0cdb9d60c406f96f5
+ap-east-1: ami-008ec4868b615acd0
+ap-northeast-1: ami-02528a34535b44392
+ap-northeast-2: ami-0300f6c97011433f8
+ap-south-1: ami-0bd04b04de585bde9
+ap-southeast-1: ami-0d2f50a06efb07d8f
+ap-southeast-2: ami-05d5c2f6333ebfc7a
+ap-southeast-3: ami-0c3c188dcd8bffe9a
+ca-central-1: ami-08431e85fa3ff377a
+eu-central-1: ami-018ca68c154d33e87
+eu-north-1: ami-0dea4106fa01a0c8f
+eu-south-1: ami-092465c2bd17d04cf
+eu-west-1: ami-012400ebd37a04b6d
+eu-west-2: ami-00272c8c0fdc99a66
+me-central-1: ami-0ef86b8c1106cbf44
+me-south-1: ami-029f884358e6cefe9
+sa-east-1: ami-02e09270414f04fb8
+us-east-1: ami-0a62949f432a656ad
+us-east-2: ami-05039cec0bce1479c
+us-west-1: ami-0dd17708b9d7c48b9
+us-west-2: ami-0d92a3aeb57511d75
+
+## 4.0.1
+
+**WARNING: All images for this version have been deregistered and deprecated.**
+
+### XS 
 
 - af-south-1: ami-0152ca5b4c38d32e5
 - ap-east-1: ami-0d7ce8540a701e65b
@@ -42,6 +169,7 @@
 - us-west-2: ami-0d11145acf93ddef8
 
 ### S
+
 - af-south-1: ami-0bfc780fd9b31b692
 - ap-east-1: ami-0362d7c53659d3892
 - ap-northeast-1: ami-0ee66d417350866b2
@@ -141,6 +269,8 @@
 - us-west-2: ami-0e38e2a01e42c8b28
 
 ## 4.0.0
+
+**WARNING: All images for this version have been deregistered and deprecated.** 
 
 ### XS
 

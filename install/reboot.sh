@@ -18,6 +18,7 @@ RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 if [ -f /mnt/data/.sourcegraph-version ]; then
     VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
     if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
+        sudo systemctl restart k3s
         exit 0
     fi
 fi
@@ -35,8 +36,7 @@ else
     # Delete any existing ingress from old instances before restarting k3s
     $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE delete ingress sourcegraph-ingress
 fi
-sudo systemctl restart k3s
-sleep 30
+sudo systemctl restart k3s && sleep 30
 
 # Install or upgrade Sourcegraph and create ingress
 cd "$DEPLOY_PATH" || exit
@@ -53,5 +53,5 @@ $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f ./ingress.yaml
 # However, this should not affect a running instance
 sleep 60 && sudo systemctl restart k3s
 HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
-echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
-echo "$HELM_APP_VERSION" | sudo tee /home/"$INSTANCE_USERNAME"/.sourcegraph-version
+[ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
+[ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee /home/"$INSTANCE_USERNAME"/.sourcegraph-version

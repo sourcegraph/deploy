@@ -123,8 +123,11 @@ export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 cp /etc/rancher/k3s/k3s.yaml /home/ec2-user/.kube/config
 
 # Add standard bash aliases
-echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' | tee --append /home/ec2-user/.bash_profile
-echo 'alias k="kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml"' | tee --append /home/ec2-user/.bash_profile
+echo 'export KUBECONFIG=/etc/rancher/k3s/k3s.yaml' | tee -a /home/ec2-user/.bash_profile
+echo 'alias k="kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml"' | tee -a /home/ec2-user/.bash_profile
+echo "export INSTANCE_SIZE='$INSTANCE_SIZE'" | tee -a /home/ec2-user/.bash_profile
+echo "export SHELL='/bin/bash'" | tee -a /home/ec2-user/.bash_profile
+echo "alias h='helm --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a /home/ec2-user/.bash_profile
 
 ###############################################################################
 # Set up Sourcegraph using Helm
@@ -150,10 +153,12 @@ helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOU
 # kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
 
 # Start Sourcegraph on next reboot
-echo "@reboot sleep 30 && bash $DEPLOY_PATH/reboot.sh" | crontab -
+echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $DEPLOY_PATH/reboot.sh" | crontab -
 
 # Stop k3s and disable k3s to prevent it from starting on next reboot
 # allows 3 mins for services to stand up before disabling k3s
 sleep 180
+# Print to packer logs to confirm all the services and up
+kubectl --kubeconfig $KUBECONFIG_FILE get pods -A
 sudo systemctl disable k3s
 sudo systemctl stop k3s

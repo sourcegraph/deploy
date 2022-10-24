@@ -11,19 +11,17 @@ This repository is home of Sourcegraph one-click deployments (AMIs, VM images, e
 * [Manual AMI creation](./doc/manual-ami.md)
 * [Official Docs](https://docs.sourcegraph.com/admin/deploy/machine-images)
 
-## T-shirt sizing
+## Instance size chart
 
 We use T-shirt sizes which are [load tested with specific configurations](https://github.com/sourcegraph/reference-architecture-test).
 
-To create an AMI for the given T-shirt size, follow the steps and reference this table:
-
-| Size | Users  | Repositories | Largest Repo Size | Concurrent Users | Instance type | Storage   | IOPS    |
-| ---- | ------ | ------------ | ----------------- | ---------------- | ------------- | --------- | ------- |
-| XS   | 00,500 | 1,000        | 5GB               | 100              | m6a.2xlarge   | gp3       | default |
-| S    | 01,000 | 10,000       | 23GB              | 200              | m6a.4xlarge   | gp3       | default |
-| M    | 05,000 | 50,000       | 23GB              | 1,000            | m6a.8xlarge   | gp3       | default |
-| L    | 10,000 | 100,000      | 35GB              | 2,000            | m6a.12xlarge  | io2       | 16,000  |
-| XL   | 20,000 | 250,000      | 35GB              | 4,000            | m6a.24xlarge  | io2       | 16,000  |
+| Size | Users  | Repositories | Largest Repo Size | Concurrent Users | 
+| ---- | ------ | ------------ | ----------------- | ---------------- |
+| XS   | 00,500 | 1,000        | 5GB               | 100              |
+| S    | 01,000 | 10,000       | 23GB              | 200              |
+| M    | 05,000 | 50,000       | 23GB              | 1,000            |
+| L    | 10,000 | 100,000      | 35GB              | 2,000            |
+| XL   | 20,000 | 250,000      | 35GB              | 4,000            |
 
 ## Sourcegraph AMI instance
 
@@ -33,6 +31,10 @@ A Sourcegraph AMI instance includes:
 - A pre-configured Sourcegraph instance for your deployment
 - A root EBS volume with 50GB of storage
 - An additional EBS volume with 500GB of storage for storing code and search indices
+
+### AWS Regions
+
+Please reach out to us if you are not able to find Sourcegraph images for your region.
 
 ## Releases
 
