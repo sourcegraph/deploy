@@ -94,7 +94,7 @@ To create images for all cloud providers:
 ### Publishing a release
 
 1. Once the release is published with all the commits merged, run the following commands on the `main` branch:
-2. 
+
 ```bash
 # e.g. git tag v4.0.1 
 git tag v${instance_version}
