@@ -389,7 +389,7 @@ source "amazon-ebs" "DEV" {
 build {
   name = "sourcegraph-amis"
   sources = var.dev ? ["source.amazon-ebs.DEV"] : [
-    // "source.amazon-ebs.XS",
+    "source.amazon-ebs.XS",
     "source.amazon-ebs.S",
     "source.amazon-ebs.M",
     "source.amazon-ebs.L",
