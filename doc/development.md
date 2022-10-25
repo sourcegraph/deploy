@@ -30,6 +30,26 @@ export AWS_DEFAULT_REGION="us-west-1"
 
 ## Building an AMI
 
+To create an AMI for a given T-shirt size, follow the instructions in our development docs and refer to the following tables.
+
+#### AWS
+
+| Size | Users  | Repositories | Largest Repo Size | Concurrent Users | Instance type | Storage   | IOPS    |
+| ---- | ------ | ------------ | ----------------- | ---------------- | ------------- | --------- | ------- |
+| XS   | 00,500 | 1,000        | 5GB               | 100              | m6a.2xlarge   | gp3       | default |
+| S    | 01,000 | 10,000       | 23GB              | 200              | m6a.4xlarge   | gp3       | default |
+| M    | 05,000 | 50,000       | 23GB              | 1,000            | m6a.8xlarge   | gp3       | default |
+| L    | 10,000 | 100,000      | 35GB              | 2,000            | m6a.12xlarge  | io2       | 16,000  |
+| XL   | 20,000 | 250,000      | 35GB              | 4,000            | m6a.24xlarge  | io2       | 16,000  |
+
+#### Azure
+
+Coming soon.
+
+#### Google Compute Engine
+
+Coming soon.
+
 ### A single AMI for testing
 
 To build a single AMI for testing, update the `packer/dev/dev-variables.hcl` file with the instance version and instance size. This file provides the configuration which is used by `/packer/dev/dev-builder.pkr.hcl` to build a single image using XS instance setting. The name of the output AMI will be `"Sourcegraph-DEV-v${var.instance_version}-${formatdate("YYYY-MM-DD", timestamp())}"`, with the `NAME=ami-dev` tag.
@@ -74,13 +94,13 @@ To create images for all cloud providers:
 ### Publishing a release
 
 1. Once the release is published with all the commits merged, run the following commands on the `main` branch:
+
 ```bash
 # e.g. git tag v4.0.1 
 git tag v${instance_version}
 # e.g. git push origin v4.0.1
 git push origin v${instance_version}
 ```
-
 
 > IMPORTANT: AMI will be published to **all** regions by default.
 

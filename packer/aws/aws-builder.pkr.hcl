@@ -234,7 +234,6 @@ source "amazon-ebs" "M" {
     delete_on_termination = true
     device_name           = "/dev/xvda"
     encrypted             = false
-
     volume_type = "gp3"
     volume_size = 50
   }
@@ -287,6 +286,7 @@ source "amazon-ebs" "L" {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
+    iops                  = "1600"
     volume_type           = var.instance_sizes.l.data_volume_type
     volume_size           = var.instance_sizes.l.data_volume_size
   }
@@ -332,6 +332,7 @@ source "amazon-ebs" "XL" {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
+    iops                  = "1600"
     volume_type           = var.instance_sizes.xl.data_volume_type
     volume_size           = var.instance_sizes.xl.data_volume_size
   }
