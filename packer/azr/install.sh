@@ -68,13 +68,14 @@ sudo sh -c "echo '* hard nofile 262144' >> /etc/security/limits.conf"
 ###############################################################################
 # Ensure k3s cluster networking/DNS is allowed in local firewall.
 # For details see: https://github.com/k3s-io/k3s/issues/24#issuecomment-469759329
-sudo apt-get update && sudo apt-get install -y iptables
-echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
-sudo apt-get install -y iptables-persistent
-sudo iptables -I INPUT 1 -i cni0 -s 10.42.0.0/16 -j ACCEPT
-sudo iptables-save | sudo tee /etc/iptables/rules.v4
-sudo ip6tables-save | sudo tee /etc/iptables/rules.v6
+sudo apt-get update && sudo apt-get install -y ufw
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow in on cni0 from 10.42.0.0/16 comment "K3s rule"
+sudo ufw allow ssh
+sudo ufw allow http
+sudo ufw allow https
+sudo ufw enable
 
 # Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
 sudo mkdir -p /mnt/data/kubelet /var/lib/kubelet
