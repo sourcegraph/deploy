@@ -46,12 +46,18 @@ sleep 30
 # Set KUBECONFIG to point to k3s for 'kubectl' commands to work
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 
-cd $DEPLOY_PATH || exit 1
+cd $DEPLOY_PATH || exit
 
 # Update information of available charts from Sourcegraph chart repository
-helm --kubeconfig $KUBECONFIG_FILE repo update
-SOURCEGRAPH_VERSION=$(helm inspect chart sourcegraph/sourcegraph | grep version: | sed -r 's/version: (.*)/\1/')
-helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
+attempt=1
+while [ "$SOURCEGRAPH_VERSION" == "" ]; do
+    $LOCAL_BIN_PATH/helm --kubeconfig=$KUBECONFIG_FILE repo update
+    SOURCEGRAPH_VERSION=$($LOCAL_BIN_PATH/helm inspect chart sourcegraph/sourcegraph | grep version: | sed -r 's/version: (.*)/\1/')
+    attempt=$((attempt + 1))
+    if [ $attempt -eq 6 ]; then exit; fi
+    sleep 10
+done
+$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
 mv ./sourcegraph-"$SOURCEGRAPH_VERSION".tgz ./sourcegraph-charts.tgz
 
 # Create override configMap for prometheus before startup Sourcegraph

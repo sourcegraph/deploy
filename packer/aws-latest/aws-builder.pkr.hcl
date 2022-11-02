@@ -59,11 +59,13 @@ variable "instance_sizes" {
     l = {
         instance_type = "m6a.12xlarge"
         data_volume_type = "io2"
+        iops             = 1600
         data_volume_size = 500
     },
     xl = {
         instance_type = "m6a.24xlarge"
         data_volume_type = "io2"
+        iops             = 1600
         data_volume_size = 500
     }
   }
@@ -113,6 +115,8 @@ locals {
 source "amazon-ebs" "XS" {
   ami_name                     = "Sourcegraph-XS (latest) ${var.instance_sizes.xs.instance_type}"
   ami_description              = "Sourcegraph-XS (latest) ${var.instance_sizes.xs.instance_type}"
+  force_deregister             = true
+  force_delete_snapshot        = true
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
   ami_regions                  = local.regions
@@ -129,7 +133,7 @@ source "amazon-ebs" "XS" {
   }
   subnet_filter {
     filters                    = {
-      "tag:Name" : "default"
+      "tag:Name" : "packer-build"
     }
     most_free                  = true
     random                     = false
@@ -158,6 +162,8 @@ source "amazon-ebs" "XS" {
 source "amazon-ebs" "S" {
   ami_name                     = "Sourcegraph-S (latest) ${var.instance_sizes.s.instance_type}"
   ami_description              = "Sourcegraph-S (latest) ${var.instance_sizes.s.instance_type}"
+  force_deregister             = true
+  force_delete_snapshot        = true
   instance_type                = var.instance_sizes.s.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
@@ -196,13 +202,15 @@ source "amazon-ebs" "S" {
   }
   tags                    = {
     Name                  = "production"
-    Version               = var.instance_version
+    Version               = "latest"
   }
 }
 
 source "amazon-ebs" "M" {
   ami_name                     = "Sourcegraph-M (latest) ${var.instance_sizes.m.instance_type}"
   ami_description              = "Sourcegraph-M (latest) ${var.instance_sizes.m.instance_type}"
+  force_deregister             = true
+  force_delete_snapshot        = true
   instance_type                = var.instance_sizes.m.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
@@ -242,13 +250,15 @@ source "amazon-ebs" "M" {
   }
   tags                    = {
     Name                  = "production"
-    Version               = var.instance_version
+    Version               = "latest"
   }
 }
 
 source "amazon-ebs" "L" {
   ami_name                     = "Sourcegraph-L (latest) ${var.instance_sizes.l.instance_type}"
   ami_description              = "Sourcegraph-L (latest) ${var.instance_sizes.l.instance_type}"
+  force_deregister             = true
+  force_delete_snapshot        = true
   instance_type                = var.instance_sizes.l.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
@@ -287,13 +297,15 @@ source "amazon-ebs" "L" {
   }
   tags                    = {
     Name                  = "production"
-    Version               = var.instance_version
+    Version               = "latest"
   }
 }
 
 source "amazon-ebs" "XL" {
   ami_name                     = "Sourcegraph-XL (latest) ${var.instance_sizes.xl.instance_type}"
   ami_description              = "Sourcegraph-XL (latest) ${var.instance_sizes.xl.instance_type}"
+  force_deregister             = true
+  force_delete_snapshot        = true
   instance_type                = var.instance_sizes.xl.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
@@ -339,6 +351,8 @@ source "amazon-ebs" "XL" {
 source "amazon-ebs" "DEV" {
   ami_name                     = "Sourcegraph-DEV-XS (latest) ${var.instance_sizes.xs.instance_type}"
   ami_description              = "Sourcegraph-DEV-XS (latest) ${var.instance_sizes.xs.instance_type}"
+  force_deregister             = true
+  force_delete_snapshot        = true
   instance_type                = var.instance_sizes.xs.instance_type
   region                       = var.build_in_region
   ami_regions                  = local.regions
@@ -397,13 +411,13 @@ build {
   }
 
   provisioner "shell" {
-    except              = ["amazon-ebs.DEV"]
+    except           = ["amazon-ebs.DEV"]
     environment_vars = ["INSTANCE_SIZE=${upper(source.name)}"]
     scripts          = ["./packer/aws-latest/init.sh"]
   }
   provisioner "shell" {
-    only              = ["amazon-ebs.DEV"]
-    environment_vars  = ["INSTANCE_SIZE=XS"]
-    scripts           = ["./packer/aws-latest/init.sh"]
+    only             = ["amazon-ebs.DEV"]
+    environment_vars = ["INSTANCE_SIZE=XS"]
+    scripts          = ["./packer/aws-latest/init.sh"]
   }
 }
