@@ -4,10 +4,8 @@ set -exuo pipefail
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Variables
 ###############################################################################
-SOURCEGRAPH_SIZE=$INSTANCE_SIZE # Must be uppercase XS/S/...
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
 SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy'
-DEPLOY_PATH='/home/ec2-user/deploy/install'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 
 ###############################################################################
@@ -33,8 +31,6 @@ sudo yum install git -y
 # Clone the deployment repository
 cd /home/ec2-user
 git clone $SOURCEGRAPH_DEPLOY_REPO_URL
-cd $DEPLOY_PATH
-cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
 
 ###############################################################################
 # Configure EBS data volume
@@ -126,9 +122,6 @@ curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 
 helm version --short
 
 helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph.com/release
-
-# Start Sourcegraph on next reboot
-echo "@reboot sleep 10 && bash /home/ec2-user/install.sh" | crontab -
 
 # Stop k3s and disable k3s to prevent it from starting on next reboot
 sleep 5

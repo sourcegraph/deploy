@@ -3,6 +3,7 @@
 ###############################################################################
 # Variables
 ###############################################################################
+SOURCEGRAPH_SIZE=${SOURCEGRAPH_SIZE:-XS} # Must be uppercase XS/S/...
 DEPLOY_PATH='/home/ec2-user/deploy/install'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
@@ -47,6 +48,7 @@ sleep 30
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 
 cd $DEPLOY_PATH || exit
+cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
 
 # Update information of available charts from Sourcegraph chart repository
 attempt=1
@@ -69,6 +71,9 @@ $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f /home/ec2-user/d
 echo "${SOURCEGRAPH_VERSION}" | sudo tee /home/ec2-user/.sourcegraph-version
 echo "${SOURCEGRAPH_VERSION}-base" | sudo tee /mnt/data/.sourcegraph-version
 echo "${SOURCEGRAPH_SIZE}" | sudo tee /home/ec2-user/.sourcegraph-size
+
+# Restart again to fix possible crash loop backoff
+sleep 60 && sudo systemctl restart k3s
 
 # Start Sourcegraph on next reboot
 echo "@reboot sleep 10 && bash $DEPLOY_PATH/reboot.sh" | crontab -

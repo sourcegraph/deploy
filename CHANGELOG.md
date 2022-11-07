@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## AWS CloudFormation
+Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! [Docs](/admin/deploy/machine-images/aws-oneclick)
+
+### GP3 - For XS, S, M
+- af-south-1: ami-08b0c7b7345036724
+- ap-east-1: ami-06aecc64edaabbb33
+- ap-northeast-1: ami-01eb6a31f20f30930
+- ap-northeast-2: ami-01bd2938e57b2a0da
+- ap-south-1: ami-0e7ea68f3dbe8cc3d
+- ap-southeast-1: ami-0bc1de51fe19483e6
+- ap-southeast-2: ami-0dcdfbb1471a8959c
+- ap-southeast-3: ami-0be600c8e7a471109
+- ca-central-1: ami-0a52a48ad5d006056
+- eu-central-1: ami-02351a30a07e09037
+- eu-north-1: ami-0693803f5048a10be
+- eu-south-1: ami-0addf4ab6a18d2021
+- eu-west-1: ami-0b719df721e959977
+- eu-west-2: ami-0ebbadc02cc97f59e
+- eu-west-3: ami-077c764d5ad99dfc4
+- me-central-1: ami-096d82e46a098ab53
+- me-south-1: ami-0594d7517fab681f5
+- sa-east-1: ami-09561cbf8cfcf7b3e
+- us-east-1: ami-0e5d3f10ce3f73fd0
+- us-east-2: ami-0a4ae811835d5ba28
+- us-west-1: ami-0ddf2ffd74fe2ba33
+- us-west-2: ami-0ac1c0f7bc86c10de
+
+### IO2 - For L, XL
+- af-south-1: ami-08b030a0cb291536d
+- ap-east-1: ami-0c8cf9effd165642e
+- ap-northeast-1: ami-0ae80a60f8e1e3426
+- ap-northeast-2: ami-00bc009b7c6031e9b
+- ap-south-1: ami-06d670777613ff243
+- ap-southeast-1: ami-0c9f6e2d0eec99f96
+- ap-southeast-2: ami-0ab22df3d9786e4f4
+- ap-southeast-3: ami-011ed6d7b4bfd2599
+- ca-central-1: ami-0b52157eebe4164b0
+- eu-central-1: ami-02ca01d4b5c04074d
+- eu-north-1: ami-0d35b0f3d13995333
+- eu-south-1: ami-0d77e85a9be6ba980
+- eu-west-1: ami-0652cfd8de1c4b8be
+- eu-west-2: ami-0caf89ebef78cdedc
+- eu-west-3: ami-021d0f808d802aaa3
+- me-central-1: ami-09b011da628b72611
+- me-south-1: ami-0d4901a997d6a558e
+- sa-east-1: ami-04d36a28d591012b4
+- us-east-1: ami-00d27aaa56d52f691
+- us-east-2: ami-0dfda32f1dce34ae7
+- us-west-1: ami-0d108d0bcdaf5d6ec
+- us-west-2: ami-00c06a6f5c55e8b32
+
 ## Next release
 
 <!-- ### XS

@@ -14,60 +14,28 @@ variable "dev" {
 
 variable "instance_sizes" {
   type = object({
-    xs = object({
+    gp3 = object({
       instance_type    = string
       data_volume_type = string
       data_volume_size = string
     })
-    s = object({
-      instance_type    = string
-      data_volume_type = string
-      data_volume_size = string
-    })
-    m = object({
-      instance_type    = string
-      data_volume_type = string
-      data_volume_size = string
-    })
-    l = object({
-      instance_type    = string
-      data_volume_type = string
-      data_volume_size = string
-    })
-    xl = object({
+    io2 = object({
       instance_type    = string
       data_volume_type = string
       data_volume_size = string
     })
   })
   default = { 
-    xs = {
+    gp3 = {
         instance_type = "m6a.2xlarge"
         data_volume_type = "gp3"
         data_volume_size = 500
     },
-    s = {
-        instance_type = "m6a.4xlarge"
-        data_volume_type = "gp3"
-        data_volume_size = 500
-    },
-    m = {
-        instance_type = "m6a.8xlarge"
-        data_volume_type = "gp3"
-        data_volume_size = 500
-    },
-    l = {
-        instance_type = "m6a.12xlarge"
+    io2 = {
+        instance_type = "m6a.2xlarge"
         data_volume_type = "io2"
-        iops             = 1600
         data_volume_size = 500
     },
-    xl = {
-        instance_type = "m6a.24xlarge"
-        data_volume_type = "io2"
-        iops             = 1600
-        data_volume_size = 500
-    }
   }
 }
 
@@ -112,12 +80,12 @@ locals {
   regions            = var.dev ? var.ami_regions_aws.dev : var.ami_regions_aws.production
 }
 
-source "amazon-ebs" "XS" {
-  ami_name                     = "Sourcegraph-XS (latest) ${var.instance_sizes.xs.instance_type}"
-  ami_description              = "Sourcegraph-XS (latest) ${var.instance_sizes.xs.instance_type}"
+source "amazon-ebs" "gp3" {
+  ami_name                     = "Sourcegraph (latest) ${var.instance_sizes.gp3.data_volume_type}"
+  ami_description              = "Sourcegraph (latest) ${var.instance_sizes.gp3.data_volume_type}"
   force_deregister             = true
   force_delete_snapshot        = true
-  instance_type                = var.instance_sizes.xs.instance_type
+  instance_type                = var.instance_sizes.gp3.instance_type
   region                       = var.build_in_region
   ami_regions                  = local.regions
   ami_groups                   = ["all"]
@@ -150,8 +118,8 @@ source "amazon-ebs" "XS" {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
-    volume_type           = var.instance_sizes.xs.data_volume_type
-    volume_size           = var.instance_sizes.xs.data_volume_size
+    volume_type           = var.instance_sizes.gp3.data_volume_type
+    volume_size           = var.instance_sizes.gp3.data_volume_size
   }
   tags                    = {
     Name                  = "production"
@@ -159,12 +127,12 @@ source "amazon-ebs" "XS" {
   }
 }
 
-source "amazon-ebs" "S" {
-  ami_name                     = "Sourcegraph-S (latest) ${var.instance_sizes.s.instance_type}"
-  ami_description              = "Sourcegraph-S (latest) ${var.instance_sizes.s.instance_type}"
+source "amazon-ebs" "io2" {
+  ami_name                     = "Sourcegraph (latest) ${var.instance_sizes.io2.data_volume_type}"
+  ami_description              = "Sourcegraph (latest) ${var.instance_sizes.io2.data_volume_type}"
   force_deregister             = true
   force_delete_snapshot        = true
-  instance_type                = var.instance_sizes.s.instance_type
+  instance_type                = var.instance_sizes.io2.instance_type
   region                       = var.build_in_region
   ami_groups                   = ["all"]
   ami_regions                  = local.regions
@@ -197,150 +165,9 @@ source "amazon-ebs" "S" {
     device_name           = "/dev/sdb"
     encrypted             = false
     delete_on_termination = false
-    volume_type           = var.instance_sizes.s.data_volume_type
-    volume_size           = var.instance_sizes.s.data_volume_size
-  }
-  tags                    = {
-    Name                  = "production"
-    Version               = "latest"
-  }
-}
-
-source "amazon-ebs" "M" {
-  ami_name                     = "Sourcegraph-M (latest) ${var.instance_sizes.m.instance_type}"
-  ami_description              = "Sourcegraph-M (latest) ${var.instance_sizes.m.instance_type}"
-  force_deregister             = true
-  force_delete_snapshot        = true
-  instance_type                = var.instance_sizes.m.instance_type
-  region                       = var.build_in_region
-  ami_groups                   = ["all"]
-  ami_regions                  = local.regions
-  associate_public_ip_address  = true
-  source_ami_filter {
-    filters = {
-      name                = "amzn2-ami-kernel-*-hvm-*-x86_64-gp2"
-      root-device-type    = "ebs"
-      virtualization-type = "hvm"
-    }
-    most_recent = true
-    owners      = ["amazon"]
-  }
-  subnet_filter {
-    filters = {
-      "tag:Name" : "packer-build"
-    }
-    most_free = true
-    random    = false
-  }
-  ssh_username                 = "ec2-user"
-  launch_block_device_mappings {
-    delete_on_termination = false
-    device_name           = "/dev/xvda"
-    encrypted             = false
-
-    volume_type = "gp3"
-    volume_size = 50
-  }
-  launch_block_device_mappings {
-    device_name           = "/dev/sdb"
-    encrypted             = false
-    delete_on_termination = false
-    volume_type           = var.instance_sizes.m.data_volume_type
-    volume_size           = var.instance_sizes.m.data_volume_size
-  }
-  tags                    = {
-    Name                  = "production"
-    Version               = "latest"
-  }
-}
-
-source "amazon-ebs" "L" {
-  ami_name                     = "Sourcegraph-L (latest) ${var.instance_sizes.l.instance_type}"
-  ami_description              = "Sourcegraph-L (latest) ${var.instance_sizes.l.instance_type}"
-  force_deregister             = true
-  force_delete_snapshot        = true
-  instance_type                = var.instance_sizes.l.instance_type
-  region                       = var.build_in_region
-  ami_groups                   = ["all"]
-  ami_regions                  = local.regions
-  associate_public_ip_address  = true
-  source_ami_filter {
-    filters = {
-      name                = "amzn2-ami-kernel-*-hvm-*-x86_64-gp2"
-      root-device-type    = "ebs"
-      virtualization-type = "hvm"
-    }
-    most_recent = true
-    owners      = ["amazon"]
-  }
-  subnet_filter {
-    filters = {
-      "tag:Name" : "packer-build"
-    }
-    most_free = true
-    random    = false
-  }
-  ssh_username                 = "ec2-user"
-  launch_block_device_mappings {
-    delete_on_termination = true
-    device_name           = "/dev/xvda"
-    encrypted             = false
-    volume_type           = "gp3"
-    volume_size           = 50
-  }
-  launch_block_device_mappings {
-    device_name           = "/dev/sdb"
-    encrypted             = false
-    delete_on_termination = false
-    volume_type           = var.instance_sizes.l.data_volume_type
-    volume_size           = var.instance_sizes.l.data_volume_size
-  }
-  tags                    = {
-    Name                  = "production"
-    Version               = "latest"
-  }
-}
-
-source "amazon-ebs" "XL" {
-  ami_name                     = "Sourcegraph-XL (latest) ${var.instance_sizes.xl.instance_type}"
-  ami_description              = "Sourcegraph-XL (latest) ${var.instance_sizes.xl.instance_type}"
-  force_deregister             = true
-  force_delete_snapshot        = true
-  instance_type                = var.instance_sizes.xl.instance_type
-  region                       = var.build_in_region
-  ami_groups                   = ["all"]
-  ami_regions                  = local.regions
-  associate_public_ip_address  = true
-  source_ami_filter {
-    filters = {
-      name                = "amzn2-ami-kernel-*-hvm-*-x86_64-gp2"
-      root-device-type    = "ebs"
-      virtualization-type = "hvm"
-    }
-    most_recent = true
-    owners      = ["amazon"]
-  }
-  subnet_filter {
-    filters = {
-      "tag:Name" : "packer-build"
-    }
-    most_free = true
-    random    = false
-  }
-  ssh_username                 = "ec2-user"
-  launch_block_device_mappings {
-    delete_on_termination = true
-    device_name           = "/dev/xvda"
-    encrypted             = false
-    volume_type = "gp3"
-    volume_size = 50
-  }
-  launch_block_device_mappings {
-    device_name           = "/dev/sdb"
-    encrypted             = false
-    delete_on_termination = false
-    volume_type           = var.instance_sizes.xl.data_volume_type
-    volume_size           = var.instance_sizes.xl.data_volume_size
+    iops                  = "16000"
+    volume_type           = var.instance_sizes.io2.data_volume_type
+    volume_size           = var.instance_sizes.io2.data_volume_size
   }
   tags                    = {
     Name                  = "production"
@@ -349,11 +176,11 @@ source "amazon-ebs" "XL" {
 }
 
 source "amazon-ebs" "DEV" {
-  ami_name                     = "Sourcegraph-DEV-XS (latest) ${var.instance_sizes.xs.instance_type}"
-  ami_description              = "Sourcegraph-DEV-XS (latest) ${var.instance_sizes.xs.instance_type}"
+  ami_name                     = "Sourcegraph-DEV (latest) ${var.instance_sizes.gp3.instance_type}"
+  ami_description              = "Sourcegraph-DEV (latest) ${var.instance_sizes.gp3.instance_type}"
   force_deregister             = true
   force_delete_snapshot        = true
-  instance_type                = var.instance_sizes.xs.instance_type
+  instance_type                = var.instance_sizes.gp3.instance_type
   region                       = var.build_in_region
   ami_regions                  = local.regions
   associate_public_ip_address  = true
@@ -384,9 +211,9 @@ source "amazon-ebs" "DEV" {
   launch_block_device_mappings {
     device_name           = "/dev/sdb"
     encrypted             = false
-    delete_on_termination = false
-    volume_type           = var.instance_sizes.xs.data_volume_type
-    volume_size           = var.instance_sizes.xs.data_volume_size
+    delete_on_termination = true # Delete Dev disk on termination
+    volume_type           = var.instance_sizes.gp3.data_volume_type
+    volume_size           = var.instance_sizes.gp3.data_volume_size
   }
   tags                    = {
     Name                  = "dev"
@@ -397,11 +224,8 @@ source "amazon-ebs" "DEV" {
 build {
   name = "sourcegraph-amis"
   sources = var.dev ? ["source.amazon-ebs.DEV"] : [
-    "source.amazon-ebs.XS",
-    "source.amazon-ebs.S",
-    "source.amazon-ebs.M",
-    "source.amazon-ebs.L",
-    "source.amazon-ebs.XL"
+    "source.amazon-ebs.gp3",
+    "source.amazon-ebs.io2",
   ]
 
   // Move the install.sh script to VM to run on next reboot 
@@ -411,13 +235,6 @@ build {
   }
 
   provisioner "shell" {
-    except           = ["amazon-ebs.DEV"]
-    environment_vars = ["INSTANCE_SIZE=${upper(source.name)}"]
-    scripts          = ["./packer/aws-latest/init.sh"]
-  }
-  provisioner "shell" {
-    only             = ["amazon-ebs.DEV"]
-    environment_vars = ["INSTANCE_SIZE=XS"]
     scripts          = ["./packer/aws-latest/init.sh"]
   }
 }
