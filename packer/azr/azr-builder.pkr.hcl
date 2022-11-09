@@ -111,9 +111,9 @@ source "azure-arm" "xs" {
   use_azure_cli_auth = true
 
   os_type         = "Linux"
-  image_offer     = "0001-com-ubuntu-server-jammy"
-  image_publisher = "canonical"
-  image_sku       = "22_04-LTS-gen2"
+  image_offer     = "debian-11"
+  image_publisher = "Debian"
+  image_sku       = "11-gen2"
 
   ssh_username = "sourcegraph"
 
@@ -134,9 +134,9 @@ source "azure-arm" "s" {
   use_azure_cli_auth = true
 
   os_type         = "Linux"
-  image_offer     = "0001-com-ubuntu-server-jammy"
-  image_publisher = "canonical"
-  image_sku       = "22_04-LTS-gen2"
+  image_offer     = "debian-11"
+  image_publisher = "Debian"
+  image_sku       = "11-gen2"
 
   ssh_username = "sourcegraph"
 
@@ -157,9 +157,9 @@ source "azure-arm" "m" {
   use_azure_cli_auth = true
 
   os_type         = "Linux"
-  image_offer     = "0001-com-ubuntu-server-jammy"
-  image_publisher = "canonical"
-  image_sku       = "22_04-LTS-gen2"
+  image_offer     = "debian-11"
+  image_publisher = "Debian"
+  image_sku       = "11-gen2"
 
   ssh_username = "sourcegraph"
 
@@ -180,9 +180,9 @@ source "azure-arm" "l" {
   use_azure_cli_auth = true
 
   os_type         = "Linux"
-  image_offer     = "0001-com-ubuntu-server-jammy"
-  image_publisher = "canonical"
-  image_sku       = "22_04-LTS-gen2"
+  image_offer     = "debian-11"
+  image_publisher = "Debian"
+  image_sku       = "11-gen2"
 
   ssh_username = "sourcegraph"
 
@@ -203,9 +203,9 @@ source "azure-arm" "xl" {
   use_azure_cli_auth = true
 
   os_type         = "Linux"
-  image_offer     = "0001-com-ubuntu-server-jammy"
-  image_publisher = "canonical"
-  image_sku       = "22_04-LTS-gen2"
+  image_offer     = "debian-11"
+  image_publisher = "Debian"
+  image_sku       = "11-gen2"
 
   ssh_username = "sourcegraph"
 
@@ -231,6 +231,10 @@ build {
     "source.azure-arm.l",
     "source.azure-arm.xl"
   ]
+  provisioner "shell" {
+    scripts           = ["./packer/azr/cgroup.sh"]
+    expect_disconnect = true
+  }
   provisioner "file" {
     sources     = ["./packer/azr/reboot.sh", "./install/ingress.yaml", "./install/prometheus-override.ConfigMap.yaml"]
     destination = "/tmp/"
