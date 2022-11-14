@@ -3,7 +3,7 @@ storageClass:
   name: local-path
 
 frontend:
-  replicas: 2
+  replicaCount: 2
   resources:
     limits:
       cpu: "4"
@@ -13,7 +13,7 @@ frontend:
       memory: 256M
 
 gitserver:
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "6"
@@ -24,7 +24,7 @@ gitserver:
 
 # zoekt-webserver
 indexedSearch:
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "6"
@@ -34,7 +34,7 @@ indexedSearch:
       memory: 256M
 # zoekt-indexserver
 indexedSearchIndexer:
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "4"
@@ -44,7 +44,7 @@ indexedSearchIndexer:
       memory: 256M
 
 searcher:
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "6"
@@ -54,7 +54,7 @@ searcher:
       memory: 256M
 
 repoUpdater:
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "4"
@@ -63,8 +63,8 @@ repoUpdater:
       cpu: "250m"
       memory: 256M
 
-preciseCodeIntelWorker:
-  replicas: 1
+preciseCodeIntel:
+  replicaCount: 1
   resources:
     limits:
       cpu: "2"
@@ -74,7 +74,7 @@ preciseCodeIntelWorker:
       memory: 256M
 
 worker:
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "4"
@@ -84,7 +84,7 @@ worker:
       memory: 256M
 
 syntectServer:
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "4"
@@ -140,7 +140,7 @@ minio:
 
 codeInsightsDB:
   enabled: true
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "4"
@@ -151,7 +151,7 @@ codeInsightsDB:
 
 codeIntelDB:
   enabled: true
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "4"
@@ -162,7 +162,7 @@ codeIntelDB:
 
 pgsql:
   enabled: true
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "4"
@@ -173,7 +173,7 @@ pgsql:
 
 redisStore:
   enabled: true
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "1"
@@ -184,7 +184,7 @@ redisStore:
 
 redisCache:
   enabled: true
-  replicas: 1
+  replicaCount: 1
   resources:
     limits:
       cpu: "1"
