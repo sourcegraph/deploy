@@ -82,6 +82,13 @@ To create images for all cloud providers:
    - Copy them to the relevant regions
 3. Update [CHANGELOG.md](/CHANGELOG.md) with the list of AMI IDs you just published for the new version
 
+#### AWS-Latest
+1. Run `packer build --var-file=./packer/build-variables.hcl ./packer/aws-latest/aws-builder.pkr.hcl`
+2. Copy the AMI ID output into `packer/aws-latest/_ami.yaml` - maintaining yaml structure
+3. Run `cd packer/aws-latest/ && cat _ami.yaml | yj | ./_convert.py`
+4. Copy the output to `packer/aws-latest/sg-basic.yaml` under the `Mappings` - `RegionMap`
+5. Upload `packer/aws-latest/sg-basic.yaml` to the S3 bucket `sourcegraph-cloudformation` in the `Sourcegraph AMI` AWS account
+
 #### Google Compute Engine
 
 1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build 

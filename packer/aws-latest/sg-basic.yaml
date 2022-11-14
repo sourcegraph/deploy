@@ -1,0 +1,184 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  SourcegraphKeyPair:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: SSH key pair to access the EC2 instance running Sourcegraph
+  SourcegraphSize:
+    Type: String
+    Description: See docs for more info docs.sourcegraph.com/admin/deploy/machine-images/aws-oneclick
+    Default: XS
+    AllowedValues:
+      - XS
+      - S
+      - M
+      - L
+      - XL
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups: 
+      - 
+        Label: 
+          default: "EC2 Configuration"
+        Parameters: 
+          - SourcegraphKeyPair
+      - 
+        Label: 
+          default: "Sourcegraph Configuration"
+        Parameters: 
+          - SourcegraphSize
+    ParameterLabels:
+      SourcegraphKeyPair:
+        default: "SSH Keypair"
+      SourcegraphSize:
+        default: "Sourcegraph Instance Size"
+
+Resources:
+  SourcegraphSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enables the ports Sourcegraph requires (22, 80, 443)
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+  SourcegraphInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      KeyName: !Ref SourcegraphKeyPair
+      Tags:
+      - Key: Name
+        Value: Sourcegraph
+      ImageId:
+        Fn::FindInMap:
+        - RegionMap
+        - Ref: AWS::Region
+        - Fn::FindInMap:
+          - SizeToType
+          - Ref: SourcegraphSize
+          - Type
+      InstanceType: 
+        Fn::FindInMap:
+        - InstanceType
+        - Ref: SourcegraphSize
+        - Instance
+      SecurityGroupIds:
+        - !Ref SourcegraphSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          export SOURCEGRAPH_SIZE=${SourcegraphSize}
+          bash /home/ec2-user/install.sh
+
+Mappings:
+  SizeToType:
+    XS:
+      Type: gp3
+    S:
+      Type: gp3
+    M:
+      Type: gp3
+    L:
+      Type: io2
+    XL:
+      Type: io2
+  InstanceType:
+    XS: 
+      Instance: m6a.2xlarge
+    S: 
+      Instance: m6a.4xlarge
+    M: 
+      Instance: m6a.8xlarge
+    L: 
+      Instance: m6a.12xlarge
+    XL: 
+      Instance: m6a.24xlarge
+  RegionMap:
+    af-south-1:
+      io2: ami-012253bea949d6183
+      gp3: ami-08b0c7b7345036724
+    ap-east-1:
+      io2: ami-032f69e9e7ee469e0
+      gp3: ami-06aecc64edaabbb33
+    ap-northeast-1:
+      io2: ami-07fdf061f3bfe4b01
+      gp3: ami-01eb6a31f20f30930
+    ap-northeast-2:
+      io2: ami-0022b1bf84aca12ed
+      gp3: ami-01bd2938e57b2a0da
+    ap-south-1:
+      io2: ami-0cbdb69895fe4a911
+      gp3: ami-0e7ea68f3dbe8cc3d
+    ap-southeast-1:
+      io2: ami-00ce900df2e2f08ce
+      gp3: ami-0bc1de51fe19483e6
+    ap-southeast-2:
+      io2: ami-0664d4553601dd881
+      gp3: ami-0dcdfbb1471a8959c
+    ap-southeast-3:
+      io2: ami-08ed625c86afc6003
+      gp3: ami-0be600c8e7a471109
+    ca-central-1:
+      io2: ami-056c4a2f5e7c2c30a
+      gp3: ami-0a52a48ad5d006056
+    eu-central-1:
+      io2: ami-0f98afee1eb8f6b89
+      gp3: ami-02351a30a07e09037
+    eu-north-1:
+      io2: ami-0055ba2a0ed3f1a72
+      gp3: ami-0693803f5048a10be
+    eu-south-1:
+      io2: ami-0edbf10680fc8a16c
+      gp3: ami-0addf4ab6a18d2021
+    eu-west-1:
+      io2: ami-083dd3c040a742480
+      gp3: ami-0b719df721e959977
+    eu-west-2:
+      io2: ami-02ba73fd6471bfc56
+      gp3: ami-0ebbadc02cc97f59e
+    eu-west-3:
+      io2: ami-0a3f60ec0d8d0f335
+      gp3: ami-077c764d5ad99dfc4
+    me-central-1:
+      io2: ami-0f47c4c4379b39377
+      gp3: ami-096d82e46a098ab53
+    me-south-1:
+      io2: ami-05664480c446d195c
+      gp3: ami-0594d7517fab681f5
+    sa-east-1:
+      io2: ami-0b75b547099e37894
+      gp3: ami-09561cbf8cfcf7b3e
+    us-east-1:
+      io2: ami-009d82a1233a13532
+      gp3: ami-0e5d3f10ce3f73fd0
+    us-east-2:
+      io2: ami-05f46812b7c257026
+      gp3: ami-0a4ae811835d5ba28
+    us-west-1:
+      io2: ami-07be7d7121a598ffd
+      gp3: ami-0ddf2ffd74fe2ba33
+    us-west-2:
+      io2: ami-078f19b5a36de6d0c
+      gp3: ami-0ac1c0f7bc86c10de
+
+Outputs:
+  SourcegraphURL:
+    Description: URL for your Sourcegraph instance - sign in here!
+    Value:
+      Fn::Join:
+      - ''
+      - - http://
+        - Fn::GetAtt:
+          - SourcegraphInstance
+          - PublicIp
+        - ":80"
