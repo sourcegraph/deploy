@@ -4,7 +4,8 @@ set -exuo pipefail
 # curl -sfL https://raw.githubusercontent.com/sourcegraph/deploy/main/install/scripts/k3s/local.sh | bash
 # Local version of a k3s instance will only launch with the smallest size, XS
 ###############################################################################
-INSTANCE_VERSION="$1" # e.g. 4.0.1, use the latest if empty value
+# e.g. 4.0.1, use the latest version if value is empty
+INSTANCE_VERSION=${1:-''} # Default to empty
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Variables
 ###############################################################################
