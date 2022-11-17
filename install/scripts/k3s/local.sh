@@ -21,6 +21,7 @@ KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 ###############################################################################
 cd
 git clone $SOURCEGRAPH_DEPLOY_REPO_URL
+cp "$HOME/deploy/install/override.XS.yaml" "$HOME/deploy/install/override.yaml"
 ###############################################################################
 # Install k3s (Kubernetes single-machine deployment)
 ###############################################################################
