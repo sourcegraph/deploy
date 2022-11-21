@@ -1,9 +1,5 @@
 packer {
   required_plugins {
-    amazon = {
-      version = ">= 1.1.1"
-      source  = "github.com/hashicorp/amazon"
-    }
     googlecompute = {
       version = ">= 0.0.1"
       source = "github.com/hashicorp/googlecompute"
@@ -52,7 +48,7 @@ variable "location" {
 variable "sources" {
   default                 = {
     dev                     = [ "source.googlecompute.dev" ]
-    production              = [ "source.googlecompute.XS", "source.googlecompute.S", "source.googlecompute.M", "source.googlecompute.L", "source.googlecompute.XL" ]
+    production              = [ "source.googlecompute.XS" ]
   }
 }
 
@@ -70,7 +66,7 @@ source "googlecompute" "dev" {
   instance_name               = "sg-dev-${local.image_version}-${local.timestamp}"
   image_name                  = "sg-dev-${local.image_version}-${local.timestamp}"
   image_description           = "Sourcegraph Dev Compute Image ${local.image_version} - ${local.timestamp}"
-  source_image                = "ubuntu-1804-bionic-v20221005"
+  source_image                = "ubuntu-2204-jammy-v20221101a"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.xs.instance_type_gcp
   region                      = var.location.gcp.region
@@ -89,10 +85,10 @@ source "googlecompute" "dev" {
 source "googlecompute" "XS" {
   skip_create_image           = var.dev
   project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-xs-${local.image_version}"
-  image_name                  = "sourcegraph-xs-${local.image_version}"
+  instance_name               = "sourcegraph-${local.image_version}"
+  image_name                  = "sourcegraph-aio-${local.image_version}"
   image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
-  source_image                = "ubuntu-1804-bionic-v20221005"
+  source_image                = "ubuntu-2204-jammy-v20221101a"
   ssh_username                = "sourcegraph"
   machine_type                = var.instance_sizes.xs.instance_type_gcp
   region                      = var.location.gcp.region
@@ -108,94 +104,7 @@ source "googlecompute" "XS" {
     team                      = "delivery" 
   }
 }
-source "googlecompute" "S" {
-  skip_create_image           = var.dev
-  project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-s-${local.image_version}"
-  image_name                  = "sourcegraph-s-${local.image_version}"
-  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
-  source_image                = "ubuntu-1804-bionic-v20221005"
-  ssh_username                = "sourcegraph"
-  machine_type                = var.instance_sizes.s.instance_type_gcp
-  region                      = var.location.gcp.region
-  zone                        = var.location.gcp.zone
-  disk_size                   = 50
-  disk_type                   = "pd-ssd"
-  image_family                = "sourcegraph"
-  image_storage_locations     = local.gcp_regions
-  tags                        = ["sourcegraph", "production"]
-  image_labels                = { 
-    version                   = local.image_version, 
-    env                       = "production", 
-    team                      = "delivery" 
-  }
-}
-source "googlecompute" "M" {
-  skip_create_image           = var.dev
-  project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-m-${local.image_version}"
-  image_name                  = "sourcegraph-m-${local.image_version}"
-  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
-  source_image                = "ubuntu-1804-bionic-v20221005"
-  ssh_username                = "sourcegraph"
-  machine_type                = var.instance_sizes.m.instance_type_gcp
-  region                      = var.location.gcp.region
-  zone                        = var.location.gcp.zone
-  disk_size                   = 50
-  disk_type                   = "pd-ssd"
-  image_family                = "sourcegraph"
-  image_storage_locations     = local.gcp_regions
-  tags                        = ["sourcegraph", "production"]
-  image_labels                = { 
-    version                   = local.image_version, 
-    env                       = "production", 
-    team                      = "delivery" 
-  }
-}
-source "googlecompute" "L" {
-  skip_create_image           = var.dev
-  project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-l-${local.image_version}"
-  image_name                  = "sourcegraph-l-${local.image_version}"
-  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
-  source_image                = "ubuntu-1804-bionic-v20221005"
-  ssh_username                = "sourcegraph"
-  machine_type                = var.instance_sizes.l.instance_type_gcp
-  region                      = var.location.gcp.region
-  zone                        = var.location.gcp.zone
-  disk_size                   = 50
-  disk_type                   = "pd-ssd"
-  image_family                = "sourcegraph"
-  image_storage_locations     = local.gcp_regions
-  tags                        = ["sourcegraph", "production"]
-  image_labels                = { 
-    version                   = local.image_version, 
-    env                       = "production", 
-    team                      = "delivery" 
-  }
-}
-source "googlecompute" "XL" {
-  skip_create_image           = var.dev
-  project_id                  = "sourcegraph-amis"
-  instance_name               = "sourcegraph-xl-${local.image_version}"
-  image_name                  = "sourcegraph-xl-${local.image_version}"
-  image_description           = "Sourcegraph Compute Image ${local.image_version} - ${formatdate("YYYYMMDD", timestamp())}"
-  source_image                = "ubuntu-1804-bionic-v20221005"
-  ssh_username                = "sourcegraph"
-  machine_type                = var.instance_sizes.xl.instance_type_gcp
-  region                      = var.location.gcp.region
-  zone                        = var.location.gcp.zone
-  disk_size                   = 50
-  disk_type                   = "pd-ssd"
-  image_family                = "sourcegraph"
-  image_storage_locations     = local.gcp_regions
-  tags                        = ["sourcegraph", "production"]
-  image_labels                = { 
-    version                   = local.image_version, 
-    env                       = "production", 
-    team                      = "delivery" 
-  }
-}
+
 
 build {
   name = "sourcegraph-amis"
@@ -220,7 +129,7 @@ build {
     post-processor "shell-local" {
       except              = ["googlecompute.dev"]
       inline              = [ 
-        "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-${lower(source.name)}-${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imageUser'",
+        "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-aio-${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imageUser'",
       ]
     }
     post-processor "googlecompute-export" {
@@ -228,7 +137,7 @@ build {
       machine_type        = "n1-highcpu-16"
       disk_size           = 100
       disk_type           = "pd-ssd"
-      paths               = ["gs://sourcegraph-images/latest/Sourcegraph-${source.name}.tar.gz"]
+      paths               = ["gs://sourcegraph-images/latest/sourcegraph-aio-${local.image_version}.tar.gz"]
     }
   }
 }
