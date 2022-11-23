@@ -319,7 +319,7 @@ wizard)
     configure_params
     configure_volumes
     install_k3s
-    build_wizard
+    # build_wizard - wip
     deploy_sg
     build_image
     ;;
