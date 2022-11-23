@@ -15,9 +15,17 @@ SOURCEGRAPH_VERSION=$(cat /home/"$INSTANCE_USERNAME"/.sourcegraph-version)
 ###############################################################################
 # Prepare the system
 ###############################################################################
+sudo systemctl restart k3s
+cd /home/sourcegraph/SetupWizard && /home/sourcegraph/.bun/bin/bun run server.js &
+
 if [ -f /mnt/data/.sourcegraph-version ]; then
     sleep 25 && bash $DEPLOY_PATH/reboot.sh
     exit 0
+fi
+
+if [ -f /mnt/data/.sourcegraph-size ]; then
+    SOURCEGRAPH_SIZE=$(cat /mnt/data/.sourcegraph-size)
+    cp "$HOME/deploy/install/override.$SOURCEGRAPH_SIZE.yaml" "$HOME/deploy/install/override.yaml"
 fi
 
 # cd into the deployment repository
@@ -57,19 +65,10 @@ sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 ###############################################################################
 # Install k3s (Kubernetes single-machine deployment)
 ###############################################################################
-curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
-    --node-name sourcegraph-0 \
-    --write-kubeconfig-mode 644 \
-    --cluster-cidr 10.10.0.0/16 \
-    --kubelet-arg containerd=/run/k3s/containerd/containerd.sock \
-    --etcd-expose-metrics true
+sudo systemctl restart k3s
 
 # Confirm k3s and kubectl are up and running
-sleep 30 && k3s kubectl get node
-
-# Correct permissions of k3s config file
-sudo chown $INSTANCE_USERNAME /etc/rancher/k3s/k3s.yaml
-sudo chmod go-r /etc/rancher/k3s/k3s.yaml
+sleep 10 && k3s kubectl get node
 
 # Set KUBECONFIG to point to k3s for 'kubectl' commands to work
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
@@ -80,14 +79,9 @@ export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 # Confirm Helm is up and running
 $LOCAL_BIN_PATH/helm version --short
 
-# # Store Sourcegraph Helm charts locally
-$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph.com/release
-$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
-
 # Create override configMap for prometheus before startup Sourcegraph
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f /home/sourcegraph/deploy/install/prometheus-override.ConfigMap.yaml
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f /home/sourcegraph/deploy/install/override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f /home/sourcegraph/deploy/install/ingress.yaml
+# $LOCAL_BIN_PATH/k3s kubectl create -f /home/sourcegraph/deploy/install/ingress.yaml
 
 # Start Sourcegraph on next reboot
 echo "@reboot sleep 30 && bash $DEPLOY_PATH/reboot.sh" | crontab -
@@ -101,3 +95,4 @@ HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml hi
 sudo cp /etc/rancher/k3s/k3s.yaml /home/sourcegraph/.kube/config
 sudo rm -f /home/sourcegraph/install.sh
 sudo mv -f sourcegraph-"$HELM_APP_VERSION".tgz sourcegraph-charts.tgz
+exit 0

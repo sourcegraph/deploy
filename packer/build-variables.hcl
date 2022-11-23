@@ -1,3 +1,4 @@
-instance_version        = "4.1.0"
+instance_version        = "" // Example: "4.1.0"
 dev                     = true
-build_in_region         = "us-east-1"
+// AWS VARIABLES:
+// build_in_region         = "us-east-1"
