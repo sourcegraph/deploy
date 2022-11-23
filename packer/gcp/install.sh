@@ -89,7 +89,7 @@ echo "@reboot sleep 30 && bash $DEPLOY_PATH/reboot.sh" | crontab -
 # Store the version number from helm chart history
 HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
 [ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
-[ "$SOURCEGRAPH_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee "$USER_ROOT_PATH"/.sourcegraph-version
+[ "$SOURCEGRAPH_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee "$HOME"/.sourcegraph-version
 
 # Clean up files
 sudo cp /etc/rancher/k3s/k3s.yaml /home/sourcegraph/.kube/config

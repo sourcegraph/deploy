@@ -96,6 +96,10 @@ echo "alias k='kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a $USER_R
 
 # Generate files to save instance info in volumes for upgrade purpose
 echo "$SOURCEGRAPH_VERSION" | sudo tee "$HOME/.sourcegraph-version"
+
+###############################################################################
+# Build Sourcegraph Setup Wizard
+###############################################################################
 cd || exit
 # Install Node.js
 curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -

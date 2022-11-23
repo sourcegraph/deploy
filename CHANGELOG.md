@@ -1,9 +1,11 @@
 # CHANGELOG
 
 ## AWS CloudFormation
-Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! [Docs](/admin/deploy/machine-images/aws-oneclick)
+
+Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! [Docs](https://docs.sourcegraph.com/admin/deploy/machine-images/aws-oneclick)
 
 ### GP3 - For XS, S, M
+
 - af-south-1: ami-0e5fe2d6c7f30e33e
 - ap-east-1: ami-0278ea55afb78913c
 - ap-northeast-1: ami-0df0de75a3fe67083
@@ -28,6 +30,7 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 - us-west-2: ami-0d11e8634c489c1a
 
 ### IO2 - For L, XL
+
 - af-south-1: ami-0fb856e50d2d3b152
 - ap-east-1: ami-00eb98fa5290b7d80
 - ap-northeast-1: ami-06795469bb7a7870d
@@ -51,9 +54,11 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 - us-west-1: ami-0611be37a8e94d2a7
 - us-west-2: ami-0656ec1216ed90b30
 
-## Next release
+## AWS AMI Releases
 
-<!-- ### XS
+<!-- ## Next release
+
+### XS
 
 ### S
 
@@ -192,7 +197,7 @@ us-west-2: ami-0d92a3aeb57511d75
 
 ## 4.0.1
 
-### XS 
+### XS
 
 - af-south-1: ami-0152ca5b4c38d32e5
 - ap-east-1: ami-0d7ce8540a701e65b

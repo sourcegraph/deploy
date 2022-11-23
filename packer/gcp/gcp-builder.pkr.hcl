@@ -116,12 +116,12 @@ build {
   }
   provisioner "shell" {
     only              = ["googlecompute.dev"]
-    environment_vars  = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}"]
+    environment_vars  = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}", "SOURCEGRAPH_IMAGE_BUILDER=gcp"]
     scripts           = ["./packer/gcp/init.sh"]
   }
   provisioner "shell" {
     except            = ["googlecompute.dev"]
-    environment_vars  = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}"]
+    environment_vars  = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}", "SOURCEGRAPH_IMAGE_BUILDER=gcp"]
     scripts           = ["./packer/gcp/init.sh"]
   }
   post-processors{

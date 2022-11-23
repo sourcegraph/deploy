@@ -397,7 +397,7 @@ build {
   ]
   provisioner "shell" {
     except              = ["amazon-ebs.DEV"]
-    environment_vars = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}"]
+    environment_vars = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}", "SOURCEGRAPH_IMAGE_BUILDER=aws"]
     scripts          = ["./install/install.sh"]
   }
   provisioner "shell" {
