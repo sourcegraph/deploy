@@ -4,12 +4,21 @@ set -exuo pipefail
 ###############################################################################
 # This scripts is for deploying Sourcegraph in a VM environment
 # Customizable Variables
-###############################################################################
 # ACTION REQUIRED IF RUNNING THIS SCRIPT MANUALLY
-# IMPORTANT: Keep this commented when building with the packer pipeline
+# IMPORTANT: Keep this section commented when building with the packer pipeline
+###############################################################################
 INSTANCE_VERSION=${1:-''} # e.g. 4.0.1. Default to empty
 INSTANCE_SIZE=${2:-'XS'}  # e.g. XS / S / M / L / XL. Default to XS
-INSTALL_MODE=${3:-'all'}  # e.g all, volume, wizard.
+
+###############################################################################
+# IMPORTANT: FOR INTERNAL USE ONLY
+# Interal Variables
+###############################################################################
+INSTALL_MODE=${3:-'all'} # e.g all, volume, wizard.
+# Disable Wizard build by default until it is tested
+SOURCEGRAPH_WIZARD_BUILDER='disable' # e.g. enable / disable the setup wizard
+# Set this in packer to enable image build
+# SOURCEGRAPH_IMAGE_BUILDER=''
 
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Default Variables
@@ -25,7 +34,6 @@ LOCAL_BIN_PATH='/usr/local/bin'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 INSTANCE_BASEIMAGE=ubuntu
 INSTANCE_USERNAME=sourcegraph
-SOURCEGRAPH_IMAGE_BUILDER='' # Set in packer build to enable image build
 RUN_SCRIPTS=$INSTALL_MODE
 
 ###############################################################################
@@ -153,30 +161,62 @@ install_k3s() {
 
 ###############################################################################
 # Build Sourcegraph Setup Wizard
+# Either build with bun or next.js
 ###############################################################################
+# Build Wizard
+# Only works on ubuntu LTS 22.04+
+wizard_bun() {
+    git clone https://github.com/sourcegraph/SetupWizard.git
+    # Set up ingress for the customized 404 page
+    k3s kubectl apply -f "$HOME/SetupWizard/redirect-page.yaml"
+    # Install Node.js
+    curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
+    sudo apt-get install -y nodejs nodejs
+    # Install bun.js, requires unzip
+    sudo apt-get install -y unzip
+    curl -sSL https://bun.sh/install | bash
+    export BUN_INSTALL=$HOME/.bun
+    export PATH=$HOME/.bun/bin:$HOME/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+    echo "export BUN_INSTALL=$HOME/.bun" | tee -a "$HOME/.bashrc"
+    echo "export PATH=$HOME/.bun/bin:$HOME/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" | tee -a "$HOME/.bashrc"
+    cd "$HOME/SetupWizard" || exit
+    # Build wizard
+    bun install
+    bun run build --silent
+    bun run server.js &
+}
+# Build with next.js
+# Use nvm 14.16.0 to ensure it works on Ubuntu 18.04+ and Amazon Linux 2
+wizard_next() {
+    git clone https://github.com/sourcegraph/wizard.git
+    # Set up ingress for the wizard with customized 404 page
+    k3s kubectl apply -f "$HOME/wizard/wizard.yaml"
+    # Patch the endpoint ip address with the hostname internal IP to expose the localhost service
+    k3s kubectl patch endpoints wizard-ip --type merge --patch '{"subsets": [{"addresses": [{"ip": "'$(hostname -i)'"}],"ports": [{"name": "wizard","port": 30080,"protocol": "TCP"}]}]}'
+    # Install Node.js
+    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+    nvm install 14.16.0
+    nvm use 14.16.0
+    cd "$HOME/wizard"
+    npm install
+    npm run build
+    (npm run start &)
+}
+
 build_wizard() {
-    cd || exit
-    # We can only install bun on ubuntu LTS 22.04+
-    if [ "$INSTANCE_BASEIMAGE" = 'ubuntu' ]; then
-        git clone https://github.com/sourcegraph/SetupWizard.git
-        k3s kubectl apply -f "$HOME/SetupWizard/redirect-page.yaml"
-        # Install Node.js
-        curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
-        sudo apt-get install -y nodejs nodejs
-        # Install bun.js
-        sudo apt-get install -y unzip
-        curl -sSL https://bun.sh/install | bash
-        export BUN_INSTALL=$HOME/.bun
-        export PATH=$HOME/.bun/bin:$HOME/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-        echo "export BUN_INSTALL=$HOME/.bun" | tee -a "$HOME/.bashrc"
-        echo "export PATH=$HOME/.bun/bin:$HOME/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" | tee -a "$HOME/.bashrc"
-        cd "$HOME/SetupWizard" || exit
-        # Build wizard
-        bun install
-        bun run build --silent
-        bun run server.js &
-    else
-        echo "Setup Wizard is currently not available for instances running on Amazon Linux"
+    if [ "$SOURCEGRAPH_WIZARD_BUILDER" = "enable" ]; then
+        cd || exit
+        # We can only install bun on ubuntu LTS 22.04+
+        if [ "$INSTANCE_BASEIMAGE" = 'ubuntu' ] && cat </etc/os-release | grep -q 22.04; then
+            echo "Installing Setup Wizard for Ubuntu 22.04"
+            wizard_bun
+        else
+            echo "Installing Setup Wizard"
+            wizard_next
+        fi
     fi
 }
 
@@ -208,7 +248,7 @@ deploy_sg() {
 
     # The Setup Wizard allows user to select their instance size that will
     # save the .sourcegraph-size to disk
-    if [ ! -d "$HOME/SetupWizard" ]; then
+    if [ "$SOURCEGRAPH_WIZARD_BUILDER" = "disable" ]; then
         echo "$SOURCEGRAPH_SIZE" | sudo tee "$HOME/.sourcegraph-size"
         k3s kubectl create -f "$HOME/deploy/install/ingress.yaml"
     fi
@@ -319,7 +359,7 @@ wizard)
     configure_params
     configure_volumes
     install_k3s
-    # build_wizard - wip
+    build_wizard
     deploy_sg
     build_image
     ;;
