@@ -17,6 +17,7 @@ INSTANCE_SIZE=${2:-'XS'}  # e.g. XS / S / M / L / XL. Default to XS
 INSTALL_MODE=${3:-'all'} # e.g all, volume, wizard.
 # Disable Wizard build by default until it is tested
 SOURCEGRAPH_WIZARD_BUILDER='disable' # e.g. enable / disable the setup wizard
+[ "$INSTALL_MODE" = "dev" ] && SOURCEGRAPH_WIZARD_BUILDER='enable'
 # Set this in packer to enable image build
 # SOURCEGRAPH_IMAGE_BUILDER=''
 
@@ -343,6 +344,15 @@ volume)
 deploy)
     deploy_sg
     ;;
+dev)
+    configure_system
+    configure_params
+    configure_volumes
+    install_k3s
+    build_wizard
+    deploy_sg
+    build_image
+    ;;
 reboot)
     on_reboot
     ;;
@@ -359,7 +369,6 @@ wizard)
     configure_params
     configure_volumes
     install_k3s
-    build_wizard
     deploy_sg
     build_image
     ;;
