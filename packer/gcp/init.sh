@@ -57,7 +57,7 @@ curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
     --cluster-cidr 10.10.0.0/16 \
     --kubelet-arg containerd=/run/k3s/containerd/containerd.sock \
     --etcd-expose-metrics true
-
+    
 # Confirm k3s and kubectl are up and running
 sleep 10 && k3s kubectl get node
 
