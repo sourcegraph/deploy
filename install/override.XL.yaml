@@ -10,6 +10,7 @@ frontend:
       memory: 24G
     requests:
       cpu: "250m"
+      ephemeral-storage: 500M
       memory: 256M
 
 gitserver:
@@ -52,6 +53,7 @@ searcher:
       memory: 16G
     requests:
       cpu: "250m"
+      ephemeral-storage: 500M
       memory: 256M
 
 repoUpdater:
@@ -101,6 +103,7 @@ symbols:
       memory: 12G
     requests:
       cpu: "250m"
+      ephemeral-storage: 500M
       memory: 256M
   env:
     # Enables Rockskip
