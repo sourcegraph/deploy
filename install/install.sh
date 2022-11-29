@@ -165,32 +165,9 @@ install_k3s() {
 # Build Sourcegraph Setup Wizard
 # Either build with bun or next.js
 ###############################################################################
-# Build Wizard
-# Only works on ubuntu LTS 22.04+
-wizard_bun() {
-    git clone https://github.com/sourcegraph/SetupWizard.git
-    # Set up ingress for the customized 404 page
-    k3s kubectl apply -f "$HOME/SetupWizard/redirect-page.yaml"
-    # Install Node.js
-    curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
-    sudo apt-get install -y nodejs
-    # Install bun.js, requires unzip
-    sudo apt-get install -y unzip
-    curl -sSL https://bun.sh/install | bash
-    export BUN_INSTALL=$HOME/.bun
-    export PATH=$HOME/.bun/bin:$HOME/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-    echo "export BUN_INSTALL=$HOME/.bun" | tee -a "$HOME/.bashrc"
-    echo "export PATH=$HOME/.bun/bin:$HOME/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" | tee -a "$HOME/.bashrc"
-    cd "$HOME/SetupWizard" || exit
-    # Build wizard
-    bun install
-    bun run build --silent
-    nohup bun run server.js >/dev/null 2>&1 &
-}
-
 # Build with next.js
 # Use nvm 14.16.0 to ensure it works on Ubuntu 18.04+ and Amazon Linux 2
-wizard_next() {
+start_wizard() {
     git clone https://github.com/sourcegraph/wizard.git
     # Set up ingress for the wizard with customized 404 page
     k3s kubectl apply -f "$HOME/wizard/wizard.yaml"
@@ -206,6 +183,7 @@ wizard_next() {
     npm install
     npm run build
     sleep 10
+    # Keep wizard running on restart
     pm2 start npm --name wizard -- start
     [ "$(whoami)" == 'sourcegraph' ] && sudo env PATH=$PATH:/home/sourcegraph/.nvm/versions/node/v14.16.0/bin /home/sourcegraph/.nvm/versions/node/v14.16.0/lib/node_modules/pm2/bin/pm2 startup systemd -u sourcegraph --hp /home/sourcegraph
     [ "$(whoami)" == 'ec2-user' ] && sudo env PATH=$PATH:/home/ec2-user/.nvm/versions/node/v14.16.0/bin /home/ec2-user/.nvm/versions/node/v14.16.0/lib/node_modules/pm2/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user
@@ -215,14 +193,8 @@ wizard_next() {
 build_wizard() {
     if [ "$SOURCEGRAPH_WIZARD_BUILDER" = "enable" ]; then
         cd || exit
-        # We can only install bun on ubuntu LTS 22.04+
-        if [ "$INSTANCE_BASEIMAGE" = 'ubuntu' ] && cat </etc/os-release | grep -q 22.04; then
-            echo "Installing Setup Wizard for Ubuntu 22.04"
-            wizard_bun
-        else
-            echo "Installing Setup Wizard"
-            wizard_next
-        fi
+        echo "Installing Setup Wizard"
+        start_wizard
     fi
 }
 
@@ -344,7 +316,7 @@ on_reboot() {
         if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
             sudo systemctl restart k3s
             # Make sure Setup Wizard is removed
-            rm -rf wizard SetupWizard
+            rm -rf wizard
             exit 0
         else
             sudo systemctl restart k3s && sleep 30
