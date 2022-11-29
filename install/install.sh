@@ -18,8 +18,7 @@ INSTALL_MODE=${3:-'all'} # e.g all, volume, wizard.
 # Disable Wizard build by default until it is tested
 SOURCEGRAPH_WIZARD_BUILDER='disable' # e.g. enable / disable the setup wizard
 [ "$INSTALL_MODE" = "dev" ] && SOURCEGRAPH_WIZARD_BUILDER='enable'
-# Set this in packer to enable image build
-# SOURCEGRAPH_IMAGE_BUILDER=''
+# SOURCEGRAPH_IMAGE_BUILDER='' # Set this in packer to enable image build
 
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Default Variables
@@ -70,7 +69,7 @@ configure_system() {
         sudo yum install git -y
     fi
     # Clone the deployment repository
-    git clone $SOURCEGRAPH_DEPLOY_REPO_URL
+    [ ! -d "$HOME/deploy" ] && git clone $SOURCEGRAPH_DEPLOY_REPO_URL
     cp "$HOME/deploy/install/override.$SOURCEGRAPH_SIZE.yaml" "$HOME/deploy/install/override.yaml"
 }
 
@@ -96,7 +95,8 @@ configure_volumes() {
     # Create mounting directories for storing data from the Sourcegraph cluster
     sudo mkdir -p /mnt/data
     sudo mkdir -p /mnt/data/kubelet /var/lib/kubelet
-    if ! lsblk | grep -q "sdb"; then
+    # If data volume is available and not mounted to /mnt/data
+    if lsblk | grep -q "sdb" && ! lsblk | grep -q "/mnt/data"; then
         # Format (if necessary) and mount the data volume
         device_fs=$(sudo lsblk $VOLUME_DEVICE_NAME --noheadings --output fsType)
         if [ "$INSTANCE_BASEIMAGE" = 'ubuntu' ]; then
@@ -118,6 +118,13 @@ configure_volumes() {
         fi
         sudo umount /mnt/data
         sudo mount -a
+        # Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
+        if [ "$INSTANCE_BASEIMAGE" = 'ubuntu' ]; then
+            sudo echo "/mnt/data/kubelet    /var/lib/kubelet    none    bind" | sudo tee -a /etc/fstab
+        else
+            sudo sh -c 'echo "/mnt/data/kubelet    /var/lib/kubelet    none    bind" >> /etc/fstab'
+        fi
+        sudo mount -a
         # Put persistent volume pod storage in our data disk, and k3s's embedded database there too (it
         # must be kept around in order for k3s to keep PVs attached to the right folder on disk if a node
         # is lost (i.e. during an upgrade of Sourcegraph), see https://github.com/rancher/local-path-provisioner/issues/26
@@ -127,12 +134,6 @@ configure_volumes() {
         sudo mkdir -p /mnt/data/storage
         sudo mkdir -p /var/lib/rancher/k3s
         sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
-        # Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
-        if [ "$INSTANCE_BASEIMAGE" = 'ubuntu' ]; then
-            sudo echo "/mnt/data/kubelet    /var/lib/kubelet    none    bind" | sudo tee -a /etc/fstab
-        else
-            sudo sh -c 'echo "/mnt/data/kubelet    /var/lib/kubelet    none    bind" >> /etc/fstab'
-        fi
     fi
 }
 
@@ -172,7 +173,7 @@ wizard_bun() {
     k3s kubectl apply -f "$HOME/SetupWizard/redirect-page.yaml"
     # Install Node.js
     curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
-    sudo apt-get install -y nodejs nodejs
+    sudo apt-get install -y nodejs
     # Install bun.js, requires unzip
     sudo apt-get install -y unzip
     curl -sSL https://bun.sh/install | bash
@@ -184,8 +185,9 @@ wizard_bun() {
     # Build wizard
     bun install
     bun run build --silent
-    bun run server.js &
+    nohup bun run server.js >/dev/null 2>&1 &
 }
+
 # Build with next.js
 # Use nvm 14.16.0 to ensure it works on Ubuntu 18.04+ and Amazon Linux 2
 wizard_next() {
@@ -195,16 +197,19 @@ wizard_next() {
     # Patch the endpoint ip address with the hostname internal IP to expose the localhost service
     k3s kubectl patch endpoints wizard-ip --type merge --patch '{"subsets": [{"addresses": [{"ip": "'$(hostname -i)'"}],"ports": [{"name": "wizard","port": 30080,"protocol": "TCP"}]}]}'
     # Install Node.js
-    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+    . ~/.nvm/nvm.sh
     nvm install 14.16.0
     nvm use 14.16.0
     cd "$HOME/wizard"
+    npm install pm2 -g
     npm install
     npm run build
-    (npm run start &)
+    sleep 10
+    pm2 start npm --name wizard -- start
+    [ "$(whoami)" == 'sourcegraph' ] && sudo env PATH=$PATH:/home/sourcegraph/.nvm/versions/node/v14.16.0/bin /home/sourcegraph/.nvm/versions/node/v14.16.0/lib/node_modules/pm2/bin/pm2 startup systemd -u sourcegraph --hp /home/sourcegraph
+    [ "$(whoami)" == 'ec2-user' ] && sudo env PATH=$PATH:/home/ec2-user/.nvm/versions/node/v14.16.0/bin /home/ec2-user/.nvm/versions/node/v14.16.0/lib/node_modules/pm2/bin/pm2 startup systemd -u ec2-user --hp /home/ec2-user
+    pm2 save
 }
 
 build_wizard() {
@@ -225,6 +230,20 @@ build_wizard() {
 # Deploy Sourcegraph with Helm
 ###############################################################################
 deploy_sg() {
+    # Generate files to save instance info in volumes for upgrade purpose
+    # First, pin the root image with the version number
+    echo "$SOURCEGRAPH_VERSION" | sudo tee "$HOME/.sourcegraph-version"
+    # Second, add version number to data volume
+    # This is a new instance if /mnt/data/.sourcegraph-version doesn't exist in data volume
+    if [ ! -f /mnt/data/.sourcegraph-version ]; then
+        # So we will mark the version number with "base"
+        # which will be removed on new deployment after reboot
+        echo "base${SOURCEGRAPH_VERSION}" | sudo tee /mnt/data/.sourcegraph-version
+    else
+        # Else, if an existing data volume is attached, this is an upgrade
+        echo "${SOURCEGRAPH_VERSION}" | sudo tee /mnt/data/.sourcegraph-version
+    fi
+
     cd "$DEPLOY_PATH" || exit
     # Install Helm
     curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -242,11 +261,6 @@ deploy_sg() {
         helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
     fi
 
-    # Generate files to save instance info in volumes for upgrade purpose
-    echo "$SOURCEGRAPH_VERSION" | sudo tee "$HOME/.sourcegraph-version"
-    # Remove -base on new deployment after reboot
-    echo "${SOURCEGRAPH_VERSION}-base" | sudo tee /mnt/data/.sourcegraph-version
-
     # The Setup Wizard allows user to select their instance size that will
     # save the .sourcegraph-size to disk
     if [ "$SOURCEGRAPH_WIZARD_BUILDER" = "disable" ]; then
@@ -261,8 +275,7 @@ deploy_sg() {
 build_image() {
     # To enable this function, set SOURCEGRAPH_IMAGE_BUILDER in packer build
     if [ -n "$SOURCEGRAPH_IMAGE_BUILDER" ]; then
-        # Skip ingress start-up during AMI creation step:
-        k3s kubectl delete ing sourcegraph-ingress
+        # Skip ingress start-up during AMI creation step: k3s kubectl delete ing sourcegraph-ingress
         # Stop k3s and disable k3s to prevent it from starting on next reboot
         # allows 3 mins for services to stand up before disabling k3s
         sleep 120
@@ -271,7 +284,7 @@ build_image() {
         sudo systemctl disable k3s
         sudo systemctl stop k3s
         # Start Sourcegraph and k3s on next reboot
-        echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $HOME/deploy/install/reboot.sh" | crontab -
+        echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $HOME/deploy/install/install.sh v$SOURCEGRAPH_VERSION $SOURCEGRAPH_SIZE reboot" | crontab -
     fi
 }
 
@@ -292,6 +305,7 @@ reset_k3s() {
         # Delete any existing ingress from old instances before restarting k3s
         $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE delete ingress sourcegraph-ingress
     fi
+    sudo systemctl restart k3s && sleep 30
 }
 
 # Install or upgrade Sourcegraph and create ingress
@@ -305,13 +319,18 @@ deploy_reboot() {
     else
         $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f "$HOME/deploy/install/override.yaml" --version "$AMI_VERSION" sourcegraph sourcegraph/sourcegraph
     fi
-    $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f "$HOME/deploy/install/ingress.yaml"
+    if ! $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE get ing | grep -q wizard-service; then
+        $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f "$HOME/deploy/install/ingress.yaml"
+    fi
+    echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $HOME/deploy/install/reboot.sh" | crontab -
+    sleep 60 && sudo systemctl restart k3s
 }
 
 store_helm_version() {
     HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
     # Update version files if output is not empty
     [ -n "$HELM_APP_VERSION" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version "$HOME/.sourcegraph-version"
+    sleep 60 && sudo systemctl restart k3s
 }
 
 ###############################################################################
@@ -325,13 +344,12 @@ on_reboot() {
         if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
             sudo systemctl restart k3s
             # Make sure Setup Wizard is removed
-            rm -rf SetupWizard
+            rm -rf wizard SetupWizard
             exit 0
         else
-            reset_k3s
             sudo systemctl restart k3s && sleep 30
+            reset_k3s
             deploy_reboot
-            sleep 60 && sudo systemctl restart k3s
             store_helm_version
         fi
     fi
@@ -354,6 +372,7 @@ dev)
     build_image
     ;;
 reboot)
+    configure_volumes
     on_reboot
     ;;
 install)
