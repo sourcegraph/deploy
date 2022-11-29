@@ -111,18 +111,18 @@ build {
   sources = local.source_group
   // Move the install.sh script to VM to run on next reboot 
   provisioner "file" {
-    source = "./packer/gcp/install.sh"
+    source = "./install/install.sh"
     destination = "/home/sourcegraph/install.sh"
   }
   provisioner "shell" {
     only              = ["googlecompute.dev"]
-    environment_vars  = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}", "SOURCEGRAPH_IMAGE_BUILDER=gcp"]
-    scripts           = ["./packer/gcp/init.sh"]
+    environment_vars  = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}", "INSTALL_MODE=dev", "SOURCEGRAPH_IMAGE_BUILDER=gcp"]
+    inline            = ["bash /home/sourcegraph/install.sh v${var.instance_version} XS dev"]
   }
   provisioner "shell" {
     except            = ["googlecompute.dev"]
-    environment_vars  = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}", "SOURCEGRAPH_IMAGE_BUILDER=gcp"]
-    scripts           = ["./packer/gcp/init.sh"]
+    environment_vars  = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}", "INSTALL_MODE=all", "SOURCEGRAPH_IMAGE_BUILDER=gcp"]
+    inline            = ["bash /home/sourcegraph/install.sh v${var.instance_version} XS all"]
   }
   post-processors{
     //  Post processors: mark images as public 

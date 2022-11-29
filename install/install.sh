@@ -1,20 +1,17 @@
-#!/usr/bin/env bash
-set -exuo pipefail
+#!/usr/bin/bash
 
 ###############################################################################
 # This scripts is for deploying Sourcegraph in a VM environment
 # Customizable Variables
-# ACTION REQUIRED IF RUNNING THIS SCRIPT MANUALLY
-# IMPORTANT: Keep this section commented when building with the packer pipeline
 ###############################################################################
 INSTANCE_VERSION=${1:-''} # e.g. 4.0.1. Default to empty
 INSTANCE_SIZE=${2:-'XS'}  # e.g. XS / S / M / L / XL. Default to XS
+INSTALL_MODE=${3:-'all'}  # e.g all, volume, wizard.
 
 ###############################################################################
 # IMPORTANT: FOR INTERNAL USE ONLY
 # Interal Variables
 ###############################################################################
-INSTALL_MODE=${3:-'all'} # e.g all, volume, wizard.
 # Disable Wizard build by default until it is tested
 SOURCEGRAPH_WIZARD_BUILDER='disable' # e.g. enable / disable the setup wizard
 [ "$INSTALL_MODE" = "dev" ] && SOURCEGRAPH_WIZARD_BUILDER='enable'
@@ -178,7 +175,7 @@ start_wizard() {
     . ~/.nvm/nvm.sh
     nvm install 14.16.0
     nvm use 14.16.0
-    cd "$HOME/wizard"
+    cd "$HOME/wizard" || exit
     npm install pm2 -g
     npm install
     npm run build
@@ -196,6 +193,10 @@ build_wizard() {
         echo "Installing Setup Wizard"
         start_wizard
     fi
+}
+
+patch_wizard() {
+    $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE patch endpoints wizard-ip --type merge --patch '{"subsets": [{"addresses": [{"ip": "'$(hostname -i)'"}],"ports": [{"name": "wizard","port": 30080,"protocol": "TCP"}]}]}'
 }
 
 ###############################################################################
@@ -256,7 +257,7 @@ build_image() {
         sudo systemctl disable k3s
         sudo systemctl stop k3s
         # Start Sourcegraph and k3s on next reboot
-        echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $HOME/deploy/install/install.sh v$SOURCEGRAPH_VERSION $SOURCEGRAPH_SIZE reboot" | crontab -
+        echo "@reboot sleep 10;bash $HOME/install.sh v$SOURCEGRAPH_VERSION $SOURCEGRAPH_SIZE reboot >/dev/null 2>&1" | crontab -
     fi
 }
 
@@ -266,6 +267,8 @@ build_image() {
 # Reset the containerd state if k3s is not starting
 # NOTE: Cluster data will NOT be deleted
 reset_k3s() {
+    patch_wizard
+    sudo systemctl restart k3s && sleep 30
     if ! sudo systemctl status k3s.service | grep -q 'active (running)'; then
         # Stop all of the K3s containers and reset the containerd state
         sudo sh $LOCAL_BIN_PATH/k3s-killall.sh
@@ -310,6 +313,7 @@ store_helm_version() {
 ###############################################################################
 # Exit if AMI version is the same version as the volume
 on_reboot() {
+    sudo systemctl restart k3s
     if [ -f /mnt/data/.sourcegraph-version ]; then
         VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
         AMI_VERSION=$(cat "$HOME/.sourcegraph-version")
@@ -318,13 +322,13 @@ on_reboot() {
             # Make sure Setup Wizard is removed
             rm -rf wizard
             exit 0
-        else
-            sudo systemctl restart k3s && sleep 30
-            reset_k3s
-            deploy_reboot
-            store_helm_version
         fi
     fi
+    configure_volumes
+    reset_k3s
+    patch_wizard
+    deploy_reboot
+    store_helm_version
 }
 
 case $RUN_SCRIPTS in
@@ -344,7 +348,6 @@ dev)
     build_image
     ;;
 reboot)
-    configure_volumes
     on_reboot
     ;;
 install)
