@@ -155,7 +155,7 @@ if ! df | grep "${VOLUME_DEVICE_NAME}" | grep -q "/mnt/data"; then
         if command -v xfs_admin &> /dev/null; then
             sudo mkfs -t xfs "$VOLUME_DEVICE_NAME"
             sudo xfs_admin -L /mnt/data "$VOLUME_DEVICE_NAME" # Add label to volume device
-            mount_opts="LABEL=/mnt/data  /mnt/data  xfs  defaults,nofail  0  2"
+            mount_opts="LABEL=/mnt/data  /mnt/data  xfs  discard,defaults,nofail  0  2"
         else
             sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "$VOLUME_DEVICE_NAME"
             sudo e2label "$VOLUME_DEVICE_NAME" /mnt/data # Add label to volume device
@@ -164,8 +164,13 @@ if ! df | grep "${VOLUME_DEVICE_NAME}" | grep -q "/mnt/data"; then
         sudo mount "$VOLUME_DEVICE_NAME" /mnt/data
         # Mount data disk on reboots by linking disk label to data root path
         sudo echo "$mount_opts" | sudo tee -a /etc/fstab
+    else
+        # Add fstab if missing but disk is formatted
+        if ! grep "LABEL=/mnt/data" /etc/fstab; then
+            sudo echo "LABEL=/mnt/data  /mnt/data  $device_fs  discard,defaults,nofail  0  2" | sudo tee -a /etc/fstab
+        fi
+        sudo mount "$VOLUME_DEVICE_NAME" /mnt/data
     fi
-    sudo umount /mnt/data
     sudo mount -a
 
     # Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
