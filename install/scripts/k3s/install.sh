@@ -233,7 +233,7 @@ if [ -z "$SOURCEGRAPH_VERSION" ]; then
     SOURCEGRAPH_VERSION=$(helm inspect chart sourcegraph/sourcegraph | grep version: | sed -E 's/version: (.*)/\1/')
 fi
 
-if ! helm show chart --version 4.2.0 sourcegraph/sourcegraph; then
+if ! helm show chart --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph; then
     echo "❌ Error: could not find Sourcegraph Version '$SOURCEGRAPH_VERSION'"
     exit 1
 fi
