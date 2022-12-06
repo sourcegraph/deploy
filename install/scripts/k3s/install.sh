@@ -83,7 +83,7 @@ fi
 # Parses /etc/os-release file
 # Parse `distro` from `ID="distro"`
 ###############################################################################
-ID=$(grep ^ID= /etc/os-release | sed -E 's/ID="?(.*)"?/\1/')
+ID=$(grep ^ID= /etc/os-release | sed -E 's/ID="?([0-9a-z._-]*)"?/\1/')
 case $ID in
     rhel | amzn | fedora)
         INSTANCE_ID="fedora"
