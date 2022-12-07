@@ -2,26 +2,32 @@
 set -exuo pipefail
 ###############################################################################
 # curl -sfL https://raw.githubusercontent.com/sourcegraph/deploy/main/install/scripts/k3s/local.sh | bash
-# Local version of a k3s instance will only launch with the smallest size, XS
+# This script is for deploying Sourcegraph on a personal machine
 ###############################################################################
 # e.g. 4.0.1, use the latest version if value is empty
 INSTANCE_VERSION=${1:-''} # Default to empty
+# Local version of a k3s instance will only launch with the smallest size (XS)
+INSTANCE_SIZE=XS
+
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Variables
 ###############################################################################
 SOURCEGRAPH_VERSION=$INSTANCE_VERSION
+SOURCEGRAPH_SIZE=$INSTANCE_SIZE=XS
 INSTANCE_USERNAME=$(whoami)
 SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
-# If INSTANCE_VERSION is not empty, remove v
+# If INSTANCE_VERSION is not empty, remove 'v'
 # e.g. v4.0.0 => 4.0.0
 [ -n "$INSTANCE_VERSION" ] && INSTANCE_VERSION=${INSTANCE_VERSION#v}
+
 ###############################################################################
-# Clone the deployment repository
+# Clone the deployment repository: sourcegraph/deploy
 ###############################################################################
 cd
 git clone $SOURCEGRAPH_DEPLOY_REPO_URL
-cp "$HOME/deploy/install/override.XS.yaml" "$HOME/deploy/install/override.yaml"
+cp "$HOME/deploy/install/override.$SOURCEGRAPH_SIZE.yaml" "$HOME/deploy/install/override.yaml"
+
 ###############################################################################
 # Install k3s (Kubernetes single-machine deployment)
 ###############################################################################
@@ -39,8 +45,9 @@ sudo chmod go-r /etc/rancher/k3s/k3s.yaml
 # Set KUBECONFIG to point to k3s for 'kubectl' commands to work
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 cp /etc/rancher/k3s/k3s.yaml "$HOME/.kube/config"
+
 ###############################################################################
-# Set up Sourcegraph using Helm
+# Deploy Sourcegraph using Helm to the k3s cluster
 ###############################################################################
 # Install Helm
 curl -sSL https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
@@ -51,3 +58,17 @@ helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph
 k3s kubectl apply -f deploy/install/prometheus-override.ConfigMap.yaml
 helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f "$HOME/deploy/install/override.yaml" --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
 k3s kubectl create -f deploy/install/ingress.yaml
+
+###############################################################################
+# Kernel parameters required by Sourcegraph
+###############################################################################
+# These must be set in order for Zoekt (Sourcegraph's search indexing backend)
+# to perform at scale without running into limitations.
+sudo sh -c "echo 'fs.inotify.max_user_watches=128000' >> /etc/sysctl.conf"
+sudo sh -c "echo 'vm.max_map_count=300000' >> /etc/sysctl.conf"
+sudo sysctl --system # Reload configuration (no restart required.)
+
+sudo sh -c "echo '* soft nproc 8192' >> /etc/security/limits.conf"
+sudo sh -c "echo '* hard nproc 16384' >> /etc/security/limits.conf"
+sudo sh -c "echo '* soft nofile 262144' >> /etc/security/limits.conf"
+sudo sh -c "echo '* hard nofile 262144' >> /etc/security/limits.conf"

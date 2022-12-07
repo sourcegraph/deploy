@@ -17,6 +17,7 @@ RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 # Exit if AMI version is the same version as the volume
 if [ -f /mnt/data/.sourcegraph-version ]; then
     VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
+    AMI_VERSION=$(cat "$HOME/.sourcegraph-version")
     if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
         sudo systemctl restart k3s
         exit 0
@@ -53,5 +54,5 @@ $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f ./ingress.yaml
 # However, this should not affect a running instance
 sleep 60 && sudo systemctl restart k3s
 HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
-[ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
-[ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee /home/"$INSTANCE_USERNAME"/.sourcegraph-version
+# Update version files if output is not empty
+[ -n "$HELM_APP_VERSION" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version "$HOME/.sourcegraph-version"
