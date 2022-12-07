@@ -194,3 +194,13 @@ prometheus:
       memory: 256M
   existingConfig: prometheus-override
 
+openTelemetry:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: "3"
+      memory: 3G
+    requests:
+      cpu: "250m"
+      memory: 256M

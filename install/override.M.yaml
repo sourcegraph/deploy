@@ -193,3 +193,14 @@ redisCache:
     requests:
       cpu: "250m"
       memory: 256M
+
+openTelemetry:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: "3"
+      memory: 3G
+    requests:
+      cpu: "250m"
+      memory: 256M
