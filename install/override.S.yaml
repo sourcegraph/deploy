@@ -129,7 +129,7 @@ grafana:
       cpu: "250m"
       memory: 256M
 
-minio:
+blobstore:
   enabled: true
   resources:
     limits:
