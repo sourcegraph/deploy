@@ -5,9 +5,17 @@
 We use Hashicorp Packer to build images:
 
 1. [Install Packer](https://learn.hashicorp.com/tutorials/packer/get-started-install-cli?in=packer/aws-get-started#installing-packer).
-2. Run `packer init ./packer` at the root of this repository.
+2. Run `packer init` (ignore any warnings about unused variables here):
+
+```
+packer init --var-file=./packer/dev/dev-variables.hcl ./packer/dev/dev-builder.pkr.hcl
+packer init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
+packer init --var-file=./packer/build-variables.hcl ./packer/aws-latest/aws-builder.pkr.hcl
+packer init --var-file=./packer/build-variables.hcl ./packer/gcp/gcp-builder.pkr.hcl
+```
+
 3. [Authenticate with AWS](https://www.packer.io/plugins/builders/amazon#authentication):
-   * In AWS, select the username dropdown in the top right of the page and choose _User credentials_ to create an access key.
+   * In AWS, select the username dropdown in the top right of the page and choose _Security credentials_ to create an access key.
    * In your `~/.zshrc`, `~/.bash_profile`, etc. add:
 
 ```
@@ -67,7 +75,8 @@ packer build -var-file=/packer/dev/dev-variables.hcl /packer/dev/dev-builder.pkr
 
 To create images for all cloud providers:
 
-1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build 
+1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build
+   * If trying to create a non-development build, also set `dev = false`.
 2. Run `bash build.sh` from the root of this repository, which will:
    - Build the images for all sizes for each supported cloud provider
    - Copy them to the relevant regions
