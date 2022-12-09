@@ -258,4 +258,4 @@ sudo echo "$SOURCEGRAPH_VERSION" | sudo tee "$HOME/.sourcegraph-version"
 sudo echo "${SOURCEGRAPH_VERSION}" | sudo tee /mnt/data/.sourcegraph-version
 
 # Deploy Reboot
-echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $HOME/deploy/install/reboot.sh" | sudo crontab -u "$INSTANCE_USERNAME" -
+echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $HOME/deploy/install/scripts/k3s/reboot.sh" | sudo crontab -u "$INSTANCE_USERNAME" -
