@@ -174,10 +174,9 @@ if ! df | grep "${VOLUME_DEVICE_NAME}" | grep -q "/mnt/data"; then
     sudo mount -a
 
     # Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
-    # Puts `/mnt/data/kubelet` at `/var/lib/kubelet` in the directory tree
-    # sudo mkdir -p /mnt/data/kubelet /var/lib/kubelet
-    # sudo echo "/mnt/data/kubelet    /var/lib/kubelet    none    bind" | sudo tee -a /etc/fstab
-    # sudo mount -a
+    # Symlink `/var/lib/kubelet` to `/mnt/data/kubelet`
+    sudo mkdir -p /mnt/data/kubelet
+    sudo ln -s /mnt/data/kubelet /var/lib/kubelet
 
     # Put persistent volume pod storage in our data disk, and k3s's embedded database there too (it
     # must be kept around in order for k3s to keep PVs attached to the right folder on disk if a node

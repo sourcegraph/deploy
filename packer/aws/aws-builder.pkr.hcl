@@ -349,6 +349,8 @@ source "amazon-ebs" "DEV" {
   region                       = var.build_in_region
   ami_regions                  = local.regions
   associate_public_ip_address  = true
+  force_deregister             = true
+  force_delete_snapshot        = true
   source_ami_filter {
     filters                    = {
       name                     = "amzn2-ami-kernel-*-hvm-*-x86_64-gp2"
