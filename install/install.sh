@@ -153,7 +153,7 @@ helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOU
 # kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
 
 # Start Sourcegraph on next reboot
-echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $DEPLOY_PATH/reboot.sh" | crontab -
+echo "@reboot sleep 10 && bash $DEPLOY_PATH/reboot.sh" | crontab -
 
 # Stop k3s and disable k3s to prevent it from starting on next reboot
 # allows 3 mins for services to stand up before disabling k3s
