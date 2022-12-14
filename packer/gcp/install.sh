@@ -47,10 +47,11 @@ sudo mount $VOLUME_DEVICE_NAME /mnt/data
 sudo echo "LABEL=/mnt/data  /mnt/data  ext4  discard,defaults,nofail  0  2" | sudo tee -a /etc/fstab
 sudo umount /mnt/data
 sudo mount -a
+
 # Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
-sudo mkdir -p /mnt/data/kubelet /var/lib/kubelet
-sudo echo "/mnt/data/kubelet    /var/lib/kubelet    none    bind" | sudo tee -a /etc/fstab
-sudo mount -a
+# Symlink `/var/lib/kubelet` to `/mnt/data/kubelet`
+sudo mkdir -p /mnt/data/kubelet
+sudo ln -s /mnt/data/kubelet /var/lib/kubelet
 
 # Put persistent volume pod storage in our data disk, and k3s's embedded database there too (it
 # must be kept around in order for k3s to keep PVs attached to the right folder on disk if a node

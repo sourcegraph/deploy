@@ -87,9 +87,9 @@ sudo iptables -I INPUT 1 -i cni0 -s 10.42.0.0/16 -j ACCEPT
 sudo service iptables save
 
 # Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
-sudo mkdir -p /mnt/data/kubelet /var/lib/kubelet
-sudo sh -c 'echo "/mnt/data/kubelet    /var/lib/kubelet    none    bind" >> /etc/fstab'
-sudo mount -a
+# Symlink `/var/lib/kubelet` to `/mnt/data/kubelet`
+sudo mkdir -p /mnt/data/kubelet
+sudo ln -s /mnt/data/kubelet /var/lib/kubelet
 
 # Put persistent volume pod storage in our data disk, and k3s's embedded database there too (it
 # must be kept around in order for k3s to keep PVs attached to the right folder on disk if a node
@@ -153,7 +153,7 @@ helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOU
 # kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
 
 # Start Sourcegraph on next reboot
-echo "@reboot sleep 10 && sudo systemctl restart k3s && sleep 20 && bash $DEPLOY_PATH/reboot.sh" | crontab -
+echo "@reboot sleep 10 && bash $DEPLOY_PATH/reboot.sh" | crontab -
 
 # Stop k3s and disable k3s to prevent it from starting on next reboot
 # allows 3 mins for services to stand up before disabling k3s

@@ -93,7 +93,7 @@ variable "ami_regions_aws" {
       "eu-central-1",
       "ap-northeast-1",
       "ap-northeast-2",
-      "ap-southeast-1",
+      // "ap-southeast-1", # excluded as Public AMI quota too low
       "ap-southeast-2",
       "ap-south-1",
       "sa-east-1",
@@ -315,7 +315,7 @@ source "amazon-ebs" "XL" {
   }
   subnet_filter {
     filters = {
-      "tag:Name" : "packer-build-2b"
+      "tag:Name" : "packer-build"
     }
     most_free = true
     random    = false
@@ -349,6 +349,8 @@ source "amazon-ebs" "DEV" {
   region                       = var.build_in_region
   ami_regions                  = local.regions
   associate_public_ip_address  = true
+  force_deregister             = true
+  force_delete_snapshot        = true
   source_ami_filter {
     filters                    = {
       name                     = "amzn2-ami-kernel-*-hvm-*-x86_64-gp2"
