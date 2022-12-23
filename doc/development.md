@@ -38,7 +38,7 @@ export AWS_DEFAULT_REGION="us-west-1"
 
 ## Building an AMI
 
-To create an AMI for a given T-shirt size, follow the [instructions in our development docs](https://docs.sourcegraph.com/admin/deploy/machine-images/aws-ami#deploy-sourcegraph) and refer to the following tables.
+To create an AMI for a given T-shirt size, follow the instructions for creating a single AMI below and refer to the following tables.
 
 #### AWS
 
