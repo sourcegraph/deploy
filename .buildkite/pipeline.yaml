@@ -1,0 +1,10 @@
+steps:
+  - label: "publish-ami"
+    commands:
+      - "install-packer-env.sh"
+      # The follwoing build command will actually need to have its final outputs captured and published 
+      # as part of the changelog output -- it should likely have its own script, additionally I'd like 
+      # to run these with the --only flag one instance version at a time to mitigate 
+      # InsufficientInstanceCapacity errors
+      - "packer build --var-file=../packer/build-variables.hcl ../packer/aws/aws-builder.pkr.hcl"
+    agents: { queue: standard }
