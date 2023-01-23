@@ -1,0 +1,37 @@
+name: AMI-release
+
+on: workflow_dispatch
+inputs:
+  version:
+    description: 'Sourcegraph release version'
+    required: true
+    type: string
+
+env: 
+  AWS_ACCESS_KEY_ID: {{secrets.AWS_ACCESS_KEY_ID}}
+  AWS_SECRET_ACCESS_KEY: {{secrets.AWS_SECRET_ACCESS_KEY}}
+  AWS_DEFAULT_REGION: us-west-1 
+
+jobs:
+  packer:
+    runs-on: ubuntu-latest
+    name: build and publish AMIs
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: "1.8.3" # or `latest`
+
+      - name: Run `packer init`
+        needs: [Checkout, Setup `packer`]
+        run: "packer init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl"
+
+      - name: Publish AMIs
+        needs: Run `packer init`
+        run: "packer -machine-readable build --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl"
+
+
