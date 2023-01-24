@@ -27,11 +27,11 @@ jobs:
           version: "1.8.3" # or `latest`
 
       - name: Run `packer init`
-        needs: [Checkout, Setup `packer`]
-        run: "packer init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl"
+        run: "packer init --var-file=./.github/packer/ci-build-variables.hcl ./.github/packer/ci-aws-builder.pkr.hcl"
+        outputs:
+
 
       - name: Publish AMIs
-        needs: Run `packer init`
-        run: "packer -machine-readable build --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl"
+        run: "packer -machine-readable build --var-file=./.github/packer/ci-build-variables.hcl ./.github/packer/ci-aws-builder.pkr.hcl"
 
 
