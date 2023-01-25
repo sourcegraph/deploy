@@ -30,8 +30,28 @@ jobs:
         run: "packer init --var-file=./.github/packer/ci-build-variables.hcl ./.github/packer/ci-aws-builder.pkr.hcl"
         outputs:
 
+      - name: Release XS AMI
+        run: "packer -machine-readable build --var 'instance_version=${{ inputs.version }}' --var 'dev=true' ./.github/packer/release-XS-aws-builder.pkr.hcl"
 
-      - name: Publish AMIs
-        run: "packer -machine-readable build --var-file=./.github/packer/ci-build-variables.hcl ./.github/packer/ci-aws-builder.pkr.hcl"
+      
+      - name: Release S AMI
+        run: "packer -machine-readable build --var 'instance_version=${{ inputs.version }}' --var 'dev=true' ./.github/packer/release-S-aws-builder.pkr.hcl"
 
+      - name: Release M AMI
+        run: "packer -machine-readable build --var 'instance_version=${{ inputs.version }}' --var 'dev=true' ./.github/packer/release-M-aws-builder.pkr.hcl"
 
+      - name: Release L AMI
+        run: "packer -machine-readable build --var 'instance_version=${{ inputs.version }}' --var 'dev=true' ./.github/packer/release-L-aws-builder.pkr.hcl"
+
+      - name: Release XL AMI
+        run: "packer -machine-readable build --var 'instance_version=${{ inputs.version }}' --var 'dev=true' ./.github/packer/release-XL-aws-builder.pkr.hcl"
+
+      # TODO: some processor to collect artifacts from build runs and run git tag, plus edit changelog
+      #
+      # TODO: handle for the following error
+      #
+      # ==> Some builds didn't complete successfully and had errors:
+# --> sourcegraph-amis.amazon-ebs.XL: Error launching source instance: InsufficientInstanceCapacity: We currently do not have sufficient m6a.24xlarge capacity in the Availability Zone you requested (us-west-2a). Our system will be working on provisioning additional capacity. You can currently get m6a.24xlarge capacity by not specifying an Availability Zone in your request or choosing us-west-2b, us-west-2c, us-west-2d.
+# 	status code: 500, request id: 58c3c326-f92e-4ac8-ad14-261b848619e9
+
+# ==> Builds finished but no artifacts were created.
