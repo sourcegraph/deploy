@@ -140,6 +140,8 @@ helm version --short
 helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph.com/release
 helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
 mv ./sourcegraph-"$SOURCEGRAPH_VERSION".tgz ./sourcegraph-charts.tgz
+helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph-migrator
+mv ./sourcegraph-migrator-"$SOURCEGRAPH_VERSION".tgz ./sourcegraph-migrator-charts.tgz
 
 # Generate files to save instance info in volumes for upgrade purpose
 echo "${SOURCEGRAPH_VERSION}" | sudo tee /home/ec2-user/.sourcegraph-version

@@ -61,6 +61,8 @@ while [ "$SOURCEGRAPH_VERSION" == "" ]; do
 done
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
 mv ./sourcegraph-"$SOURCEGRAPH_VERSION".tgz ./sourcegraph-charts.tgz
+helm --kubeconfig $KUBECONFIG_FILE pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph-migrator
+mv ./sourcegraph-migrator-"$SOURCEGRAPH_VERSION".tgz ./sourcegraph-migrator-charts.tgz
 
 # Create override configMap for prometheus before startup Sourcegraph
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f /home/ec2-user/deploy/install/prometheus-override.ConfigMap.yaml

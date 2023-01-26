@@ -40,6 +40,8 @@ sudo systemctl restart k3s && sleep 30
 
 # Install or upgrade Sourcegraph and create ingress
 cd "$DEPLOY_PATH" || exit
+source multi-version-upgrade.sh "$VOLUME_VERSION" "$AMI_VERSION"
+
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo update
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-override.ConfigMap.yaml
 if [ -f ./sourcegraph-charts.tgz ]; then
@@ -52,6 +54,6 @@ $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f ./ingress.yaml
 # Restart k3s again in case it's still in crashloopbackoff
 # However, this should not affect a running instance
 sleep 60 && sudo systemctl restart k3s
-HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
+HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig $KUBECONFIG_FILE history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
 [ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
 [ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee /home/"$INSTANCE_USERNAME"/.sourcegraph-version
