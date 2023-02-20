@@ -6,7 +6,7 @@ set -exuo pipefail
 # IMPORTANT: Keep this commented when building with the packer pipeline
 ###############################################################################
 INSTANCE_VERSION="" # e.g. 4.0.1
-INSTANCE_SIZE="XS"  # e.g. XS / S / M / L / XL
+# INSTANCE_SIZE="XS"  # e.g. XS / S / M / L / XL
 
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # Variables
@@ -27,7 +27,7 @@ sudo apt-get update -y
 # Clone the deployment repository
 DEPLOY_PATH="$USER_ROOT_PATH/deploy/install"
 cd
-git clone https://github.com/sourcegraph/SetupWizard.git
+# git clone https://github.com/sourcegraph/SetupWizard.git
 git clone $SOURCEGRAPH_DEPLOY_REPO_URL
 cd $DEPLOY_PATH
 cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
@@ -69,7 +69,7 @@ sudo chmod go-r /etc/rancher/k3s/k3s.yaml
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 cp /etc/rancher/k3s/k3s.yaml /home/sourcegraph/.kube/config
 
-k3s kubectl apply -f /home/sourcegraph/SetupWizard/redirect-page.yaml
+# k3s kubectl apply -f /home/sourcegraph/SetupWizard/redirect-page.yaml
 ###############################################################################
 # Set up Sourcegraph using Helm
 ###############################################################################
@@ -96,22 +96,22 @@ echo "alias k='kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a $USER_R
 
 # Generate files to save instance info in volumes for upgrade purpose
 echo "$SOURCEGRAPH_VERSION" | sudo tee "$HOME/.sourcegraph-version"
-cd || exit
-# Install Node.js
-curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
-sudo apt-get install -y nodejs nodejs
-# Install bun.js
-sudo apt-get install -y unzip
-curl -sSL https://bun.sh/install | bash
-export BUN_INSTALL=/home/sourcegraph/.bun
-export PATH=/home/sourcegraph/.bun/bin:/home/sourcegraph/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-echo "export BUN_INSTALL='$HOME/.bun'" | tee -a "$HOME/.bashrc"
-echo "export PATH='$BUN_INSTALL/bin:$PATH'" | tee -a "$HOME/.bashrc"
-cd /home/sourcegraph/SetupWizard || exit
-# Build wizard
-bun install
-bun run build --silent
-sleep 5
+# cd || exit
+# # Install Node.js
+# curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
+# sudo apt-get install -y nodejs nodejs
+# # Install bun.js
+# sudo apt-get install -y unzip
+# curl -sSL https://bun.sh/install | bash
+# export BUN_INSTALL=/home/sourcegraph/.bun
+# export PATH=/home/sourcegraph/.bun/bin:/home/sourcegraph/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+# echo "export BUN_INSTALL='$HOME/.bun'" | tee -a "$HOME/.bashrc"
+# echo "export PATH='$BUN_INSTALL/bin:$PATH'" | tee -a "$HOME/.bashrc"
+# cd /home/sourcegraph/SetupWizard || exit
+# # Build wizard
+# bun install
+# bun run build --silent
+# sleep 5
 
 sudo systemctl disable k3s
 sudo systemctl stop k3s
