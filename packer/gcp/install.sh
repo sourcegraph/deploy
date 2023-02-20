@@ -16,7 +16,7 @@ SOURCEGRAPH_VERSION=$(cat /home/"$INSTANCE_USERNAME"/.sourcegraph-version)
 # Prepare the system
 ###############################################################################
 sudo systemctl restart k3s
-cd /home/sourcegraph/SetupWizard && /home/sourcegraph/.bun/bin/bun run server.js &
+# cd /home/sourcegraph/SetupWizard && /home/sourcegraph/.bun/bin/bun run server.js &
 
 if [ -f /mnt/data/.sourcegraph-version ]; then
     sleep 25 && bash $DEPLOY_PATH/reboot.sh
@@ -82,7 +82,7 @@ $LOCAL_BIN_PATH/helm version --short
 
 # Create override configMap for prometheus before startup Sourcegraph
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f /home/sourcegraph/deploy/install/override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
-# $LOCAL_BIN_PATH/k3s kubectl create -f /home/sourcegraph/deploy/install/ingress.yaml
+$LOCAL_BIN_PATH/k3s kubectl create -f /home/sourcegraph/deploy/install/ingress.yaml
 
 # Start Sourcegraph on next reboot
 echo "@reboot sleep 30 && bash $DEPLOY_PATH/reboot.sh" | crontab -
