@@ -237,4 +237,8 @@ build {
   provisioner "shell" {
     scripts          = ["./packer/aws-latest/init.sh"]
   }
+
+  provisioner "shell" {
+    inline = ["sudo rm /home/ec2-user/.ssh/authorized_keys && sudo rm /root/.ssh/authorized_keys"]
+  }
 }
