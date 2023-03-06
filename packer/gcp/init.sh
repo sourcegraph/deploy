@@ -81,9 +81,6 @@ helm version --short
 helm --kubeconfig /etc/rancher/k3s/k3s.yaml repo add sourcegraph https://helm.sourcegraph.com/release
 helm --kubeconfig /etc/rancher/k3s/k3s.yaml pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
 
-# Create override configMap for prometheus before startup Sourcegraph
-k3s kubectl apply -f /home/sourcegraph/deploy/install/prometheus-override.ConfigMap.yaml
-
 # Add a cron job to format the data volume on next reboot
 echo '@reboot sleep 10 && bash /home/sourcegraph/install.sh' | crontab -
 
@@ -96,23 +93,22 @@ echo "alias k='kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a $USER_R
 
 # Generate files to save instance info in volumes for upgrade purpose
 echo "$SOURCEGRAPH_VERSION" | sudo tee "$HOME/.sourcegraph-version"
-# cd || exit
-# # Install Node.js
-# curl -fsSL https://deb.nodesource.com/setup_19.x | sudo -E bash -
-# sudo apt-get install -y nodejs nodejs
-# # Install bun.js
-# sudo apt-get install -y unzip
-# curl -sSL https://bun.sh/install | bash
-# export BUN_INSTALL=/home/sourcegraph/.bun
-# export PATH=/home/sourcegraph/.bun/bin:/home/sourcegraph/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-# echo "export BUN_INSTALL='$HOME/.bun'" | tee -a "$HOME/.bashrc"
-# echo "export PATH='$BUN_INSTALL/bin:$PATH'" | tee -a "$HOME/.bashrc"
-# cd /home/sourcegraph/SetupWizard || exit
-# # Build wizard
-# bun install
-# bun run build --silent
-# sleep 5
 
+# Ensure k3s stopped
 sudo systemctl disable k3s
 sudo systemctl stop k3s
+sudo /usr/local/bin/k3s-killall.sh
+
+# Put ephemeral kubelet/pod storage in our data disk (since it is the only large disk we have.)
+# Symlink `/var/lib/kubelet` to `/mnt/data/kubelet`
+sudo rm -rf /var/lib/kubelet
+sudo ln -s /mnt/data/kubelet /var/lib/kubelet
+
+# Put persistent volume pod storage in our data disk, and k3s's embedded database there too (it
+# must be kept around in order for k3s to keep PVs attached to the right folder on disk if a node
+# is lost (i.e. during an upgrade of Sourcegraph), see https://github.com/rancher/local-path-provisioner/issues/26
+sudo rm -rf /var/lib/rancher/k3s/server/db
+sudo ln -s /mnt/data/db /var/lib/rancher/k3s/server/db
+sudo rm -rf /var/lib/rancher/k3s/storage
+sudo ln -s /mnt/data/storage /var/lib/rancher/k3s/storage
 exit 0
