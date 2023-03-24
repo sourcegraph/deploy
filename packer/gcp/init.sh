@@ -14,9 +14,7 @@ INSTANCE_VERSION="" # e.g. 4.0.1
 SOURCEGRAPH_VERSION=$INSTANCE_VERSION
 SOURCEGRAPH_SIZE=$INSTANCE_SIZE
 SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
-DEPLOY_PATH='/root/deploy/install'
 USER_ROOT_PATH="/home/sourcegraph"
-SHELL=/bin/bash
 
 ###############################################################################
 # Prepare the system
@@ -29,7 +27,7 @@ DEPLOY_PATH="$USER_ROOT_PATH/deploy/install"
 cd
 # git clone https://github.com/sourcegraph/SetupWizard.git
 git clone $SOURCEGRAPH_DEPLOY_REPO_URL
-cd $DEPLOY_PATH
+cd "$DEPLOY_PATH" || exit 1
 cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
 
 sudo mkdir -p /mnt/data
@@ -66,8 +64,9 @@ sudo chown sourcegraph /etc/rancher/k3s/k3s.yaml
 sudo chmod go-r /etc/rancher/k3s/k3s.yaml
 
 # Set KUBECONFIG to point to k3s for 'kubectl' commands to work
-export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
-cp /etc/rancher/k3s/k3s.yaml /home/sourcegraph/.kube/config
+export KUBECONFIG="/etc/rancher/k3s/k3s.yaml"
+mkdir -p "$USER_ROOT_PATH/.kube"
+cp /etc/rancher/k3s/k3s.yaml "$USER_ROOT_PATH/.kube/config"
 
 # k3s kubectl apply -f /home/sourcegraph/SetupWizard/redirect-page.yaml
 ###############################################################################
@@ -79,20 +78,19 @@ helm version --short
 
 # # Store Sourcegraph Helm charts locally
 helm --kubeconfig /etc/rancher/k3s/k3s.yaml repo add sourcegraph https://helm.sourcegraph.com/release
-helm --kubeconfig /etc/rancher/k3s/k3s.yaml pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
 
 # Add a cron job to format the data volume on next reboot
 echo '@reboot sleep 10 && bash /home/sourcegraph/install.sh' | crontab -
 
 # Add standard bash aliases
-echo "export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'" | tee -a $USER_ROOT_PATH/.bash_profile
-echo "export INSTANCE_SIZE='$INSTANCE_SIZE'" | tee -a $USER_ROOT_PATH/.bash_profile
-echo "export SHELL='/bin/bash'" | tee -a $USER_ROOT_PATH/.bash_profile
-echo "alias h='helm --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a $USER_ROOT_PATH/.bash_profile
-echo "alias k='kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a $USER_ROOT_PATH/.bash_profile
+echo "export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'" | tee -a "${USER_ROOT_PATH}/.bashrc"
+echo "export INSTANCE_SIZE='${INSTANCE_SIZE}'" | tee -a "${USER_ROOT_PATH}/.bashrc"
+echo "alias h='helm --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a "${USER_ROOT_PATH}/.bashrc"
+echo "alias k='kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml'" | tee -a "${USER_ROOT_PATH}/.bashrc"
 
 # Generate files to save instance info in volumes for upgrade purpose
 echo "$SOURCEGRAPH_VERSION" | sudo tee "$HOME/.sourcegraph-version"
+sudo chown sourcegraph:sourcegraph "$HOME/.sourcegraph-version"
 
 # Ensure k3s stopped
 sudo systemctl disable k3s
