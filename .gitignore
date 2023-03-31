@@ -2,3 +2,9 @@
 .env
 *.tar.gz
 .DS_Store
+.idea
+.test-data
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
