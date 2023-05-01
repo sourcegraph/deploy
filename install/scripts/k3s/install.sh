@@ -198,7 +198,7 @@ declare -a additional_args=()
 if command -v getenforce && getenforce | grep 'Enforcing|Permissive'; then
     additional_args+=("--selinux")
 fi
-curl -sfL https://get.k3s.io | K3S_TOKEN=none sh -s - \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.26.2+k3s1 K3S_TOKEN=none sh -s - \
         --node-name sourcegraph-0 \
         --write-kubeconfig /etc/rancher/k3s/k3s.yaml \
         --write-kubeconfig-mode 644 \
