@@ -65,7 +65,7 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 ### XL -->
 
-## 5.0.3
+## 5.0.2
 
 ### XS
 
