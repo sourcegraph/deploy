@@ -1,5 +1,5 @@
-// Package os provides functions for interacting with and querying an operating system.
-package os
+// Package distro provides functions for determining the distribution of a Linux system.
+package distro
 
 import (
 	"bufio"
@@ -10,10 +10,10 @@ import (
 )
 
 // IsAmazonLinux checks if the current Linux distro is Amazon Linux.
-func IsAmazonLinux() (bool, error) {
+func IsAmazonLinux() bool {
 	f, err := os.Open("/etc/os-release")
 	if err != nil {
-		return false, err
+		return false
 	}
 	defer func() {
 		_ = f.Close()
@@ -23,18 +23,18 @@ func IsAmazonLinux() (bool, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "amzn") {
-			return true, nil
+			return true
 		}
 	}
 
-	return false, nil
+	return false
 }
 
 // IsRHELinux checks if the current Linux distro is RedHat Enterprise Linux.
-func IsRHELinux() (bool, error) {
+func IsRHELinux() bool {
 	f, err := os.Open("/etc/os-release")
 	if err != nil {
-		return false, err
+		return false
 	}
 	defer func() {
 		_ = f.Close()
@@ -44,18 +44,18 @@ func IsRHELinux() (bool, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "rhel") {
-			return true, nil
+			return true
 		}
 	}
 
-	return false, nil
+	return false
 }
 
 // IsFedoraLinux checks if the current Linux distro is Fedora Linux.
-func IsFedoraLinux() (bool, error) {
+func IsFedoraLinux() bool {
 	f, err := os.Open("/etc/os-release")
 	if err != nil {
-		return false, err
+		return false
 	}
 	defer func() {
 		_ = f.Close()
@@ -65,18 +65,18 @@ func IsFedoraLinux() (bool, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "fedora") {
-			return true, nil
+			return true
 		}
 	}
 
-	return false, nil
+	return false
 }
 
 // IsDebianLinux checks if the current Linux distro is Debian Linux.
-func IsDebianLinux() (bool, error) {
+func IsDebianLinux() bool {
 	f, err := os.Open("/etc/os-release")
 	if err != nil {
-		return false, err
+		return false
 	}
 	defer func() {
 		_ = f.Close()
@@ -86,18 +86,18 @@ func IsDebianLinux() (bool, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "debian") {
-			return true, nil
+			return true
 		}
 	}
 
-	return false, nil
+	return false
 }
 
 // IsUbuntuLinux checks if the current Linux distro is Ubuntu Linux.
-func IsUbuntuLinux() (bool, error) {
+func IsUbuntuLinux() bool {
 	f, err := os.Open("/etc/os-release")
 	if err != nil {
-		return false, err
+		return false
 	}
 	defer func() {
 		_ = f.Close()
@@ -107,11 +107,11 @@ func IsUbuntuLinux() (bool, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "ubuntu") {
-			return true, nil
+			return true
 		}
 	}
 
-	return false, nil
+	return false
 }
 
 // IsSELinuxEnabled check if SELinux is enabled and either in Enforcing (1) or Permissive (0) mode.

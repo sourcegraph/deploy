@@ -44,20 +44,15 @@ func IsRunning(ctx context.Context, unit string) (bool, error) {
 	return false, nil
 }
 
-//  Start starts the systemd unit with the given name.
+// Start starts the systemd unit with the given name.
 //
-//  Parameters:
-//      ctx (context.Context): The context for the operation.
-//      unit (string): The name of the systemd unit to start.
+//	Parameters:
+//	    ctx (context.Context): The context for the operation.
+//	    unit (string): The name of the systemd unit to start.
 //
-//  Returns:
-//      error: An error if the unit failed to start, or nil if it started successfully.
-
+//	Returns:
+//	    error: An error if the unit failed to start, or nil if it started successfully.
 func Start(ctx context.Context, unit string) error {
-	if err := validateUnit(unit); err != nil {
-		return err
-	}
-
 	if err := validateUnit(unit); err != nil {
 		return err
 	}
@@ -170,6 +165,69 @@ func Disable(ctx context.Context, unit string) error {
 	return nil
 }
 
+// IsEnabled checks if the systemd unit with the given name is enabled.
+//
+// Parameters:
+//
+//	ctx (context.Context): The context for the operation.
+//	unit (string): The name of the systemd unit to check.
+//
+// Returns:
+//
+//	(bool, error): A boolean indicating if the unit is enabled, and an error if one occurred.
+func IsEnabled(ctx context.Context, unit string) (bool, error) {
+	if err := validateUnit(unit); err != nil {
+		return false, err
+	}
+
+	conn, err := dbus.NewSystemConnectionContext(ctx)
+	if err != nil {
+		return false, err
+	}
+	defer conn.Close()
+
+	units, err := conn.ListUnitsByNamesContext(ctx, []string{unit})
+	if err != nil {
+		return false, err
+	}
+
+	u := units[0]
+	if u.LoadState == "enabled" {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// Enable enables the systemd unit with the given name.
+//
+// Parameters:
+//
+//	ctx (context.Context): The context for the operation.
+//	unit (string): The name of the systemd unit to disable.
+//
+// Returns:
+//
+//	error: An error if the unit failed to enable, or nil if it enabled successfully.
+func Enable(ctx context.Context, unit string) error {
+	if err := validateUnit(unit); err != nil {
+		return err
+	}
+
+	conn, err := dbus.NewSystemdConnectionContext(ctx)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	_, _, err = conn.EnableUnitFilesContext(ctx, []string{unit}, false, false)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Restart restarts the systemd unit with the given name.
 //
 // Parameters:
@@ -232,27 +290,27 @@ func validateUnit(unit string) error {
 	}
 
 	switch {
-	case strings.HasSuffix(unit, ".service"):
+	case strings.HasSuffix(unit, "service"):
 		return nil
-	case strings.HasSuffix(unit, ".socket"):
+	case strings.HasSuffix(unit, "socket"):
 		return nil
-	case strings.HasSuffix(unit, ".device"):
+	case strings.HasSuffix(unit, "device"):
 		return nil
-	case strings.HasSuffix(unit, ".mount"):
+	case strings.HasSuffix(unit, "mount"):
 		return nil
-	case strings.HasSuffix(unit, ".automount"):
+	case strings.HasSuffix(unit, "automount"):
 		return nil
-	case strings.HasSuffix(unit, ".swap"):
+	case strings.HasSuffix(unit, "swap"):
 		return nil
-	case strings.HasSuffix(unit, ".target"):
+	case strings.HasSuffix(unit, "target"):
 		return nil
-	case strings.HasSuffix(unit, ".path"):
+	case strings.HasSuffix(unit, "path"):
 		return nil
-	case strings.HasSuffix(unit, ".timer"):
+	case strings.HasSuffix(unit, "timer"):
 		return nil
-	case strings.HasSuffix(unit, ".snapshot"):
+	case strings.HasSuffix(unit, "snapshot"):
 		return nil
-	case strings.HasSuffix(unit, ".scope"):
+	case strings.HasSuffix(unit, "scope"):
 		return nil
 	default:
 		return errors.Errorf("unit name %s has invalid suffix", unit)
