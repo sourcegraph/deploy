@@ -1,6 +1,5 @@
 .ami-output
 .env
-*.tar.gz
 .DS_Store
 .idea
 .test-data
