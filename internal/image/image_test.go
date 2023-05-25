@@ -17,7 +17,7 @@ func TestPull(t *testing.T) {
 }
 
 func TestSaveLoad(t *testing.T) {
-	for _, image := range images {
+	for _, image := range Images() {
 		err := SaveLoad(context.Background(), image)
 		if err != nil {
 			fmt.Println(image)
