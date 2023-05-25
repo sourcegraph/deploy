@@ -16,7 +16,7 @@ func Create(ctx context.Context, username string) error {
 	cmd := exec.CommandContext(ctx, "useradd", "-m", "-s", "/bin/bash", username)
 	err := cmd.Run()
 	if err != nil {
-		return errors.Newf("failed to create user %s: %v", username, err)
+		return errors.Errorf("failed to create user %s: %s", username, err)
 	}
 
 	return nil
@@ -26,7 +26,7 @@ func Create(ctx context.Context, username string) error {
 func Exists(username string) (bool, error) {
 	file, err := os.Open("/etc/passwd")
 	if err != nil {
-		return false, errors.Newf("failed to check for existing user %s: %v", username, err)
+		return false, errors.Errorf("failed to check for existing user %s: %s", username, err)
 	}
 	defer func() {
 		_ = file.Close()

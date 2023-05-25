@@ -286,7 +286,7 @@ func Restart(ctx context.Context, unit string) error {
 //	error: An error if the unit name is invalid, or nil if it is valid.
 func validateUnit(unit string) error {
 	if unit == "" {
-		return errors.New("unit name cannot be empty")
+		return errors.Errorf("unit name cannot be empty")
 	}
 
 	switch {
