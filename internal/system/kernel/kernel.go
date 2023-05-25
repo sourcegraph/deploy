@@ -19,7 +19,7 @@ func SetInotifyMaxUserWatches(ctx context.Context, limit int32) error {
 		_ = f.Close()
 	}()
 
-	_, err = fmt.Fprintf(f, "fs.inotify.max_user_watches=%d", limit)
+	_, err = fmt.Fprintf(f, "fs.inotify.max_user_watches=%d\n", limit)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func SetVmMaxMapCount(ctx context.Context, limit int32) error {
 		_ = f.Close()
 	}()
 
-	_, err = fmt.Fprintf(f, "vm.max_map_count=%d", limit)
+	_, err = fmt.Fprintf(f, "vm.max_map_count=%d\n", limit)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func SetSoftNProc(limit int32) error {
 		_ = f.Close()
 	}()
 
-	_, err = fmt.Fprintf(f, "* soft nproc %d", limit)
+	_, err = fmt.Fprintf(f, "* soft nproc %d\n", limit)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func SetHardNProc(limit int32) error {
 		_ = f.Close()
 	}()
 
-	_, err = fmt.Fprintf(f, "* hard nproc %d", limit)
+	_, err = fmt.Fprintf(f, "* hard nproc %d\n", limit)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func SetSoftNoFile(limit int32) error {
 		_ = f.Close()
 	}()
 
-	_, err = fmt.Fprintf(f, "* soft nofile %d", limit)
+	_, err = fmt.Fprintf(f, "* soft nofile %d\n", limit)
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func SetHardNoFile(limit int32) error {
 		_ = f.Close()
 	}()
 
-	_, err = fmt.Fprintf(f, "* hard nofile %d", limit)
+	_, err = fmt.Fprintf(f, "* hard nofile %d\n", limit)
 	if err != nil {
 		return err
 	}
