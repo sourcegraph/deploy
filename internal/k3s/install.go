@@ -127,6 +127,9 @@ func unpackImages() (*os.File, error) {
 	}
 
 	gzipReader, err := gzip.NewReader(bytes.NewReader(images))
+	if err != nil {
+		return nil, err
+	}
 	defer func() {
 		_ = gzipReader.Close()
 	}()
