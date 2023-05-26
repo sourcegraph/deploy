@@ -7,17 +7,14 @@ import (
 )
 
 var (
-	aws     bool
-	gcp     bool
-	azr     bool
-	offline bool
-	version string
+	aws bool
+	gcp bool
+	azr bool
 
 	rootCmd = &cobra.Command{
 		Use:   "sg-install",
 		Short: "Sourcegraph installer",
 		Long:  "",
-		Run:   nil,
 	}
 )
 
@@ -32,8 +29,6 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&gcp, "gcp", "g", false, "")
 	rootCmd.PersistentFlags().BoolVarP(&azr, "azr", "z", false, "")
 	rootCmd.MarkFlagsMutuallyExclusive("aws", "gcp", "azr")
-	rootCmd.PersistentFlags().BoolVarP(&offline, "offline", "o", false, "")
-	rootCmd.PersistentFlags().StringVarP(&version, "version", "v", "", "")
 }
 
 func initConfig() {
