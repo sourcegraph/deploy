@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/coreos/go-systemd/v22 v22.5.0
 	github.com/opencontainers/selinux v1.11.0
+	github.com/sourcegraph/conc v0.3.0
 	github.com/sourcegraph/sourcegraph/lib v0.0.0-20230308001715-ada7b4038074
 	github.com/spf13/cobra v1.6.1
 	helm.sh/helm/v3 v3.12.0
@@ -119,6 +120,8 @@ require (
 	go.opentelemetry.io/otel v1.14.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.starlark.net v0.0.0-20200306205701-8dd3e2ee1dd5 // indirect
+	go.uber.org/atomic v1.10.0 // indirect
+	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/crypto v0.5.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	golang.org/x/oauth2 v0.4.0 // indirect
