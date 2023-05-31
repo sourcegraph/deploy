@@ -320,3 +320,48 @@ func setupAliases(path string) error {
 
 	return nil
 }
+
+// MapDataVolumes will setup the k3s storage and persistent volume pod storage on our data disk.
+func LinkDataVolumes() error {
+	err := os.MkdirAll("/mnt/data/kubelet", os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = os.Symlink("/mnt/data/kubelet", "/var/lib/kubelet")
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll("/mnt/data/db", os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll("/var/lib/rancher/k3s/server", os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = os.Symlink("/mnt/data/db", "/var/lib/rancher/k3s/server/db")
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll("/mnt/data/storage", os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll("/var/lib/rancher/k3s", os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	err = os.Symlink("/mnt/data/storage", "/var/lib/rancher/k3s/storage")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
