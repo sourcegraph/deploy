@@ -1,0 +1,11 @@
+[Unit]
+Description=My Go Service
+
+[Service]
+User=ec2-user
+ExecStart=/etc/systemd/system/sourcegraphd.service
+RestartSec=3
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
