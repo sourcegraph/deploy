@@ -204,3 +204,16 @@ openTelemetry:
     requests:
       cpu: "250m"
       memory: 256M
+      
+embeddings:
+  enabled: true
+  env:
+    ENABLE_EMBEDDINGS_SEARCH_SIMD:
+      value: "true"
+  resources:
+    limits:
+      cpu: "6"
+      memory: 32G
+    requests:
+      cpu: "250m"
+      memory: 256M
