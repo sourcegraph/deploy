@@ -321,7 +321,7 @@ func setupAliases(path string) error {
 	return nil
 }
 
-// MapDataVolumes will setup the k3s storage and persistent volume pod storage on our data disk.
+// LinkDataVolumes will setup the k3s storage and persistent volume pod storage on our data disk.
 func LinkDataVolumes() error {
 	err := os.MkdirAll("/mnt/data/kubelet", os.ModePerm)
 	if err != nil {
