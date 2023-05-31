@@ -572,7 +572,7 @@ func writeConfig(filename string, conf map[string]any) error {
 	return nil
 }
 
-// writeVersion will write the sourcegraph version to the config file located at
+// WriteSourcegraphVersion will write the sourcegraph version to the config file located at
 // `$HOME/.sourcegraph-version` and `/mnt/data/.sourcegraph-version`.
 func WriteSourcegraphVersion(version, username string) error {
 	homef, err := os.OpenFile(fmt.Sprintf("/home/%s/.sourcegraph-version", username), os.O_CREATE|os.O_RDWR, os.ModePerm)
