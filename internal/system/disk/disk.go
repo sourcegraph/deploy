@@ -12,33 +12,85 @@ import (
 	"github.com/sourcegraph/sourcegraph/lib/errors"
 )
 
-// Disk contains information about the specific disk.
-//
-// Fields:
-//
-//	Path - Absolute path where the directory is mounted
-//	FilesystemType - Type of the filesystem, e.g. "xfs"
-//	Device - Device for the disk (empty string if none is found)
-//	DeviceNumber - Device number of the disk.
-type Disk struct {
-	Path           string
-	FilesystemType string
-	Device         string
-	DeviceNumber   uint64
+const (
+	XFS Filesystem = iota
+	EXT4
+)
+
+type Option = func(disk *disk)
+
+type Filesystem int
+
+type disk struct {
+	mount        bool
+	path         string
+	filesystem   Filesystem
+	device       string
+	deviceNumber uint64
 }
 
-func (d *Disk) Setup() error {
-	// create directory for mountpoint
-	err := os.MkdirAll(d.Path, 0775)
-	if err != nil {
-		return err
+func (f Filesystem) String() string {
+	switch f {
+	case XFS:
+		return "xfs"
+	case EXT4:
+		return "ext4"
+	}
+	return ""
+}
+
+// NewDisk will create a new disk with the given values and options.
+func NewDisk(ctx context.Context, path, device string, filesystem Filesystem, opts ...Option) error {
+	dsk := disk{
+		path:       path,
+		device:     device,
+		filesystem: filesystem,
+	}
+
+	for _, option := range opts {
+		option(&dsk)
+	}
+
+	switch dsk.filesystem {
+	case XFS:
+		err := dsk.createXFSFilesystem(ctx)
+		if err != nil {
+			return err
+		}
+		err = updateFStab("LABEL=/mnt/data  /mnt/data  xfs  discard,defaults,nofail  0  2")
+		if err != nil {
+			return err
+		}
+	case EXT4:
+		err := dsk.createEXT4Filesystem(ctx)
+		if err != nil {
+			return err
+		}
+		err = updateFStab("LABEL=/mnt/data  /mnt/data  ext4  discard,defaults,nofail  0  2")
+		if err != nil {
+			return err
+		}
+	}
+
+	if dsk.mount {
+		err := dsk.mountDisk(ctx)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
+// Mount will optionally mount the new disk
+func Mount() Option {
+	return func(disk *disk) {
+		disk.mount = true
+	}
+}
+
 // IsMounted checks if a disk is mounted at the given path.
-func (d *Disk) IsMounted() (bool, error) {
+func IsMounted(path, device string) (bool, error) {
 	file, err := os.Open("/etc/mtab")
 	if err != nil {
 		return false, err
@@ -50,7 +102,7 @@ func (d *Disk) IsMounted() (bool, error) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.Contains(line, d.Path) && strings.Contains(line, d.Device) {
+		if strings.Contains(line, path) && strings.Contains(line, device) {
 			return true, nil
 		}
 	}
@@ -58,38 +110,27 @@ func (d *Disk) IsMounted() (bool, error) {
 	return false, nil
 }
 
-// GetFileSystemType gets the filesystem type of the disk device.
-func (d *Disk) GetFileSystemType(ctx context.Context) (string, error) {
-	_, err := exec.LookPath("blkid")
+func (d *disk) mountDisk(ctx context.Context) error {
+	err := os.MkdirAll(d.path, 0775)
 	if err != nil {
-		return "", errors.Errorf("failed to get device file system type: %s", err)
+		return err
 	}
 
-	out, err := exec.CommandContext(ctx, "blkid", "-s", "TYPE", "-o", "value", d.Device).Output()
+	err = exec.CommandContext(ctx, "mount", d.device, d.path).Run()
 	if err != nil {
-		return "", errors.Errorf("failed to get device file system type: %s", err)
-	}
-
-	return strings.TrimSpace(string(out)), nil
-}
-
-// Mount mounts the disk device at the given path.
-func (d *Disk) Mount(ctx context.Context) error {
-	err := exec.CommandContext(ctx, "mount", d.Device, d.Path).Run()
-	if err != nil {
-		return errors.Errorf("failed to mount device %s: %s", d.Device, err)
+		return errors.Errorf("failed to mount device %s: %s", d.device, err)
 	}
 
 	return nil
 }
 
-func (d *Disk) createXFSFilesystem(ctx context.Context) error {
+func (d *disk) createXFSFilesystem(ctx context.Context) error {
 	_, err := exec.LookPath("mkfs.xfs")
 	if err != nil {
 		return errors.Errorf("failed to create XFS filesystem: %s", err)
 	}
 
-	err = exec.CommandContext(ctx, "mkfs.xfs", d.Device).Run()
+	err = exec.CommandContext(ctx, "mkfs.xfs", d.device).Run()
 	if err != nil {
 		return errors.Errorf("failed to create XFS filesystem: %s", err)
 	}
@@ -100,7 +141,7 @@ func (d *Disk) createXFSFilesystem(ctx context.Context) error {
 	}
 
 	// Add label to volume device
-	err = exec.CommandContext(ctx, "xfs_admin", "-L", d.Path, d.Device).Run()
+	err = exec.CommandContext(ctx, "xfs_admin", "-L", d.path, d.device).Run()
 	if err != nil {
 		return errors.Errorf("failed to create XFS filesystem: %s", err)
 	}
@@ -108,13 +149,13 @@ func (d *Disk) createXFSFilesystem(ctx context.Context) error {
 	return nil
 }
 
-func (d *Disk) createEXT4Filesystem(ctx context.Context) error {
+func (d *disk) createEXT4Filesystem(ctx context.Context) error {
 	_, err := exec.LookPath("mkfs.ext4")
 	if err != nil {
 		return errors.Errorf("failed to create EXT4 filesystem: %s", err)
 	}
 
-	err = exec.CommandContext(ctx, "mkfs.ext4", "-m", "0", "-E", "lazy_itable_init=0,lazy_journal_init=0,discard", d.Device).Run()
+	err = exec.CommandContext(ctx, "mkfs.ext4", "-m", "0", "-E", "lazy_itable_init=0,lazy_journal_init=0,discard", d.device).Run()
 	if err != nil {
 		return errors.Errorf("failed to create EXT4 filesystem: %s", err)
 	}
@@ -125,7 +166,7 @@ func (d *Disk) createEXT4Filesystem(ctx context.Context) error {
 	}
 
 	// Add label to volume device
-	err = exec.CommandContext(ctx, "e2label", d.Device, d.Path).Run()
+	err = exec.CommandContext(ctx, "e2label", d.device, d.path).Run()
 	if err != nil {
 		return errors.Errorf("failed to create EXT4 filesystem: %s", err)
 	}
