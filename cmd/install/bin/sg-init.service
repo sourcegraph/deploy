@@ -1,0 +1,11 @@
+[Unit]
+Description=Performs the initial sourcegraph setup setups.
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/usr/local/bin/sg-init
+
+[Install]
+WantedBy=multi-user.target
