@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"os"
 	"os/user"
 
 	"github.com/sourcegraph/conc/iter"
@@ -12,6 +14,7 @@ import (
 	"github.com/sourcegraph/deploy/internal/system/disk"
 	"github.com/sourcegraph/deploy/internal/system/distro"
 	"github.com/sourcegraph/deploy/internal/system/kernel"
+	"github.com/sourcegraph/deploy/internal/system/service"
 	"github.com/spf13/cobra"
 
 	"github.com/sourcegraph/sourcegraph/lib/errors"
@@ -117,6 +120,103 @@ func install(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	err = setupSGInit(cmd.Context())
+	if err != nil {
+		return err
+	}
+
+	err = setupSourcegraphd(cmd.Context())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setupSGInit(ctx context.Context) error {
+	srv, err := embeddedFS.ReadFile("bin/sg-init.service")
+	if err != nil {
+		return err
+	}
+
+	unpackedSrv, err := os.OpenFile("/etc/systemd/system/sg-init.service", os.O_RDWR|os.O_CREATE, 0754)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = unpackedSrv.Close()
+	}()
+
+	_, err = unpackedSrv.Write(srv)
+	if err != nil {
+		return err
+	}
+
+	bin, err := embeddedFS.ReadFile("bin/sg-init")
+	if err != nil {
+		return err
+	}
+
+	unpackedBin, err := os.OpenFile("/usr/local/bin/sg-init", os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = unpackedBin.Close()
+	}()
+
+	_, err = unpackedBin.Write(bin)
+	if err != nil {
+		return err
+	}
+
+	err = service.Enable(ctx, "sg-init.service")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setupSourcegraphd(ctx context.Context) error {
+	srv, err := embeddedFS.ReadFile("bin/sourcegraphd.service")
+	if err != nil {
+		return err
+	}
+
+	unpackedSrv, err := os.OpenFile("/etc/systemd/system/sourcegraphd.service", os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		return err
+	}
+
+	_, err = unpackedSrv.Write(srv)
+	if err != nil {
+		return err
+	}
+
+	bin, err := embeddedFS.ReadFile("bin/sourcegraphd")
+	if err != nil {
+		return err
+	}
+
+	unpackedBin, err := os.OpenFile("/usr/local/bin/sourcegraphd", os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = unpackedBin.Close()
+	}()
+
+	_, err = unpackedBin.Write(bin)
+	if err != nil {
+		return err
+	}
+
+	err = service.Enable(ctx, "sourcegraphd.service")
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"embed"
 	"log"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/journald"
 )
+
+//go:embed bin
+var embeddedFS embed.FS
 
 var (
 	version   = "latest"
@@ -24,7 +28,7 @@ func main() {
 }
 
 func run(ctx context.Context, logger *zerolog.Logger) error {
-	logger.Info().Str("verson", version).Str("sgversion", sgversion).Msg("starting sourcegraph installer")
+	logger.Info().Str("version", version).Str("sgversion", sgversion).Msg("starting sourcegraph installer")
 
 	err := ExecuteWithContext(ctx)
 	if err != nil {

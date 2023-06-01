@@ -1,9 +1,12 @@
 [Unit]
-Description=My Go Service
+Description=Monitors sourcegraph install and performs updates.
+After=network.target
+After=sg-init.service
 
 [Service]
 User=ec2-user
-ExecStart=/etc/systemd/system/sourcegraphd.service
+Group=ec2-user
+ExecStart=/usr/local/bin/sourcegraphd
 RestartSec=3
 KillMode=process
 

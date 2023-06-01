@@ -1,11 +1,12 @@
 [Unit]
 Description=Performs the initial sourcegraph setup setups.
+After=network.target
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-
 ExecStart=/usr/local/bin/sg-init
+ExecStartPost=/bin/systemctl disable sg-init.service
 
 [Install]
 WantedBy=multi-user.target
