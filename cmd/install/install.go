@@ -31,104 +31,140 @@ func init() {
 }
 
 func install(cmd *cobra.Command, args []string) error {
+	logger.Info().Str("version", version).Str("sgversion", sgversion).Msg("starting sourcegraph installer")
+
 	// make sure we are running as root
+	logger.Info().Msg("checking current user")
 	u, err := user.Current()
 	if err != nil {
+		logger.Error().Err(err).Msg("could not check current user")
 		return err
 	}
 
 	if u.Uid != "0" {
+		logger.Error().Err(err).Msg("current user was not root")
 		return errors.Errorf("please rerun installer with root privileges")
 	}
 
 	// setup kernel parameters needed for Sourcegraph
+	logger.Info().Msg("setting kernel parameters")
 	err = kernel.SetInotifyMaxUserWatches(cmd.Context(), 128_000)
 	if err != nil {
+		logger.Error().Err(err).Msg("could not set inotify max user watches")
 		return err
 	}
 
 	err = kernel.SetVmMaxMapCount(cmd.Context(), 300_000)
 	if err != nil {
+		logger.Error().Err(err).Msg("could not set vm max map count")
 		return err
 	}
 
 	err = kernel.SetSoftNProc(8_192)
 	if err != nil {
+		logger.Error().Err(err).Msg("could not set soft nproc")
 		return err
 	}
 
 	err = kernel.SetHardNProc(16_384)
 	if err != nil {
+		logger.Error().Err(err).Msg("could not set hard nproc")
 		return err
 	}
 
 	err = kernel.SetSoftNoFile(262_144)
 	if err != nil {
+		logger.Error().Err(err).Msg("could not set soft nfile")
 		return err
 	}
 
 	err = kernel.SetHardNoFile(262_144)
 	if err != nil {
+		logger.Error().Err(err).Msg("could not set hard nfile")
 		return err
 	}
 
 	if distro.IsAmazonLinux() {
+		logger.Info().Msg("amazon linux detected, check for data volume setup")
 		mounted, err := disk.IsMounted("/mnt/data", "/dev/nvme1n1")
 		if err != nil {
+			logger.Error().Err(err).Msg("could not find data disk")
 			return err
 		}
 
 		if !mounted {
+			logger.Info().Msg("no data disk found, setting up data volume")
 			err := disk.NewDisk(cmd.Context(), "/mnt/data", "/dev/nvme1n1", disk.XFS, disk.Mount())
 			if err != nil {
+				logger.Error().Err(err).Msg("could not setup data disk")
 				return err
 			}
 		}
 	}
 
+	logger.Info().Msg("setting up data volume symlinks")
 	err = k3s.LinkDataVolumes()
 	if err != nil {
+		logger.Error().Err(err).Msg("could not setup data volume symlinks")
 		return err
 	}
 
+	logger.Info().Msg("installing containerd")
 	err = containerd.Install(cmd.Context())
 	if err != nil {
+		logger.Error().Err(err).Msg("could not install containerd")
 		return err
 	}
 
+	logger.Info().Msg("pulling sourcegraph images")
 	iter.ForEach(image.Images(), func(img *string) {
-		_ = image.Pull(cmd.Context(), *img)
+		err = image.Pull(cmd.Context(), *img)
+		if err != nil {
+			logger.Error().Err(err).Msgf("could not pull image: %s", img)
+		}
 	})
 
+	logger.Info().Msg("installing k3s")
 	err = k3s.Install(cmd.Context())
 	if err != nil {
+		logger.Error().Err(err).Msg("could not install k3s")
 		return err
 	}
 
+	logger.Info().Msg("installing helm")
 	err = helm.Install()
 	if err != nil {
+		logger.Error().Err(err).Msg("could not install helm")
 		return err
 	}
 
+	logger.Info().Msg("unpacking k8s configurations")
 	err = sourcegraph.UnpackK8sConfigs()
 	if err != nil {
+		logger.Error().Err(err).Msg("could not unpack k8s configurations")
 		return err
 	}
 
 	if distro.IsAmazonLinux() {
+		logger.Info().Msg("writing sourcegraph version files")
 		err = sourcegraph.WriteSourcegraphVersion(sgversion, "ec2-user")
 		if err != nil {
+			logger.Error().Err(err).Msg("could not write sourcegraph version files")
 			return err
 		}
 	}
 
+	logger.Info().Msg("setting up sg-init systemd service")
 	err = setupSGInit(cmd.Context())
 	if err != nil {
+		logger.Error().Err(err).Msg("could not setup sg-init systemd service")
 		return err
 	}
 
+	logger.Info().Msg("setting up sourcegraphd systemd service")
 	err = setupSourcegraphd(cmd.Context())
 	if err != nil {
+		logger.Error().Err(err).Msg("could not setup sourcegraphd systemd service")
 		return err
 	}
 

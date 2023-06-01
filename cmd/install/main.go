@@ -15,21 +15,20 @@ var embeddedFS embed.FS
 var (
 	version   = "latest"
 	sgversion = "v5.0.4"
+	logger    = zerolog.Logger{}
 )
 
 func main() {
 	w := journald.NewJournalDWriter()
-	logger := zerolog.New(w).With().Caller().Logger()
+	logger = zerolog.New(w).With().Caller().Logger()
 
-	err := run(context.Background(), &logger)
+	err := run(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(ctx context.Context, logger *zerolog.Logger) error {
-	logger.Info().Str("version", version).Str("sgversion", sgversion).Msg("starting sourcegraph installer")
-
+func run(ctx context.Context) error {
 	err := ExecuteWithContext(ctx)
 	if err != nil {
 		return err
