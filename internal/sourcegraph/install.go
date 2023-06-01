@@ -54,7 +54,7 @@ func HelmInstall(ctx context.Context) error {
 		return err
 	}
 
-	chart, err := loader.Load("/usr/share/sourcegraph/sourcegraph-5.0.4.tgz")
+	chart, err := loader.Load("/usr/share/sourcegraph/sourcegraph.tgz")
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func UnpackK8sConfigs() error {
 }
 
 func unpackChart() error {
-	chart, err := embeddedFS.ReadFile("bin/sourcegraph-5.0.4.tgz")
+	chart, err := embeddedFS.ReadFile("bin/sourcegraph.tgz")
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func unpackChart() error {
 		return err
 	}
 
-	unpackedChart, err := os.OpenFile("/usr/share/sourcegraph/sourcegraph-5.0.4.tgz", os.O_RDWR|os.O_CREATE, 0755)
+	unpackedChart, err := os.OpenFile("/usr/share/sourcegraph/sourcegraph.tgz", os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return err
 	}

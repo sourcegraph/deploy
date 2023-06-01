@@ -18,7 +18,7 @@ func TestUnpackK8sConfigs(t *testing.T) {
 	if err != nil {
 		t.Fatalf("test failed %s", err)
 	}
-	
+
 	_, err = os.Stat("/usr/share/sourcegraph")
 	if err != nil {
 		t.Fatalf("test failed %s", err)
