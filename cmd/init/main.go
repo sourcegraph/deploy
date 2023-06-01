@@ -22,6 +22,7 @@ func main() {
 	w := journald.NewJournalDWriter()
 	logger := zerolog.New(w).With().Caller().Logger()
 	ctx := context.Background()
+
 	if err := run(ctx, &logger); err != nil {
 		os.Exit(1)
 	}
