@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/sourcegraph/deploy/internal/sourcegraph"
 )
 
 var (
@@ -31,12 +33,29 @@ func main() {
 }
 
 func run(ctx context.Context) error {
-
-	// TODO: check for existing install
-	err := initialSetup(ctx)
+	installed, err := sourcegraph.IsInstalled("sourcegraph")
 	if err != nil {
-		fmt.Println(err)
 		return err
+	}
+
+	if !installed {
+		err := initialSetup(ctx)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+
+	update, err := sourcegraph.CheckUpdate()
+	if err != nil {
+		return err
+	}
+
+	if update {
+		err := sourcegraph.HelmUpgrade()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
