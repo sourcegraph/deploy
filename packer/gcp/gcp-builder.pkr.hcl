@@ -61,7 +61,7 @@ locals {
 }
 
 source "googlecompute" "dev" {
-  skip_create_image       = "${!var.dev}"
+  skip_create_image       = !var.dev
   project_id              = "delivery-tiger-team"
   instance_name           = "sg-dev-${local.image_version}-${local.timestamp}"
   image_name              = "sg-dev-${local.image_version}-${local.timestamp}"
@@ -196,9 +196,6 @@ source "googlecompute" "XL" {
     team    = "delivery"
   }
 }
-
-
-
 
 build {
   name    = "sourcegraph-amis"
