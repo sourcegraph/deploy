@@ -3,11 +3,18 @@ package kernel
 import (
 	"bufio"
 	"context"
+	"flag"
 	"os"
 	"testing"
 )
 
+var integration = flag.Bool("integration", false, "run integration style tests")
+
 func TestSetInotifyMaxUserWatches(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping kernel 'TestSetInotifyMaxUserWatches' integration test...")
+	}
+
 	err := SetInotifyMaxUserWatches(context.Background(), 10000)
 	if err != nil {
 		t.Errorf("SetInotifyMaxUserWatches error: %v", err)
@@ -37,6 +44,10 @@ func TestSetInotifyMaxUserWatches(t *testing.T) {
 }
 
 func TestSetVmMaxMapCount(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping kernel 'TestSetVmMaxMapCount' integration test...")
+	}
+
 	err := SetVmMaxMapCount(context.Background(), 10000)
 	if err != nil {
 		t.Errorf("SetInotifyMaxUserWatches error: %v", err)
@@ -66,6 +77,10 @@ func TestSetVmMaxMapCount(t *testing.T) {
 }
 
 func TestSetSoftNProc(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping kernel 'TestSetSoftNProc' integration test...")
+	}
+
 	err := SetSoftNProc(100000)
 	if err != nil {
 		t.Errorf("SetSoftNProc error: %v", err)
@@ -95,6 +110,10 @@ func TestSetSoftNProc(t *testing.T) {
 }
 
 func TestSetHardNProc(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping kernel 'TestSetHardNProc' integration test...")
+	}
+
 	err := SetHardNProc(100000)
 	if err != nil {
 		t.Errorf("SetHardNProc error: %v", err)
@@ -124,6 +143,10 @@ func TestSetHardNProc(t *testing.T) {
 }
 
 func TestSetSoftNoFile(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping kernel 'TestSetSoftNoFile' integration test...")
+	}
+
 	err := SetSoftNoFile(100000)
 	if err != nil {
 		t.Errorf("SetSoftNoFile error: %v", err)
@@ -153,6 +176,10 @@ func TestSetSoftNoFile(t *testing.T) {
 }
 
 func TestSetHardNoFile(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping kernel 'TestSetHardNoFile' integration test...")
+	}
+
 	err := SetHardNoFile(100000)
 	if err != nil {
 		t.Errorf("SetHardNoFile error: %v", err)

@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
+	"flag"
 	"os/exec"
 	"testing"
 )
+
+var integration = flag.Bool("integration", false, "run integration style tests")
 
 func checkEnv(t *testing.T) {
 	t.Helper()
@@ -16,6 +19,10 @@ func checkEnv(t *testing.T) {
 }
 
 func TestIsRunning(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping service 'TestIsRunning' integration test...")
+	}
+
 	checkEnv(t)
 
 	cases := []struct {
@@ -57,76 +64,11 @@ func TestIsRunning(t *testing.T) {
 	}
 }
 
-func casestart(t *testing.T) {
-	checkEnv(t)
-
-	cases := []struct {
-		name    string
-		unit    string
-		setup   func()
-		wantErr bool
-	}{
-		{
-			name:    "valid service (ssh)",
-			unit:    "sshd.service",
-			setup:   func() { _ = Disable(context.Background(), "sshd.service") },
-			wantErr: false,
-		},
-		{
-			name:    "invalid unit",
-			unit:    "invalid.serce",
-			setup:   func() {},
-			wantErr: true,
-		},
-	}
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			tt.setup()
-			if err := Start(context.Background(), tt.unit); (err != nil) != tt.wantErr {
-				t.Errorf("Start() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func casestop(t *testing.T) {
-	checkEnv(t)
-
-	cases := []struct {
-		name    string
-		unit    string
-		wantErr bool
-	}{
-		{
-			name:    "valid service (ssh)",
-			unit:    "sshd.service",
-			wantErr: false,
-		},
-		{
-			name:    "invalid unit",
-			unit:    "invalid.service",
-			wantErr: true,
-		},
-	}
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := Stop(context.Background(), tt.unit); (err != nil) != tt.wantErr {
-				t.Errorf("Stop() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-
-	// restart any service that may have been stopped
-	defer func() {
-		for _, test := range cases {
-			if test.wantErr != true {
-				_ = Start(context.Background(), test.unit)
-			}
-		}
-	}()
-}
-
 func TestDisable(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping service 'TestDisable' integration test...")
+	}
+
 	checkEnv(t)
 
 	cases := []struct {
@@ -164,6 +106,10 @@ func TestDisable(t *testing.T) {
 }
 
 func TestEnable(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping service 'TestEnable' integration test...")
+	}
+
 	checkEnv(t)
 
 	cases := []struct {
@@ -192,6 +138,10 @@ func TestEnable(t *testing.T) {
 }
 
 func TestRestart(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping service 'TestRestart' integration test...")
+	}
+
 	checkEnv(t)
 
 	cases := []struct {
@@ -233,6 +183,10 @@ func TestRestart(t *testing.T) {
 }
 
 func TestValidateUnit(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping service 'TestValidateUnit' integration test...")
+	}
+
 	checkEnv(t)
 
 	cases := []struct {

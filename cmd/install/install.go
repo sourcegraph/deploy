@@ -120,7 +120,7 @@ func install(cmd *cobra.Command, args []string) error {
 	iter.ForEach(image.Images(), func(img *string) {
 		err = image.Pull(cmd.Context(), *img)
 		if err != nil {
-			logger.Error().Err(err).Msgf("could not pull image: %s", img)
+			logger.Error().Err(err).Msgf("could not pull image: %s", *img)
 		}
 	})
 

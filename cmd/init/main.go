@@ -72,7 +72,7 @@ func initialSetup(ctx context.Context, logger *zerolog.Logger) error {
 	iter.ForEach(image.Images(), func(img *string) {
 		err = image.SaveLoad(ctx, *img)
 		if err != nil {
-			logger.Error().Err(err).Msgf("failed to load image: %s", img)
+			logger.Error().Err(err).Msgf("failed to load image: %s", *img)
 		}
 	})
 

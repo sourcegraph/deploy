@@ -2,13 +2,20 @@ package k3s
 
 import (
 	"context"
+	"flag"
 	"os"
 	"testing"
 
 	"github.com/sourcegraph/deploy/internal/system/distro"
 )
 
+var integration = flag.Bool("integration", false, "run integration style install tests")
+
 func TestInstall(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping k3s 'TestInstall' integration test...")
+	}
+
 	err := Install(context.Background())
 	if err != nil {
 		t.Fatalf("test failed %s", err)
@@ -33,6 +40,10 @@ func TestInstall(t *testing.T) {
 }
 
 func TestConfigure(t *testing.T) {
+	if !*integration {
+		t.Skip("skipping k3s 'TestConfigure' integration test...")
+	}
+
 	if distro.IsAmazonLinux() {
 		err := Configure("ec2-user")
 		if err != nil {
