@@ -11,14 +11,14 @@ func checkEnv(t *testing.T) {
 	// check if systemd is available on the test system
 	_, err := exec.LookPath("systemctl")
 	if err != nil {
-		t.Skipf("skipping systemd based service tests. systemd not found on system.")
+		t.Skipf("skipping systemd based service cases. systemd not found on system.")
 	}
 }
 
 func TestIsRunning(t *testing.T) {
 	checkEnv(t)
 
-	tests := []struct {
+	cases := []struct {
 		name    string
 		unit    string
 		want    bool
@@ -43,7 +43,7 @@ func TestIsRunning(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := IsRunning(context.Background(), tt.unit)
 			if (err != nil) != tt.wantErr {
@@ -57,10 +57,10 @@ func TestIsRunning(t *testing.T) {
 	}
 }
 
-func TestStart(t *testing.T) {
+func casestart(t *testing.T) {
 	checkEnv(t)
 
-	tests := []struct {
+	cases := []struct {
 		name    string
 		unit    string
 		setup   func()
@@ -79,7 +79,7 @@ func TestStart(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
 			if err := Start(context.Background(), tt.unit); (err != nil) != tt.wantErr {
@@ -89,10 +89,10 @@ func TestStart(t *testing.T) {
 	}
 }
 
-func TestStop(t *testing.T) {
+func casestop(t *testing.T) {
 	checkEnv(t)
 
-	tests := []struct {
+	cases := []struct {
 		name    string
 		unit    string
 		wantErr bool
@@ -108,7 +108,7 @@ func TestStop(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := Stop(context.Background(), tt.unit); (err != nil) != tt.wantErr {
 				t.Errorf("Stop() error = %v, wantErr %v", err, tt.wantErr)
@@ -118,7 +118,7 @@ func TestStop(t *testing.T) {
 
 	// restart any service that may have been stopped
 	defer func() {
-		for _, test := range tests {
+		for _, test := range cases {
 			if test.wantErr != true {
 				_ = Start(context.Background(), test.unit)
 			}
@@ -129,7 +129,7 @@ func TestStop(t *testing.T) {
 func TestDisable(t *testing.T) {
 	checkEnv(t)
 
-	tests := []struct {
+	cases := []struct {
 		name    string
 		unit    string
 		wantErr bool
@@ -145,7 +145,7 @@ func TestDisable(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := Disable(context.Background(), tt.unit); (err != nil) != tt.wantErr {
 				t.Errorf("Disable() error = %v, wantErr %v", err, tt.wantErr)
@@ -155,7 +155,7 @@ func TestDisable(t *testing.T) {
 
 	// enable any service that may have been disabled
 	defer func() {
-		for _, test := range tests {
+		for _, test := range cases {
 			if test.wantErr != true {
 				_ = Enable(context.Background(), test.unit)
 			}
@@ -166,7 +166,7 @@ func TestDisable(t *testing.T) {
 func TestEnable(t *testing.T) {
 	checkEnv(t)
 
-	tests := []struct {
+	cases := []struct {
 		name    string
 		unit    string
 		wantErr bool
@@ -182,7 +182,7 @@ func TestEnable(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := Enable(context.Background(), tt.unit); (err != nil) != tt.wantErr {
 				t.Errorf("Enable() error = %v, wantErr %v", err, tt.wantErr)
@@ -194,7 +194,7 @@ func TestEnable(t *testing.T) {
 func TestRestart(t *testing.T) {
 	checkEnv(t)
 
-	tests := []struct {
+	cases := []struct {
 		name    string
 		unit    string
 		setup   func()
@@ -213,7 +213,7 @@ func TestRestart(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setup()
 			if err := Restart(context.Background(), tt.unit); (err != nil) != tt.wantErr {
@@ -224,7 +224,7 @@ func TestRestart(t *testing.T) {
 
 	// enable any service that may have been disabled
 	defer func() {
-		for _, test := range tests {
+		for _, test := range cases {
 			if test.wantErr != true {
 				_ = Enable(context.Background(), test.unit)
 			}
@@ -235,7 +235,7 @@ func TestRestart(t *testing.T) {
 func TestValidateUnit(t *testing.T) {
 	checkEnv(t)
 
-	tests := []struct {
+	cases := []struct {
 		name    string
 		unit    string
 		wantErr bool
@@ -306,7 +306,7 @@ func TestValidateUnit(t *testing.T) {
 			wantErr: true,
 		},
 	}
-	for _, tt := range tests {
+	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := validateUnit(tt.unit); (err != nil) != tt.wantErr {
 				t.Errorf("validateUnit() error = %v, wantErr %v", err, tt.wantErr)

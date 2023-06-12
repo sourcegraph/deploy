@@ -56,6 +56,7 @@ func IsInstalled(release string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	for _, r := range releases {
 		if r.Name == release {
 			return true, nil

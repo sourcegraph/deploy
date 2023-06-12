@@ -41,7 +41,6 @@ func run(ctx context.Context, logger *zerolog.Logger) error {
 }
 
 func initialSetup(ctx context.Context, logger *zerolog.Logger) error {
-
 	logger.Info().Msg("checking k3s.service status")
 	running, err := service.IsRunning(ctx, "k3s.service")
 	if err != nil {

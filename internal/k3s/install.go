@@ -148,6 +148,7 @@ func unpackBin() (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	unpackedK3s, err := os.OpenFile("/usr/local/bin/k3s", os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, err
