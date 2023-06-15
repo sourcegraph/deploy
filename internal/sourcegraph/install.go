@@ -234,7 +234,7 @@ func unpackPromConf() error {
 // WriteSourcegraphVersion will write the sourcegraph version to the config file located at
 // `$HOME/.sourcegraph-version` and `/mnt/data/.sourcegraph-version`.
 func WriteSourcegraphVersion(version, username string) error {
-	homef, err := os.OpenFile(fmt.Sprintf("/home/%s/.sourcegraph-version", username), os.O_CREATE|os.O_RDWR, os.ModePerm)
+	homef, err := os.OpenFile(fmt.Sprintf("/home/%s/.sourcegraph-version", username), os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func WriteSourcegraphVersion(version, username string) error {
 		return err
 	}
 
-	dataf, err := os.OpenFile("/mnt/data/.sourcegraph-version", os.O_CREATE|os.O_RDWR, os.ModePerm)
+	dataf, err := os.OpenFile("/mnt/data/.sourcegraph-version", os.O_CREATE|os.O_RDWR, 0777)
 	if err != nil {
 		return err
 	}

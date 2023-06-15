@@ -41,7 +41,6 @@ func run(ctx context.Context, logger *zerolog.Logger) error {
 	if update {
 		logger.Info().Msg("updated needed, running update process")
 
-		// TODO kill k3s, clean dirs, restart
 		logger.Info().Msg("resetting k3s")
 		err := k3s.Reset(ctx)
 		if err != nil {
