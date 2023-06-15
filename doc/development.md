@@ -101,7 +101,7 @@ To create images for all cloud providers:
 #### Google Compute Engine
 
 1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build 
-2. Run `packer build --var-file=./packer/build-variables.hcl ./packer/gcp/gcp-builder.pkr.hcl` from the root of this repository, which will:
+2. Run `packer build --var-file=./packer/build-variables.hcl ./packer/gcp/gcp-builder.pkr.hcl` (insure version is _not_ specified) from the root of this repository, which will:
    - Build the Google Compute Machine Images for all sizes
    - Copy them to the storage buckets
    - Mark them as public
