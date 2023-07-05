@@ -220,3 +220,8 @@ embeddings:
     requests:
       cpu: "250m"
       memory: 256M
+
+executor:
+  frontendUrl: "http://sourcegraph-frontend:30080"
+  frontendPassword: "sourcegraph-ami-password"
+  queueNames: ["batches", "codeintel"]
