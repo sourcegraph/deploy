@@ -69,6 +69,7 @@ $LOCAL_BIN_PATH/k3s kubectl apply -f "$DEPLOY_PATH/prometheus-override.ConfigMap
 $LOCAL_BIN_PATH/helm repo update
 $LOCAL_BIN_PATH/helm pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f "$DEPLOY_PATH/override.yaml" --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
+$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f "$DEPLOY_PATH/override.yaml" --version "$SOURCEGRAPH_VERSION" executor sourcegraph/sourcegraph-executor-k8s
 $LOCAL_BIN_PATH/k3s kubectl create -f "$DEPLOY_PATH/ingress.yaml"
 
 # Start Sourcegraph on next reboot

@@ -244,12 +244,17 @@ fi
 # Pull the Sourcegraph chart
 helm --kubeconfig $KUBECONFIG pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph
 mv "$HOME/deploy/install/sourcegraph-$SOURCEGRAPH_VERSION.tgz" "$HOME/deploy/install/sourcegraph-charts.tgz"
+# Store Sourcegraph executor k8s charts
+helm --kubeconfig $KUBECONFIG pull --version "$SOURCEGRAPH_VERSION" sourcegraph/sourcegraph-executor-k8s
+mv "$HOME/deploy/install/sourcegraph-executor-k8s-$SOURCEGRAPH_VERSION.tgz" "$HOME/deploy/install/sourcegraph-executor-k8s-charts.tgz"
 # Create override configMap for prometheus before startup Sourcegraph
 k3s kubectl apply -f "$HOME/deploy/install/prometheus-override.ConfigMap.yaml"
 # Create ingress
 k3s kubectl create -f "$HOME/deploy/install/ingress.yaml"
 # Deploy Sourcegraph
 helm --kubeconfig $KUBECONFIG upgrade -i -f ./override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph "$HOME/deploy/install/sourcegraph-charts.tgz"
+sleep 5
+helm --kubeconfig $KUBECONFIG upgrade -i -f ./override.yaml --version "$SOURCEGRAPH_VERSION" executor "$HOME/deploy/install/sourcegraph-executor-k8s-charts.tgz"
 
 # Generate files to save instance info in volumes for upgrade purpose
 # First, pin the root image with the version number

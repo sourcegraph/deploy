@@ -66,6 +66,8 @@ mv ./sourcegraph-"$SOURCEGRAPH_VERSION".tgz ./sourcegraph-charts.tgz
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f /home/ec2-user/deploy/install/prometheus-override.ConfigMap.yaml
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f /home/ec2-user/deploy/install/override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f /home/ec2-user/deploy/install/ingress.yaml
+sleep 5
+$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f /home/ec2-user/deploy/install/override.yaml --version "$AMI_VERSION" executor sourcegraph/sourcegraph-executor-k8s
 
 # Generate files to save instance info in volumes for upgrade purpose
 echo "${SOURCEGRAPH_VERSION}" | sudo tee /home/ec2-user/.sourcegraph-version
