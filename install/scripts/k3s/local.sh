@@ -50,4 +50,6 @@ helm --kubeconfig $KUBECONFIG_FILE repo add sourcegraph https://helm.sourcegraph
 # Create override configMap for prometheus before startup Sourcegraph
 k3s kubectl apply -f deploy/install/prometheus-override.ConfigMap.yaml
 helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f "$HOME/deploy/install/override.yaml" --version "$SOURCEGRAPH_VERSION" sourcegraph sourcegraph/sourcegraph
+sleep 5
+helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f "$HOME/deploy/install/override.yaml" --version "$SOURCEGRAPH_VERSION" executor sourcegraph/sourcegraph-executor-k8s
 k3s kubectl create -f deploy/install/ingress.yaml
