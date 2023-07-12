@@ -11,90 +11,30 @@ import (
 
 // IsAmazonLinux checks if the current Linux distro is Amazon Linux.
 func IsAmazonLinux() bool {
-	f, err := os.Open("/etc/os-release")
-	if err != nil {
-		return false
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "amzn") {
-			return true
-		}
-	}
-
-	return false
+	return isDistro("amzn")
 }
 
 // IsRHELinux checks if the current Linux distro is RedHat Enterprise Linux.
 func IsRHELinux() bool {
-	f, err := os.Open("/etc/os-release")
-	if err != nil {
-		return false
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "rhel") {
-			return true
-		}
-	}
-
-	return false
+	return isDistro("rhel")
 }
 
 // IsFedoraLinux checks if the current Linux distro is Fedora Linux.
 func IsFedoraLinux() bool {
-	f, err := os.Open("/etc/os-release")
-	if err != nil {
-		return false
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "fedora") {
-			return true
-		}
-	}
-
-	return false
+	return isDistro("fedora")
 }
 
 // IsDebianLinux checks if the current Linux distro is Debian Linux.
 func IsDebianLinux() bool {
-	f, err := os.Open("/etc/os-release")
-	if err != nil {
-		return false
-	}
-	defer func() {
-		_ = f.Close()
-	}()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "debian") {
-			return true
-		}
-	}
-
-	return false
+	return isDistro("debian")
 }
 
 // IsUbuntuLinux checks if the current Linux distro is Ubuntu Linux.
 func IsUbuntuLinux() bool {
+	return isDistro("ubuntu")
+}
+
+func isDistro(distro string) bool {
 	f, err := os.Open("/etc/os-release")
 	if err != nil {
 		return false
@@ -106,7 +46,7 @@ func IsUbuntuLinux() bool {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "ID=") && strings.Contains(line, "ubuntu") {
+		if strings.HasPrefix(line, "ID=") && strings.Contains(line, distro) {
 			return true
 		}
 	}
