@@ -5,7 +5,11 @@ import (
 	"os"
 	"os/user"
 
+	"github.com/spf13/cobra"
+
 	"github.com/sourcegraph/conc/iter"
+	"github.com/sourcegraph/sourcegraph/lib/errors"
+
 	"github.com/sourcegraph/deploy/internal/containerd"
 	"github.com/sourcegraph/deploy/internal/helm"
 	"github.com/sourcegraph/deploy/internal/image"
@@ -15,9 +19,6 @@ import (
 	"github.com/sourcegraph/deploy/internal/system/distro"
 	"github.com/sourcegraph/deploy/internal/system/kernel"
 	"github.com/sourcegraph/deploy/internal/system/service"
-	"github.com/spf13/cobra"
-
-	"github.com/sourcegraph/sourcegraph/lib/errors"
 )
 
 var installCmd = &cobra.Command{

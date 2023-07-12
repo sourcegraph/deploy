@@ -9,6 +9,8 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
+
+	"github.com/sourcegraph/sourcegraph/lib/errors"
 )
 
 func HelmUpgrade() error {

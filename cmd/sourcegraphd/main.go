@@ -3,9 +3,13 @@ package main
 import (
 	"context"
 	"os"
+	"os/user"
+	"strconv"
+	"syscall"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/journald"
+
 	"github.com/sourcegraph/deploy/internal/k3s"
 	"github.com/sourcegraph/deploy/internal/sourcegraph"
 	"github.com/sourcegraph/deploy/internal/system/service"
