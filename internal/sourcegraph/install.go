@@ -13,6 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -49,7 +50,9 @@ func HelmInstall(ctx context.Context) error {
 	settings := cli.New()
 
 	actionConfig := new(action.Configuration)
-	err = actionConfig.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
+	configFlags := genericclioptions.NewConfigFlags(false)
+	configFlags.KubeConfig = &kubeconfig
+	err = actionConfig.Init(configFlags, settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
 	if err != nil {
 		return err
 	}

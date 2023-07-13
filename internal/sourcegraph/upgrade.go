@@ -1,7 +1,6 @@
 package sourcegraph
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"reflect"
@@ -9,15 +8,18 @@ import (
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-
-	"github.com/sourcegraph/sourcegraph/lib/errors"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
 func HelmUpgrade() error {
+	kubeconfigPath := "/etc/rancher/k3s/k3s.yaml"
 	settings := cli.New()
 
 	actionConfig := new(action.Configuration)
-	err := actionConfig.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
+	configFlags := genericclioptions.NewConfigFlags(false)
+	configFlags.KubeConfig = &kubeconfigPath
+
+	err := actionConfig.Init(configFlags, settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
 	if err != nil {
 		return err
 	}
@@ -44,10 +46,14 @@ func HelmUpgrade() error {
 }
 
 func IsInstalled(release string) (bool, error) {
+	kubeconfigPath := "/etc/rancher/k3s/k3s.yaml"
 	settings := cli.New()
 
 	actionConfig := new(action.Configuration)
-	err := actionConfig.Init(settings.RESTClientGetter(), settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
+	configFlags := genericclioptions.NewConfigFlags(false)
+	configFlags.KubeConfig = &kubeconfigPath
+
+	err := actionConfig.Init(configFlags, settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
 	if err != nil {
 		return false, err
 	}
@@ -74,7 +80,8 @@ func CheckUpdate() (bool, error) {
 		return false, err
 	}
 
-	_, err = os.Stat(fmt.Sprintf("%s/.sourcegraph-version", os.Getenv("HOME")))
+	path := "/home/ec2-user/.sourcegraph-version"
+	_, err = os.Stat(path)
 	if err != nil {
 		return false, err
 	}
@@ -84,7 +91,7 @@ func CheckUpdate() (bool, error) {
 		return false, err
 	}
 
-	sysVersion, err := os.ReadFile(fmt.Sprintf("%s/.sourcegraph-version", os.Getenv("HOME")))
+	sysVersion, err := os.ReadFile(path)
 	if err != nil {
 		return false, err
 	}

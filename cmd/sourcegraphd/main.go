@@ -3,9 +3,6 @@ package main
 import (
 	"context"
 	"os"
-	"os/user"
-	"strconv"
-	"syscall"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/journald"
@@ -52,7 +49,7 @@ func run(ctx context.Context, logger *zerolog.Logger) error {
 			return err
 		}
 
-		err = service.Start(ctx, "k3s.service")
+		err = service.Restart(ctx, "k3s.service")
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to reset k3s")
 			return err
@@ -74,9 +71,9 @@ func run(ctx context.Context, logger *zerolog.Logger) error {
 
 	if !installed {
 		logger.Info().Msg("no existing install found, starting initial setup")
-		err := initialSetup(ctx)
+		err = sourcegraph.HelmInstall(ctx)
 		if err != nil {
-			logger.Error().Err(err).Msg("failed to run initial setup")
+			logger.Error().Err(err).Msg("failed to run helm install during initial setup")
 			return err
 		}
 	}
