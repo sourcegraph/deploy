@@ -2,6 +2,7 @@
 Description=Monitors sourcegraph install and performs updates.
 After=network.target
 After=sg-init.service
+After=mnt-data.mount
 
 [Service]
 ExecStart=/usr/local/bin/sourcegraphd
