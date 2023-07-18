@@ -7,7 +7,6 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/journald"
 
-	"github.com/sourcegraph/deploy/internal/k3s"
 	"github.com/sourcegraph/deploy/internal/sourcegraph"
 	"github.com/sourcegraph/deploy/internal/system/service"
 )
@@ -42,22 +41,28 @@ func run(ctx context.Context, logger *zerolog.Logger) error {
 	if update {
 		logger.Info().Msg("updated needed, running update process")
 
-		logger.Info().Msg("resetting k3s")
-		err := k3s.Reset(ctx)
-		if err != nil {
-			logger.Error().Err(err).Msg("failed to reset k3s")
+		// logger.Info().Msg("resetting k3s")
+		// if err := k3s.Reset(ctx); err != nil {
+		//   logger.Error().Err(err).Msg("failed to reset k3s")
+		//   return err
+		// }
+
+		if err := sourcegraph.DeleteIngress(ctx); err != nil {
 			return err
 		}
 
-		err = service.Restart(ctx, "k3s.service")
-		if err != nil {
-			logger.Error().Err(err).Msg("failed to reset k3s")
+		if err := service.Restart(ctx, "k3s.service"); err != nil {
+			logger.Error().Err(err).Msg("failed to restart k3s")
 			return err
 		}
 
-		err = sourcegraph.HelmUpgrade()
-		if err != nil {
+		if err := sourcegraph.Upgrade(); err != nil {
 			logger.Error().Err(err).Msg("failed to run update process")
+			return err
+		}
+
+		if err := sourcegraph.InstallIngress(ctx); err != nil {
+			logger.Error().Err(err).Msg("failed to install ingress during update")
 			return err
 		}
 	}
@@ -71,7 +76,7 @@ func run(ctx context.Context, logger *zerolog.Logger) error {
 
 	if !installed {
 		logger.Info().Msg("no existing install found, starting initial setup")
-		err = sourcegraph.HelmInstall(ctx)
+		err = sourcegraph.Install(ctx)
 		if err != nil {
 			logger.Error().Err(err).Msg("failed to run helm install during initial setup")
 			return err

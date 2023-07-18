@@ -14,7 +14,7 @@ func TestHelmInstall(t *testing.T) {
 		t.Skip("skipping sourcegraph 'TestHelmInstall' integration test...")
 	}
 
-	err := HelmInstall(context.Background())
+	err := Install(context.Background())
 	if err != nil {
 		t.Fatalf("test failed %s", err)
 	}

@@ -27,22 +27,33 @@ import (
 //go:embed bin
 var embeddedFS embed.FS
 
-// HelmInstall will install Sourcegraph using the Sourcegraph Helm charts. Resource limits are dynamically calculated
-// based on the resources on the given machine at install time (see configMap). HelmInstall will use offline charts, and will NOT pull
+var kubeConfigPath = "/etc/rancher/k3s/k3s.yaml"
+
+// buildKubeConfig is a helper function that builds a kubeconifg from the given filepath.
+func buildKubeConfig(path string) (*rest.Config, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", path)
+	if err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
+// Install will install Sourcegraph using the Sourcegraph Helm charts. Resource limits are dynamically calculated
+// based on the resources on the given machine at install time (see configMap). Install will use offline charts, and will NOT pull
 // charts from Helm.
-func HelmInstall(ctx context.Context) error {
-	kubeconfig := "/etc/rancher/k3s/k3s.yaml"
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+func Install(ctx context.Context) error {
+	config, err := buildKubeConfig(kubeConfigPath)
 	if err != nil {
 		return err
 	}
 
-	err = ingressInstall(ctx, config)
+	err = installIngress(ctx, config)
 	if err != nil {
 		return err
 	}
 
-	err = promConfigMapInstall(ctx, config)
+	err = installPromConfigMap(ctx, config)
 	if err != nil {
 		return err
 	}
@@ -51,7 +62,7 @@ func HelmInstall(ctx context.Context) error {
 
 	actionConfig := new(action.Configuration)
 	configFlags := genericclioptions.NewConfigFlags(false)
-	configFlags.KubeConfig = &kubeconfig
+	configFlags.KubeConfig = &kubeConfigPath
 	err = actionConfig.Init(configFlags, settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
 	if err != nil {
 		return err
@@ -79,7 +90,16 @@ func HelmInstall(ctx context.Context) error {
 	return nil
 }
 
-func ingressInstall(ctx context.Context, config *rest.Config) error {
+func InstallIngress(ctx context.Context) error {
+	config, err := buildKubeConfig(kubeConfigPath)
+	if err != nil {
+		return err
+	}
+
+	return installIngress(ctx, config)
+}
+
+func installIngress(ctx context.Context, config *rest.Config) error {
 	c, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return err
@@ -104,7 +124,39 @@ func ingressInstall(ctx context.Context, config *rest.Config) error {
 	return nil
 }
 
-func promConfigMapInstall(ctx context.Context, config *rest.Config) error {
+func DeleteIngress(ctx context.Context) error {
+	config, err := buildKubeConfig(kubeConfigPath)
+	if err != nil {
+		return err
+	}
+
+	return deleteIngress(ctx, config)
+}
+
+func deleteIngress(ctx context.Context, config *rest.Config) error {
+	c, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		return err
+	}
+
+	err = c.NetworkingV1().Ingresses("default").Delete(ctx, "sourcegraph-ingress", metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func InstallPromConfigMap(ctx context.Context) error {
+	config, err := buildKubeConfig(kubeConfigPath)
+	if err != nil {
+		return err
+	}
+
+	return installPromConfigMap(ctx, config)
+}
+
+func installPromConfigMap(ctx context.Context, config *rest.Config) error {
 	c, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return err

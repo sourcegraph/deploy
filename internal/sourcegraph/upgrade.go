@@ -11,13 +11,12 @@ import (
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 )
 
-func HelmUpgrade() error {
-	kubeconfigPath := "/etc/rancher/k3s/k3s.yaml"
+func Upgrade() error {
 	settings := cli.New()
 
 	actionConfig := new(action.Configuration)
 	configFlags := genericclioptions.NewConfigFlags(false)
-	configFlags.KubeConfig = &kubeconfigPath
+	configFlags.KubeConfig = &kubeConfigPath
 
 	err := actionConfig.Init(configFlags, settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
 	if err != nil {
@@ -46,12 +45,11 @@ func HelmUpgrade() error {
 }
 
 func IsInstalled(release string) (bool, error) {
-	kubeconfigPath := "/etc/rancher/k3s/k3s.yaml"
 	settings := cli.New()
 
 	actionConfig := new(action.Configuration)
 	configFlags := genericclioptions.NewConfigFlags(false)
-	configFlags.KubeConfig = &kubeconfigPath
+	configFlags.KubeConfig = &kubeConfigPath
 
 	err := actionConfig.Init(configFlags, settings.Namespace(), os.Getenv("HELM_DRIVER"), log.Printf)
 	if err != nil {
