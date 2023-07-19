@@ -22,15 +22,13 @@ func main() {
 	w := journald.NewJournalDWriter()
 	logger = zerolog.New(w).With().Caller().Logger()
 
-	err := run(context.Background())
-	if err != nil {
+	if err := run(context.Background()); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func run(ctx context.Context) error {
-	err := ExecuteWithContext(ctx)
-	if err != nil {
+	if err := ExecuteWithContext(ctx); err != nil {
 		return err
 	}
 

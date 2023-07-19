@@ -55,32 +55,27 @@ func install(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = kernel.SetVmMaxMapCount(cmd.Context(), 300_000)
-	if err != nil {
+	if err := kernel.SetVmMaxMapCount(cmd.Context(), 300_000); err != nil {
 		logger.Error().Err(err).Msg("could not set vm max map count")
 		return err
 	}
 
-	err = kernel.SetSoftNProc(8_192)
-	if err != nil {
+	if err := kernel.SetSoftNProc(8_192); err != nil {
 		logger.Error().Err(err).Msg("could not set soft nproc")
 		return err
 	}
 
-	err = kernel.SetHardNProc(16_384)
-	if err != nil {
+	if err := kernel.SetHardNProc(16_384); err != nil {
 		logger.Error().Err(err).Msg("could not set hard nproc")
 		return err
 	}
 
-	err = kernel.SetSoftNoFile(262_144)
-	if err != nil {
+	if err := kernel.SetSoftNoFile(262_144); err != nil {
 		logger.Error().Err(err).Msg("could not set soft nfile")
 		return err
 	}
 
-	err = kernel.SetHardNoFile(262_144)
-	if err != nil {
+	if err := kernel.SetHardNoFile(262_144); err != nil {
 		logger.Error().Err(err).Msg("could not set hard nfile")
 		return err
 	}
@@ -104,67 +99,58 @@ func install(cmd *cobra.Command, args []string) error {
 	}
 
 	logger.Info().Msg("setting up data volume symlinks")
-	err = k3s.LinkDataVolumes()
-	if err != nil {
+	if err = k3s.LinkDataVolumes(); err != nil {
 		logger.Error().Err(err).Msg("could not setup data volume symlinks")
 		return err
 	}
 
 	logger.Info().Msg("installing containerd")
-	err = containerd.Install(cmd.Context())
-	if err != nil {
+	if err = containerd.Install(cmd.Context()); err != nil {
 		logger.Error().Err(err).Msg("could not install containerd")
 		return err
 	}
 
 	logger.Info().Msg("pulling sourcegraph images")
 	iter.ForEach(image.Images(), func(img *string) {
-		err = image.Pull(cmd.Context(), *img)
-		if err != nil {
+		if err = image.Pull(cmd.Context(), *img); err != nil {
 			logger.Error().Err(err).Msgf("could not pull image: %s", *img)
 		}
 	})
 
 	logger.Info().Msg("installing k3s")
-	err = k3s.Install(cmd.Context())
-	if err != nil {
+	if err = k3s.Install(cmd.Context()); err != nil {
 		logger.Error().Err(err).Msg("could not install k3s")
 		return err
 	}
 
 	logger.Info().Msg("installing helm")
-	err = helm.Install()
-	if err != nil {
+	if err = helm.Install(); err != nil {
 		logger.Error().Err(err).Msg("could not install helm")
 		return err
 	}
 
 	logger.Info().Msg("unpacking k8s configurations")
-	err = sourcegraph.UnpackK8sConfigs()
-	if err != nil {
+	if err = sourcegraph.UnpackK8sConfigs(); err != nil {
 		logger.Error().Err(err).Msg("could not unpack k8s configurations")
 		return err
 	}
 
 	if distro.IsAmazonLinux() {
 		logger.Info().Msg("writing sourcegraph version files")
-		err = sourcegraph.WriteSourcegraphVersion(sgversion, "ec2-user")
-		if err != nil {
+		if err = sourcegraph.WriteSourcegraphVersion(sgversion, "ec2-user"); err != nil {
 			logger.Error().Err(err).Msg("could not write sourcegraph version files")
 			return err
 		}
 	}
 
 	logger.Info().Msg("setting up sg-init systemd service")
-	err = setupSGInit(cmd.Context())
-	if err != nil {
+	if err = setupSGInit(cmd.Context()); err != nil {
 		logger.Error().Err(err).Msg("could not setup sg-init systemd service")
 		return err
 	}
 
 	logger.Info().Msg("setting up sourcegraphd systemd service")
-	err = setupSourcegraphd(cmd.Context())
-	if err != nil {
+	if err = setupSourcegraphd(cmd.Context()); err != nil {
 		logger.Error().Err(err).Msg("could not setup sourcegraphd systemd service")
 		return err
 	}
@@ -209,8 +195,7 @@ func setupSGInit(ctx context.Context) error {
 		return err
 	}
 
-	err = service.Enable(ctx, "sg-init.service")
-	if err != nil {
+	if err = service.Enable(ctx, "sg-init.service"); err != nil {
 		return err
 	}
 
@@ -251,9 +236,8 @@ func setupSourcegraphd(ctx context.Context) error {
 		return err
 	}
 
-	err = service.Enable(ctx, "sourcegraphd.service")
-	if err != nil {
-		return err
+	if err = service.Enable(ctx, "sourcegraphd.service"); err != nil {
+		return nil
 	}
 
 	return nil

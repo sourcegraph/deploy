@@ -12,9 +12,9 @@ import (
 	"os/user"
 	"strconv"
 
-	"github.com/sourcegraph/deploy/internal/system/service"
-
 	"github.com/sourcegraph/sourcegraph/lib/errors"
+
+	"github.com/sourcegraph/deploy/internal/system/service"
 )
 
 // The K3s installer, binary, and corresponding images are embedded into the binary at build and pinned to a specific version.
