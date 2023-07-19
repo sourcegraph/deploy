@@ -105,71 +105,71 @@ Mappings:
       Instance: m6a.24xlarge
   RegionMap:
     af-south-1:
-      io2: ami-02eb4d94563df7380
-      gp3: ami-0a7d702573704c565
+      io2: ami-0706e23ef023e90d6
+      gp3: ami-05d4ad19563598be2
     ap-east-1:
-      io2: ami-0407a0c566867bd6a
-      gp3: ami-08cb814e4c378d58e
+      io2: ami-02b8e6291e4bd1bc5
+      gp3: ami-0f43173df12e371a9
     ap-northeast-1:
-      io2: ami-016bd6c921eb4337e
-      gp3: ami-08b26dce504c5ecd7
+      io2: ami-0ceb8cf8c5f2c70bd
+      gp3: ami-024c57a68a740c5de
     ap-northeast-2:
-      io2: ami-08de2cca67f2be087
-      gp3: ami-08c86387631a0d975
+      io2: ami-0c875c4fbe4dfc274
+      gp3: ami-00a5ecfd7e0832e97
     ap-south-1:
-      io2: ami-0d3956759e3a0784f
-      gp3: ami-00cdc76c590cdd8cf
+      io2: ami-0ca0e7ba6a61f23cd
+      gp3: ami-00b19b4993b428c83
     ap-southeast-1:
-      io2: ami-093fd9b3e39611860
-      gp3: ami-0df9ece6f42f01b27
+      io2: ami-0487c471f359713ff
+      gp3: ami-0a049f41febed922c
     ap-southeast-2:
-      io2: ami-03f80700214da6b9e
-      gp3: ami-0bd8b0faed7334303
+      io2: ami-0d61223de71060980
+      gp3: ami-07797a71074d1b219
     ap-southeast-3:
-      io2: ami-0332469f12942d611
-      gp3: ami-0363b75f8bce33987
+      io2: ami-002c2a4235aa91efa
+      gp3: ami-0c45334dfb002c32e
     ca-central-1:
-      io2: ami-0fd878681265974dd
-      gp3: ami-047fcf00ef6f774a5
+      io2: ami-04e2b9b085db2bba5
+      gp3: ami-0660f7934c062f0c4
     eu-central-1:
-      io2: ami-073d95af398167c4f
-      gp3: ami-0f6337ecb70e2ce20
+      io2: ami-08879b84b8553da7f
+      gp3: ami-07d4db0f650e6fbbc
     eu-north-1:
-      io2: ami-003a8274d47fab79d
-      gp3: ami-08e2dbef851243881
+      io2: ami-0ea8a968189760a19
+      gp3: ami-0fbba268a20cee9a2
     eu-south-1:
-      io2: ami-07f752b8635919513
-      gp3: ami-0205d326fee61af31
+      io2: ami-0e22f5c1cfeb141a7
+      gp3: ami-0e5b0363e03e29736
     eu-west-1:
-      io2: ami-058034b37856da3a7
-      gp3: ami-0ad2ddfe55064c693
+      io2: ami-0af9a96d8e85f7731
+      gp3: ami-0d24b9cc89bafe37e
     eu-west-2:
-      io2: ami-01be38ffa4b7043db
-      gp3: ami-0bc463d738040c4d6
+      io2: ami-096a65c601af63e5e
+      gp3: ami-0b43f529c7c378e10
     eu-west-3:
-      io2: ami-0ca2a4f7c0fb52838
-      gp3: ami-02df9724ea4edbf0a
+      io2: ami-0f389eec522557a8c
+      gp3: ami-0809e1d7cbd3b1a9a
     me-central-1:
-      io2: ami-0acbe9faa90fb5a94
-      gp3: ami-0ccc91becfb892d47
+      io2: ami-0b19733df113235cd
+      gp3: ami-00d222c0fa230ae7d
     me-south-1:
-      io2: ami-0f41d1887a58e2b0a
-      gp3: ami-0397d146464ee9192
+      io2: ami-00d573b86843b1895
+      gp3: ami-07c0c03852f12053a
     sa-east-1:
-      io2: ami-0b8509319c8dd573f
-      gp3: ami-07440fe37d287760a
+      io2: ami-0ee98ae59ee180c7c
+      gp3: ami-0858af29073a66f96
     us-east-1:
-      io2: ami-020de6e9688c2a28e
-      gp3: ami-0c6b3f6d254a02704
+      io2: ami-0c3a18459a9f54dbd
+      gp3: ami-0e9e6f62345670c1f
     us-east-2:
-      io2: ami-04acec50ecce31209
-      gp3: ami-0de86e3366ba55840
+      io2: ami-0e14180c11ff1ba68
+      gp3: ami-0e42235df3669b354
     us-west-1:
-      io2: ami-0b7eef68a1e557c4f
-      gp3: ami-0043ad121ed288c20
+      io2: ami-03e9198f6dcc63feb
+      gp3: ami-00d5d863ff5dc380a
     us-west-2:
-      io2: ami-0f8216667d87200a3
-      gp3: ami-03d6fef3fb356ff72
+      io2: ami-0062d0f397b7fcd79
+      gp3: ami-0b6a4b6bbc1fb707d
 
 Outputs:
   SourcegraphURL:
