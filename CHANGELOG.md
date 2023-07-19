@@ -67,6 +67,10 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 ## 5.1.3
 
+### Updates
+
+- Added support for executors [50](https://github.com/sourcegraph/deploy/pull/50
+
 ### XS
 
 - af-south-1: ami-010949c72f8853fdc
