@@ -59,5 +59,5 @@ fi
 # However, this should not affect a running instance
 sleep 60 && sudo systemctl restart k3s
 HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
-[ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
-[ "$HELM_APP_VERSION" == "" ] && echo "$HELM_APP_VERSION" | sudo tee "$HOME/.sourcegraph-version"
+[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
+[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee "$HOME/.sourcegraph-version"
