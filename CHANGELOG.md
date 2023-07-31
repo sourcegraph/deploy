@@ -4,52 +4,52 @@
 Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! [Docs](https://docs.sourcegraph.com/admin/deploy/machine-images/aws-oneclick)
 
 ### GP3 - For XS, S, M
-- af-south-1: ami-0a7d702573704c565
-- ap-east-1: ami-08cb814e4c378d58e
-- ap-northeast-1: ami-08b26dce504c5ecd7
-- ap-northeast-2: ami-08c86387631a0d975
-- ap-south-1: ami-00cdc76c590cdd8cf
-- ap-southeast-1: ami-0df9ece6f42f01b27
-- ap-southeast-2: ami-0bd8b0faed7334303
-- ap-southeast-3: ami-0363b75f8bce33987
-- ca-central-1: ami-047fcf00ef6f774a5
-- eu-central-1: ami-0f6337ecb70e2ce20
-- eu-north-1: ami-08e2dbef851243881
-- eu-south-1: ami-0205d326fee61af31
-- eu-west-1: ami-0ad2ddfe55064c693
-- eu-west-2: ami-0bc463d738040c4d6
-- eu-west-3: ami-02df9724ea4edbf0a
-- me-central-1: ami-0ccc91becfb892d47
-- me-south-1: ami-0397d146464ee9192
-- sa-east-1: ami-07440fe37d287760a
-- us-east-1: ami-0c6b3f6d254a02704
-- us-east-2: ami-0de86e3366ba55840
-- us-west-1: ami-0043ad121ed288c20
-- us-west-2: ami-03d6fef3fb356ff72
+- af-south-1: ami-0be17efcfc0f0a784
+- ap-east-1: ami-09208891c4aa4e9d2
+- ap-northeast-1: ami-0a22ecde05e58f0d9
+- ap-northeast-2: ami-0ade0bce987793e0e
+- ap-south-1: ami-0d6510d082a7142c6
+- ap-southeast-1: ami-0fe4e5dd524ce9af7
+- ap-southeast-2: ami-08c2ae2a01de4bb58
+- ap-southeast-3: ami-013b8e4ca3f1a78e6
+- ca-central-1: ami-0988e3c4954cadabc
+- eu-central-1: ami-0bcff6313b78f09e6
+- eu-north-1: ami-008c894d401a76773
+- eu-south-1: ami-059cfba1842329a07
+- eu-west-1: ami-08f2283ab9bc27c38
+- eu-west-2: ami-0afe7055d60048bb4
+- eu-west-3: ami-0961f4468589e9b37
+- me-central-1: ami-0c5028325926e14ce
+- me-south-1: ami-0cf561a6d95b2d73c
+- sa-east-1: ami-07d923a7416a636c6
+- us-east-1: ami-070276fe9291401ab
+- us-east-2: ami-0827db0bdfa4fd423
+- us-west-1: ami-02d7599a6621f8bca
+- us-west-2: ami-0cdbbacb0a441d65d
 
 ### IO2 - For L, XL
-- af-south-1: ami-02eb4d94563df7380
-- ap-east-1: ami-0407a0c566867bd6a
-- ap-northeast-1: ami-016bd6c921eb4337e
-- ap-northeast-2: ami-08de2cca67f2be087
-- ap-south-1: ami-0d3956759e3a0784f
-- ap-southeast-1: ami-093fd9b3e39611860
-- ap-southeast-2: ami-03f80700214da6b9e
-- ap-southeast-3: ami-0332469f12942d611
-- ca-central-1: ami-0fd878681265974dd
-- eu-central-1: ami-073d95af398167c4f
-- eu-north-1: ami-003a8274d47fab79d
-- eu-south-1: ami-07f752b8635919513
-- eu-west-1: ami-058034b37856da3a7
-- eu-west-2: ami-01be38ffa4b7043db
-- eu-west-3: ami-0ca2a4f7c0fb52838
-- me-central-1: ami-0acbe9faa90fb5a94
-- me-south-1: ami-0f41d1887a58e2b0a
-- sa-east-1: ami-0b8509319c8dd573f
-- us-east-1: ami-020de6e9688c2a28e
-- us-east-2: ami-04acec50ecce31209
-- us-west-1: ami-0b7eef68a1e557c4f
-- us-west-2: ami-0f8216667d87200a3
+- af-south-1: ami-0a4c66667b1a984c4
+- ap-east-1: ami-0d2505a62870da3e1
+- ap-northeast-1: ami-07e390ba0b1a9df43
+- ap-northeast-2: ami-0514186483d709232
+- ap-south-1: ami-0bcb735a088fe5b35
+- ap-southeast-1: ami-047405bdcb0ee4d00
+- ap-southeast-2: ami-08031e08f09481867
+- ap-southeast-3: ami-0049452500a0be0bc
+- ca-central-1: ami-0e3b35ecdad6ecd77
+- eu-central-1: ami-0b0b3f331b6cc6065
+- eu-north-1: ami-01be86f3ff1a00370
+- eu-south-1: ami-008b58250404cf088
+- eu-west-1: ami-01e3a281239415194
+- eu-west-2: ami-0cb238d7661fa620a
+- eu-west-3: ami-0695c31964ad51404
+- me-central-1: ami-058a42c6afeace795
+- me-south-1: ami-0d791daae80662871
+- sa-east-1: ami-0aa01fb3026c5a3cb
+- us-east-1: ami-0a3f0b1c6dbe5396e
+- us-east-2: ami-0989623dfd22a8f1a
+- us-west-1: ami-04d515cb43eea7374
+- us-west-2: ami-06d32f4259ceeff4d
 
 ## Releases
 
@@ -64,6 +64,137 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 ### L
 
 ### XL -->
+
+## 5.1.5
+
+### Updates
+
+- Fix versions file update [55](https://github.com/sourcegraph/deploy/pull/55)
+
+### XS
+
+- af-south-1: ami-02859c70dbc09820f
+- ap-east-1: ami-0f7b4b4558f1e13d1
+- ap-northeast-1: ami-0d34e8c629f72efee
+- ap-northeast-2: ami-03b6962ca4de2fda9
+- ap-south-1: ami-0af812ac711c7379e
+- ap-southeast-1: ami-02a7bc3db4829937f
+- ap-southeast-2: ami-0ee747705da40e34e
+- ap-southeast-3: ami-051512c4c00696b31
+- ca-central-1: ami-02f6615d9f7da24a8
+- eu-central-1: ami-028ba45e1686cf4b0
+- eu-north-1: ami-04a4bec518a6e2445
+- eu-south-1: ami-0d62baa0565e4cc78
+- eu-west-1: ami-0fd20d75f6036b4c2
+- eu-west-2: ami-098214b65bca988a0
+- eu-west-3: ami-021cb60f8788179bd
+- me-central-1: ami-00505902ad1f3cd10
+- me-south-1: ami-02ce34d87ca604fd7
+- sa-east-1: ami-057a076c395b44470
+- us-east-1: ami-061acc257bd75671b
+- us-east-2: ami-04cbe1eecce0eff2d
+- us-west-1: ami-00c5ede0c0c4729fa
+- us-west-2: ami-0b4353d12efba0c56
+
+### S
+
+- af-south-1: ami-0a706c5b3c7f00a0c
+- ap-east-1: ami-0696d67c7faee15ca
+- ap-northeast-1: ami-00353eb515d863488
+- ap-northeast-2: ami-019ee6e068fed91a2
+- ap-south-1: ami-073305e7617c69741
+- ap-southeast-1: ami-01a624bd3d9e529df
+- ap-southeast-2: ami-0f54e927d5e82db33
+- ap-southeast-3: ami-05a7eb454e58ae391
+- ca-central-1: ami-03d80bc6bdbb22b9c
+- eu-central-1: ami-0830c515ed19c0505
+- eu-north-1: ami-037f9ffe34b2b47d8
+- eu-south-1: ami-0e17f0c4f26914501
+- eu-west-1: ami-09ac8b1355c9cfcb0
+- eu-west-2: ami-05aa3a61af8c856a3
+- eu-west-3: ami-067e7c856ab2a66b3
+- me-central-1: ami-06d0285133ffb137a
+- me-south-1: ami-0625842d5e79e9efb
+- sa-east-1: ami-0fe808a49437a7b99
+- us-east-1: ami-03296564bb4089674
+- us-east-2: ami-0ae950ffc1e51ef83
+- us-west-1: ami-0e87fbc68b2a0746a
+- us-west-2: ami-0725fd4f2576285cb
+
+### M
+
+- af-south-1: ami-016c699be91e2afdf
+- ap-east-1: ami-0771fb2c7a97853c3
+- ap-northeast-1: ami-0387516f36f0371eb
+- ap-northeast-2: ami-00cf734dbb1d9cb81
+- ap-south-1: ami-0f33685779ace9aaf
+- ap-southeast-1: ami-0377ae186e5f16102
+- ap-southeast-2: ami-052b62ef53afe9a4f
+- ap-southeast-3: ami-014d0d13595fee15d
+- ca-central-1: ami-031182f659ba42b33
+- eu-central-1: ami-0467b0481342006ad
+- eu-north-1: ami-0ef6e6075561887dc
+- eu-south-1: ami-0757522f18dbca3b1
+- eu-west-1: ami-0094c7542158d4dd2
+- eu-west-2: ami-0b3644d2558dab134
+- eu-west-3: ami-03044e4d77fc5978c
+- me-central-1: ami-02e9839c14114b699
+- me-south-1: ami-057fa280372782361
+- sa-east-1: ami-04e72661434fbdd25
+- us-east-1: ami-0714960112a1fe5ad
+- us-east-2: ami-03c4c565d8d13c85b
+- us-west-1: ami-00d9f0d4080b2d678
+- us-west-2: ami-061210572edb69e61
+
+### L
+
+- af-south-1: ami-083b149bc2cfce541
+- ap-east-1: ami-049d82e2677f24417
+- ap-northeast-1: ami-08107f693341bc3e1
+- ap-northeast-2: ami-059dafef83b4e244d
+- ap-south-1: ami-05c4f4cf60e807473
+- ap-southeast-1: ami-02998ebc7a7ed67e0
+- ap-southeast-2: ami-0bc90d448cea1dbad
+- ap-southeast-3: ami-0cc59a927c7124915
+- ca-central-1: ami-079174330d1dada73
+- eu-central-1: ami-01b5312550a6b683b
+- eu-north-1: ami-08fdf5f0eb58615d9
+- eu-south-1: ami-03d29960c50dee03b
+- eu-west-1: ami-015f300bfc0949df2
+- eu-west-2: ami-0492ee75b4d488bc7
+- eu-west-3: ami-0b37277539c14740c
+- me-central-1: ami-0339cb7984a510827
+- me-south-1: ami-0950b7be4d6a6657c
+- sa-east-1: ami-0f13156fef51f490b
+- us-east-1: ami-019c0cfcfb8f8b5e3
+- us-east-2: ami-07f6fe4d7fa206558
+- us-west-1: ami-062d717c2ca39ac50
+- us-west-2: ami-0067280985504881e
+
+### XL
+
+- af-south-1: ami-065d8cb9e263b0af2
+- ap-east-1: ami-0bc7f13d73ed17bc6
+- ap-northeast-1: ami-0aaab489423d5d8d0
+- ap-northeast-2: ami-086e03656e20abf91
+- ap-south-1: ami-0486f81a73e538184
+- ap-southeast-1: ami-05c94b01d445ba996
+- ap-southeast-2: ami-0014b67b3cf17b358
+- ap-southeast-3: ami-025f23f29ff0294c2
+- ca-central-1: ami-0957d97dfeab3f0ab
+- eu-central-1: ami-0f699b28219aaf998
+- eu-north-1: ami-09d465c5f641bb622
+- eu-south-1: ami-05eb9c88a7ab58a33
+- eu-west-1: ami-00b3ede7a4e386f2c
+- eu-west-2: ami-0d2887627ea123664
+- eu-west-3: ami-0df2ba8595dd9111f
+- me-central-1: ami-0177b8234f40362d4
+- me-south-1: ami-0813fbd741b0f35c2
+- sa-east-1: ami-0230a05b774cf8cc4
+- us-east-1: ami-05e6a13dd96162596
+- us-east-2: ami-00bd20d32066c6d90
+- us-west-1: ami-007522fdd442b0d05
+- us-west-2: ami-0f6ef89ee0f183c7b
 
 ## 5.1.4
 
@@ -196,7 +327,7 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 ### Updates
 
-- Added support for executors [50](https://github.com/sourcegraph/deploy/pull/50
+- Added support for executors [50](https://github.com/sourcegraph/deploy/pull/50)
 
 ### XS
 
