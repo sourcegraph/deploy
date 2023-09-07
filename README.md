@@ -16,10 +16,10 @@ This repository is home of Sourcegraph one-click deployments (AMIs, VM images, e
 We use T-shirt sizes which are [load tested with specific configurations](https://github.com/sourcegraph/reference-architecture-test).
 
 | Size | Users  | Repositories | Largest Repo Size | Concurrent Users | 
-| ---- | ------ | ------------ | ----------------- | ---------------- |
-| XS   | 00,500 | 1,000        | 5GB               | 100              |
-| S    | 01,000 | 10,000       | 23GB              | 200              |
-| M    | 05,000 | 50,000       | 23GB              | 1,000            |
+|------|--------|--------------|-------------------|------------------|
+| XS   | 500    | 1,000        | 5GB               | 100              |
+| S    | 1,000  | 10,000       | 23GB              | 200              |
+| M    | 5,000  | 50,000       | 23GB              | 1,000            |
 | L    | 10,000 | 100,000      | 35GB              | 2,000            |
 | XL   | 20,000 | 250,000      | 35GB              | 4,000            |
 
@@ -40,4 +40,4 @@ Please reach out to us if you are not able to find Sourcegraph images for your r
 
 See our [Releases](https://github.com/sourcegraph/deploy/releases) page for detailed information.
 
-> NOTE: The default AMI user name is `**ec2-user**`.
+> NOTE: The default AMI username is `ec2-user`.
