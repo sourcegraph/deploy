@@ -67,6 +67,133 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 ### XL -->
 
+5.2.4
+
+### XS
+
+af-south-1: ami-04d8f9b8b0291bdc1
+ap-east-1: ami-00f2e4ee518cf42f2
+ap-northeast-1: ami-09256df0aa57070d7
+ap-northeast-2: ami-09b19e85987def91f
+ap-south-1: ami-091de4efef2aa69a6
+ap-southeast-1: ami-0461b78204e9993dd
+ap-southeast-2: ami-0090c60a8473a5d70
+ap-southeast-3: ami-032e29850f4959f2c
+ca-central-1: ami-08642b1fed9e9a643
+eu-central-1: ami-05296a1f1f18dad7c
+eu-north-1: ami-070090e47de790f57
+eu-south-1: ami-0c45548712e4b8669
+eu-west-1: ami-0255592662eb486d0
+eu-west-2: ami-055af96e39b08c0f9
+eu-west-3: ami-032e4378eeaf7a761
+me-central-1: ami-0ff0a99f85f6d9dc9
+me-south-1: ami-081fa29ae3c1321d0
+sa-east-1: ami-01222b7468ecc0682
+us-east-1: ami-06f3609a6f3db6ee9
+us-east-2: ami-0a3d9e8db61340e4c
+us-west-1: ami-00523e627e0d90c65
+us-west-2: ami-0f6bbaf634968303d
+
+### S
+
+af-south-1: ami-038791ae6aa04f07c
+ap-east-1: ami-04ad269b321103f6e
+ap-northeast-1: ami-06edf5f68da85f8a0
+ap-northeast-2: ami-0b38ae7b6716a411c
+ap-south-1: ami-0ad3d03f87eb365b7
+ap-southeast-1: ami-0f6f547b8b66e6b90
+ap-southeast-2: ami-0b63ee8b02a8d23b0
+ap-southeast-3: ami-095fedef990c49f84
+ca-central-1: ami-099b7ab50cdbeecb7
+eu-central-1: ami-0b5b059da82243a1d
+eu-north-1: ami-07bd7c2e835225790
+eu-south-1: ami-07644c4cfbf84fb49
+eu-west-1: ami-0ff30f665c4d42eb6
+eu-west-2: ami-0a129e2ce2d4c4a8f
+eu-west-3: ami-08a1b7f2212b8ff4a
+me-central-1: ami-079f85c2b99676809
+me-south-1: ami-0f1b3a5a158e85905
+sa-east-1: ami-01ea4eb9379944335
+us-east-1: ami-00fd604af3142af2b
+us-east-2: ami-041a0aa0710889517
+us-west-1: ami-0d6ae428257d25ab3
+us-west-2: ami-0b67b4b739fb6a97f
+
+### M
+
+af-south-1: ami-0604d15a816c34ce1
+ap-east-1: ami-07c7e78f0922e2711
+ap-northeast-1: ami-0856695659447d84d
+ap-northeast-2: ami-07fc21e70dd3405a8
+ap-south-1: ami-023468d956b0a8d7c
+ap-southeast-1: ami-05271b5019f50eec4
+ap-southeast-2: ami-06a89c1c9945d3d21
+ap-southeast-3: ami-007bc368ed387cf32
+ca-central-1: ami-0648a424409fa6555
+eu-central-1: ami-0f1c8c4a1dbd041a5
+eu-north-1: ami-0af3cfe448ecb45b5
+eu-south-1: ami-0bc4b449037a9040f
+eu-west-1: ami-075d7670f74ea3102
+eu-west-2: ami-046048c357cf05690
+eu-west-3: ami-0c8d261fad0c2558d
+me-central-1: ami-0669ed39228f51db0
+me-south-1: ami-0e0bb4900741b4d3e
+sa-east-1: ami-053a8f4b337e02ac2
+us-east-1: ami-04d473f57bc06bf2d
+us-east-2: ami-0f219a8d7c9d491bd
+us-west-1: ami-0f9e94f50adece394
+us-west-2: ami-0975388a6a2e670ef
+
+### L
+
+af-south-1: ami-071db29f4bee0f5d1
+ap-east-1: ami-04fbf59de06791c06
+ap-northeast-1: ami-01aaf341b5d48702e
+ap-northeast-2: ami-02035a1b26ea599df
+ap-south-1: ami-099d3a3927027deea
+ap-southeast-1: ami-05c25e5818a630742
+ap-southeast-2: ami-076a165f4a1d3971c
+ap-southeast-3: ami-0018f9c4f426f7827
+ca-central-1: ami-081f0805bcc1aecea
+eu-central-1: ami-0345e5475c5f09805
+eu-north-1: ami-0c9589a5da417eafb
+eu-south-1: ami-0b11b10b9962aabf3
+eu-west-1: ami-078624ba76f6597fc
+eu-west-2: ami-0bdd1e207612b3d53
+eu-west-3: ami-0024f57b49df46db0
+me-central-1: ami-01ede865e4ee30ba6
+me-south-1: ami-04eab173d7ac8c124
+sa-east-1: ami-035586fdbfbfd62d1
+us-east-1: ami-099825246ca698497
+us-east-2: ami-07baa21cd5571808b
+us-west-1: ami-067bb83218ea27014
+us-west-2: ami-022767bbfd109e602
+
+### XL
+
+af-south-1: ami-0a988284fec418c5d
+ap-east-1: ami-0411dfff2e4fd0e9a
+ap-northeast-1: ami-04e6b6bad23f89fec
+ap-northeast-2: ami-046ab35bfb53807e5
+ap-south-1: ami-09cfef90e202b80fc
+ap-southeast-1: ami-00c7386c170d7a96f
+ap-southeast-2: ami-07735deb7231a3132
+ap-southeast-3: ami-04ba139c19cfce8e6
+ca-central-1: ami-02763de9f28367938
+eu-central-1: ami-07b931ec70b430385
+eu-north-1: ami-0c4780c1f1507b5d5
+eu-south-1: ami-0778a0b868f1bb8f1
+eu-west-1: ami-04bdd92de823d91ab
+eu-west-2: ami-037aab2b6dab81856
+eu-west-3: ami-03d0d5b74315e27e2
+me-central-1: ami-0182202576bff5ce2
+me-south-1: ami-0d4b0b0c2bb84dc54
+sa-east-1: ami-06aac989f338112d3
+us-east-1: ami-0b17e0b87e7e373f9
+us-east-2: ami-09ce666c4c54f7dc9
+us-west-1: ami-0d5f0579f72993558
+us-west-2: ami-050b5838181ab8aa9
+
 ## 5.2.3
 
 ### XS
