@@ -57,6 +57,10 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 <!-- ## 5.x.x
 
+### Updates
+
+- Update internal K3s to version 1.29.0
+
 ### XS
 
 ### S
