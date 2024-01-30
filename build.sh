@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -exuo pipefail
 
-# AWS AMI
-packer build --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
-# GCE Images
-packer build --var-file=./packer/build-variables.hcl ./packer/gcp/gcp-builder.pkr.hcl
+version=$1
+
+# Build Go binaries
+env GOOS=linux GOARCH=amd64 go build -ldflags "-X main.sgversion=$version" -o cmd/install/bin/sg-init ./cmd/init/
+env GOOS=linux GOARCH=amd64 go build -ldflags "-X main.sgversion=$version" -o cmd/install/bin/sourcegraphd ./cmd/sourcegraphd/
+env GOOS=linux GOARCH=amd64 go build -ldflags "-X main.sgversion=$version" -o bin/sginstall ./cmd/install/
