@@ -2,3 +2,7 @@
 .env
 *.tar.gz
 .DS_Store
+bazel-bin
+bazel-deploy
+bazel-testlogs
+bazel-out
