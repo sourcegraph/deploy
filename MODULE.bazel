@@ -1,0 +1,1 @@
+bazel_dep(name = "aspect_bazel_lib", version = "1.42.0")
