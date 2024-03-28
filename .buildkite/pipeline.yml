@@ -1,6 +1,7 @@
 steps:
   - label: ":bazel: Build"
-    queue: "bazel"
+    agents:
+      queue: bazel
     commands: |
       bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:packer -- build -var "instance_version=5.3.3" -var "dev=false" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
