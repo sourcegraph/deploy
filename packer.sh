@@ -7,4 +7,7 @@ shift
 
 cd "${BUILD_WORKING_DIRECTORY}"
 
-exec "${tool}" "$@"
+"${tool}" "$@" > output.txt
+
+tail -n 119 output.txt > out.txt
+rm output.txt
