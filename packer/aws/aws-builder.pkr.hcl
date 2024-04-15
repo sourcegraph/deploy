@@ -410,4 +410,8 @@ build {
   provisioner "shell" {
     inline = ["sudo rm /home/ec2-user/.ssh/authorized_keys && sudo rm /root/.ssh/authorized_keys"]
   }
+  postproccessor "manifest" {
+    output = "manifest.json"
+    strip_path = true 
+  }
 }
