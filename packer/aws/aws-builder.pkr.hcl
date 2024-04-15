@@ -156,7 +156,7 @@ source "amazon-ebs" "XS" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -201,7 +201,7 @@ source "amazon-ebs" "S" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -246,7 +246,7 @@ source "amazon-ebs" "M" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -292,7 +292,7 @@ source "amazon-ebs" "L" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -338,7 +338,7 @@ source "amazon-ebs" "XL" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -384,7 +384,7 @@ source "amazon-ebs" "DEV" {
   }
   tags = {
     Name    = "dev"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
