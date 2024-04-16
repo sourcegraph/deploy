@@ -116,8 +116,8 @@ locals {
 }
 
 source "amazon-ebs" "XS" {
-  ami_name                    = "Sourcegraph-XS (${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
-  ami_description             = "Sourcegraph-XS (${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_name                    = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_description             = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type               = var.instance_sizes.xs.instance_type
   region                      = var.build_in_region
   ami_regions                 = local.regions
@@ -161,8 +161,8 @@ source "amazon-ebs" "XS" {
 }
 
 source "amazon-ebs" "S" {
-  ami_name                    = "Sourcegraph-S (${var.instance_version}) ${var.instance_sizes.s.instance_type}"
-  ami_description             = "Sourcegraph-S (${var.instance_version}) ${var.instance_sizes.s.instance_type}"
+  ami_name                    = "Sourcegraph-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
+  ami_description             = "Sourcegraph-S (v${var.instance_version}) ${var.instance_sizes.s.instance_type}"
   instance_type               = var.instance_sizes.s.instance_type
   region                      = var.build_in_region
   ami_groups                  = ["all"]
@@ -206,8 +206,8 @@ source "amazon-ebs" "S" {
 }
 
 source "amazon-ebs" "M" {
-  ami_name                    = "Sourcegraph-M (${var.instance_version}) ${var.instance_sizes.m.instance_type}"
-  ami_description             = "Sourcegraph-M (${var.instance_version}) ${var.instance_sizes.m.instance_type}"
+  ami_name                    = "Sourcegraph-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
+  ami_description             = "Sourcegraph-M (v${var.instance_version}) ${var.instance_sizes.m.instance_type}"
   instance_type               = var.instance_sizes.m.instance_type
   region                      = var.build_in_region
   ami_groups                  = ["all"]
@@ -251,8 +251,8 @@ source "amazon-ebs" "M" {
 }
 
 source "amazon-ebs" "L" {
-  ami_name                    = "Sourcegraph-L (${var.instance_version}) ${var.instance_sizes.l.instance_type}"
-  ami_description             = "Sourcegraph-L (${var.instance_version}) ${var.instance_sizes.l.instance_type}"
+  ami_name                    = "Sourcegraph-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
+  ami_description             = "Sourcegraph-L (v${var.instance_version}) ${var.instance_sizes.l.instance_type}"
   instance_type               = var.instance_sizes.l.instance_type
   region                      = var.build_in_region
   ami_groups                  = ["all"]
@@ -297,8 +297,8 @@ source "amazon-ebs" "L" {
 }
 
 source "amazon-ebs" "XL" {
-  ami_name                    = "Sourcegraph-XL (${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
-  ami_description             = "Sourcegraph-XL (${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
+  ami_name                    = "Sourcegraph-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
+  ami_description             = "Sourcegraph-XL (v${var.instance_version}) ${var.instance_sizes.xl.instance_type}"
   instance_type               = var.instance_sizes.xl.instance_type
   region                      = var.build_in_region
   ami_groups                  = ["all"]
@@ -343,8 +343,8 @@ source "amazon-ebs" "XL" {
 }
 
 source "amazon-ebs" "DEV" {
-  ami_name                    = "Sourcegraph-DEV-XS (${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
-  ami_description             = "Sourcegraph-DEV-XS (${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_name                    = "Sourcegraph-DEV-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_description             = "Sourcegraph-DEV-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type               = var.instance_sizes.xs.instance_type
   region                      = var.build_in_region
   ami_regions                 = local.regions
@@ -403,15 +403,13 @@ build {
     scripts          = ["./install/install.sh"]
   }
   provisioner "shell" {
-    only             = ["amazon-ebs.DEV"]
-    environment_vars = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}"]
-    scripts          = ["./install/install.sh"]
-  }
-  provisioner "shell" {
     inline = ["sudo rm /home/ec2-user/.ssh/authorized_keys && sudo rm /root/.ssh/authorized_keys"]
   }
   post-processor "manifest" {
     output = "manifest.json"
     strip_path = true
+    custom_data = {
+      sourcegraph_version = "v${var.instance_version}"
+    }
   }
 }
