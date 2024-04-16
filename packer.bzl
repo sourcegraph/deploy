@@ -18,3 +18,4 @@ def packer(name, **kwargs):
         visibility = kwargs.pop("visibility", ["//:__subpackages__"]),
         **kwargs
     )
+    return [DefaultInfo(files = depset(["manifest.json"]))]
