@@ -3,7 +3,7 @@ steps:
     agents:
       queue: bazel
     commands: |
-      env | grep RELEASE
+      env | grep AWS
       export AWS_ACCESS_KEY_ID=$RELEASE_AWS_ACCESS_KEY
       export AWS_SECRET_ACCESS_KEY=$RELEASE_AWS_SECRET_KEY
       bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
