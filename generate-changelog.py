@@ -24,7 +24,8 @@ changes = ""
 for build in builds:
     name = build["name"]
     if changes == "":
-        changes += "# " + build["custom_data"]["sourcegraph_version"] + "\n"
+        changes += "## " + build["custom_data"]["sourcegraph_version"] + "\n"
+        changes += "\n ## Updates \n"
     artifact_id = build["artifact_id"]
     changes = append_to_output(changes, name, artifact_id)
 
