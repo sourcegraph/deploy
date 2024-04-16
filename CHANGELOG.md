@@ -324,7 +324,7 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 - us-east-2: ami-041a1d9163d5d92c3
 - us-west-1: ami-0ecfd65de041ae200
 - us-west-2: ami-07bf4cda27a72e61b
-=======
+
 ## 5.3.2
 
 ### Updates
