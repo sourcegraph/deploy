@@ -6,4 +6,4 @@ steps:
       export RELEASE_AWS_ACCESS_KEY_ID=$AWS_EXECUTOR_AMI_ACCESS_KEY
       export RELEASE_AWS_SECRET_ACCESS_KEY=$AWS_EXECUTOR_AMI_SECRET_KEY
       bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
-      bazel run //:packer -- build -var "instance_version=$RELEASE_NUMBER" -var "dev=false" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
+      bazel run //:packer -- build -var "instance_version=$RELEASE_NUMBER" -var "dev=$DEV" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
