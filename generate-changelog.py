@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-# Use to easily transform output from Packer into structure for Cloudformation
 # cat manifest.json | ./generate-changelog.py 
 
 def marshall_artifacts(artifact_id):
@@ -18,7 +17,8 @@ def append_to_output(output, name, artifact_id):
     return output
 
 import sys, json
-data = json.load(sys.stdin)
+with open("./manifest.json") as f:
+    data = json.load(f)
 builds = data["builds"]
 changes = ""
 for build in builds:

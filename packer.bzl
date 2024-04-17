@@ -1,4 +1,5 @@
 """Wrapper around a packer sh_binary target"""
+load("@rules_python//python:defs.bzl", "py_binary")
 
 def packer(name, **kwargs):
     native.sh_binary(
@@ -18,4 +19,9 @@ def packer(name, **kwargs):
         visibility = kwargs.pop("visibility", ["//:__subpackages__"]),
         **kwargs
     )
-    return [DefaultInfo(files = depset(["manifest.json"]))]
+    py_binary(
+      name = "generate-changelog",
+      srcs = ["generate-changelog.py"],
+      data = ["manifest.json", "CHANGELOG.md"],
+    )
+    return [DefaultInfo(files=depset(["CHANGELOG.md"]))]
