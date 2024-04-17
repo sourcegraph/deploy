@@ -1,14 +1,5 @@
 steps:
   - label: ":bazel: Build"
-    plugins:
-      - thedyrt/git-commit#v0.3.0:
-        add: CHANGELOG.md
-        branch: bazel-changelog-test
-        message: "Updated CHANGELOG.md"
-        remote: upstream
-        user:
-          name: Anish
-          email: anish.lakhwara@sourcegraph.com
     agents:
       queue: bazel
     commands: |
@@ -17,3 +8,6 @@ steps:
       bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:packer -- build -var "instance_version=$RELEASE_NUMBER" -var "dev=$DEV" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:generate-changelog
+      git add CHANGELOG.md
+      git commit -m "Updating changelog"
+      git push
