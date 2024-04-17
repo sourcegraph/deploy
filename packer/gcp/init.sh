@@ -49,7 +49,7 @@ sudo sh -c "echo '* hard nofile 262144' >> /etc/security/limits.conf"
 ###############################################################################
 # Install k3s (Kubernetes single-machine deployment)
 ###############################################################################
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.29.0+k3s1 K3S_TOKEN=none sh -s - \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.29.3+k3s1 K3S_TOKEN=none sh -s - \
     --node-name sourcegraph-0 \
     --write-kubeconfig-mode 644 \
     --cluster-cidr 10.10.0.0/16 \
