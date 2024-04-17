@@ -10,4 +10,4 @@ steps:
       bazel run //:generate-changelog
       git add CHANGELOG.md
       git commit -m "Updating changelog"
-      git push origin bazel-changelog-test
+      git push -u origin bazel-changelog-test
