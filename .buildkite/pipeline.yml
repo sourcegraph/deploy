@@ -3,6 +3,8 @@ steps:
     agents:
       queue: bazel
     commands: |
+      echo $RELEASE_AWS_ACCESS_KEY
+      echo $RELEASE_AWS_SECRET_KEY
       export AWS_ACCESS_KEY_ID=$RELEASE_AWS_ACCESS_KEY
       export AWS_SECRET_ACCESS_KEY=$RELEASE_AWS_SECRET_KEY
       env | grep AWS
