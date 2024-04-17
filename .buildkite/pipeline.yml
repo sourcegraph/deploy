@@ -3,9 +3,9 @@ steps:
     agents:
       queue: bazel
     commands: |
-      export AWS_ACCESS_KEY_ID=$RELEASE_AWS_ACCESS_KEY
-      export AWS_SECRET_ACCESS_KEY=$RELEASE_AWS_SECRET_KEY
-      echo $RELEASE_AWS_SECRET_KEY | sha256sum 
-      echo $RELEASE_AWS_ACCESS_KEY | sha256sum 
+      export AWS_ACCESS_KEY_ID=$$RELEASE_AWS_ACCESS_KEY
+      export AWS_SECRET_ACCESS_KEY=$$RELEASE_AWS_SECRET_KEY
+      echo $$RELEASE_AWS_SECRET_KEY | sha256sum 
+      echo $$RELEASE_AWS_ACCESS_KEY | sha256sum 
       bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:packer -- build -var "instance_version=$RELEASE_NUMBER" -var "dev=$DEV" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
