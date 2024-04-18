@@ -16,7 +16,7 @@ def append_to_output(output, name, artifact_id):
     output += marshall_artifacts(artifact_id) + "\n"
     return output
 
-import sys, json
+import json
 with open("./manifest.json") as f:
     data = json.load(f)
 builds = data["builds"]
