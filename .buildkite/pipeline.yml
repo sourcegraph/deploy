@@ -8,7 +8,5 @@ steps:
       bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:packer -- build -var "instance_version=$RELEASE_NUMBER" -var "dev=$DEV" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:generate-changelog
-      git checkout -b bazel-changelog-test
-      git add CHANGELOG.md
-      git commit -m "Updating changelog"
-      git push -u origin bazel-changelog-test
+    artifact_paths:
+      - "CHANGELOG.md"
