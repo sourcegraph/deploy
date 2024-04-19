@@ -11,6 +11,6 @@ steps:
       git checkout -b "release/v$RELEASE_NUMBER"
       git add CHANGELOG.md
       git commit -m "Update Changelog"
-      git push -u origin 
+      git push --set-upstream origin "release/v$RELEASE_NUMBER"
     artifact_paths:
       - "CHANGELOG.md"
