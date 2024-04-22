@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# cat manifest.json | ./generate-changelog.py 
-
 def marshall_artifacts(artifact_id):
     artifacts = artifact_id.split(',')
     for i in range(len(artifacts)):
