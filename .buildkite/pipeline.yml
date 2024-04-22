@@ -1,0 +1,19 @@
+steps:
+  - label: ":bazel: Build"
+    agents:
+      queue: bazel
+    commands: |
+      export AWS_ACCESS_KEY_ID=$$RELEASE_AWS_ACCESS_KEY
+      export AWS_SECRET_ACCESS_KEY=$$RELEASE_AWS_SECRET_KEY
+      bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
+      bazel run //:packer -- build -var "instance_version=$RELEASE_NUMBER" -var "dev=false" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
+      bazel run //:generate-changelog
+      git checkout -b "release/v$RELEASE_NUMBER"
+      git add CHANGELOG.md
+      git commit -m "Update Changelog"
+      git push --set-upstream origin "release/v$RELEASE_NUMBER"
+      gh pr create --fill \
+        --title "Changelog Hashes for v$RELEASE_NUMBER" \
+        --body "Automated publish"
+    artifact_paths:
+      - "CHANGELOG.md"
