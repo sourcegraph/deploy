@@ -156,7 +156,7 @@ source "amazon-ebs" "XS" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -201,7 +201,7 @@ source "amazon-ebs" "S" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -246,7 +246,7 @@ source "amazon-ebs" "M" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -292,7 +292,7 @@ source "amazon-ebs" "L" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -338,7 +338,7 @@ source "amazon-ebs" "XL" {
   }
   tags = {
     Name    = "production"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -384,7 +384,7 @@ source "amazon-ebs" "DEV" {
   }
   tags = {
     Name    = "dev"
-    Version = var.instance_version
+    Version = "v${var.instance_version}"
   }
 }
 
@@ -403,11 +403,13 @@ build {
     scripts          = ["./install/install.sh"]
   }
   provisioner "shell" {
-    only             = ["amazon-ebs.DEV"]
-    environment_vars = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}"]
-    scripts          = ["./install/install.sh"]
-  }
-  provisioner "shell" {
     inline = ["sudo rm /home/ec2-user/.ssh/authorized_keys && sudo rm /root/.ssh/authorized_keys"]
+  }
+  post-processor "manifest" {
+    output = "manifest.json"
+    strip_path = true
+    custom_data = {
+      sourcegraph_version = "v${var.instance_version}"
+    }
   }
 }

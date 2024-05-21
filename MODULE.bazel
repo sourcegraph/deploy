@@ -1,0 +1,8 @@
+bazel_dep(name = "aspect_bazel_lib", version = "1.42.0")
+bazel_dep(name = "rules_python", version = "0.31.0")
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    configure_coverage_tool = False,
+    ignore_root_user_error = True, # BuildKite containers run as root :/
+    python_version = "3.11",
+)

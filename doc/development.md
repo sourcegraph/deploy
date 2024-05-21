@@ -7,22 +7,22 @@ We use Hashicorp Packer to build images:
 1. [Install Packer](https://learn.hashicorp.com/tutorials/packer/get-started-install-cli?in=packer/aws-get-started#installing-packer).
 2. Run `packer init` (ignore any warnings about unused variables here):
 
-```
-packer init --var-file=./packer/dev/dev-variables.hcl ./packer/dev/dev-builder.pkr.hcl
-packer init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
-packer init --var-file=./packer/build-variables.hcl ./packer/aws-latest/aws-builder.pkr.hcl
-packer init --var-file=./packer/build-variables.hcl ./packer/gcp/gcp-builder.pkr.hcl
-```
+    ```
+    packer init --var-file=./packer/dev/dev-variables.hcl ./packer/dev/dev-builder.pkr.hcl
+    packer init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
+    packer init --var-file=./packer/build-variables.hcl ./packer/aws-latest/aws-builder.pkr.hcl
+    packer init --var-file=./packer/build-variables.hcl ./packer/gcp/gcp-builder.pkr.hcl
+    ```
 
 3. [Authenticate with AWS](https://www.packer.io/plugins/builders/amazon#authentication):
    * In AWS, select the username dropdown in the top right of the page and choose _Security credentials_ to create an access key.
    * In your `~/.zshrc`, `~/.bash_profile`, etc. add:
 
-```
-export AWS_ACCESS_KEY_ID="xxx"
-export AWS_SECRET_ACCESS_KEY="yyy"
-export AWS_DEFAULT_REGION="us-west-1"
-```
+    ```
+    export AWS_ACCESS_KEY_ID="xxx"
+    export AWS_SECRET_ACCESS_KEY="yyy"
+    export AWS_DEFAULT_REGION="us-west-1"
+    ```
 
 ## Project structure
 
@@ -42,13 +42,13 @@ To create an AMI for a given T-shirt size, follow the instructions in our develo
 
 #### AWS
 
-| Size | Users  | Repositories | Largest Repo Size | Concurrent Users | Instance type | Storage   | IOPS    |
-| ---- | ------ | ------------ | ----------------- | ---------------- | ------------- | --------- | ------- |
-| XS   | 00,500 | 1,000        | 5GB               | 100              | m6a.2xlarge   | gp3       | default |
-| S    | 01,000 | 10,000       | 23GB              | 200              | m6a.4xlarge   | gp3       | default |
-| M    | 05,000 | 50,000       | 23GB              | 1,000            | m6a.8xlarge   | gp3       | default |
-| L    | 10,000 | 100,000      | 35GB              | 2,000            | m6a.12xlarge  | io2       | 16,000  |
-| XL   | 20,000 | 250,000      | 35GB              | 4,000            | m6a.24xlarge  | io2       | 16,000  |
+| Size | Users  | Repositories | Largest Repo Size | Concurrent Users | Instance type | Storage | IOPS    |
+|------|--------|--------------|-------------------|------------------|---------------|---------|---------|
+| XS   | 00,500 | 1,000        | 5GB               | 100              | m6a.2xlarge   | gp3     | default |
+| S    | 01,000 | 10,000       | 23GB              | 200              | m6a.4xlarge   | gp3     | default |
+| M    | 05,000 | 50,000       | 23GB              | 1,000            | m6a.8xlarge   | gp3     | default |
+| L    | 10,000 | 100,000      | 35GB              | 2,000            | m6a.12xlarge  | io2     | 16,000  |
+| XL   | 20,000 | 250,000      | 35GB              | 4,000            | m6a.24xlarge  | io2     | 16,000  |
 
 #### Azure
 
