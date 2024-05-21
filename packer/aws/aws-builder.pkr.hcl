@@ -403,6 +403,11 @@ build {
     scripts          = ["./install/install.sh"]
   }
   provisioner "shell" {
+    only             = ["amazon-ebs.DEV"]
+    environment_vars = ["INSTANCE_SIZE=XS", "INSTANCE_VERSION=${var.instance_version}"]
+    scripts          = ["./install/install.sh"]
+  }
+  provisioner "shell" {
     inline = ["sudo rm /home/ec2-user/.ssh/authorized_keys && sudo rm /root/.ssh/authorized_keys"]
   }
   post-processor "manifest" {
