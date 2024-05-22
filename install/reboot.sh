@@ -54,6 +54,8 @@ if [ -f ./sourcegraph-executor-k8s-charts.tgz ]; then
 else
     $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" executor sourcegraph/sourcegraph-executor-k8s
 fi
+# Clear out the old pods if they're still around
+$LOCAL_BIN_PATH/kubectl delete pods --all
 
 # Restart k3s again in case it's still in crashloopbackoff
 # However, this should not affect a running instance
