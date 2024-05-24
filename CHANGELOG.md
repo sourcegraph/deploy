@@ -72,6 +72,8 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 ### XL -->
 
+- Fixed: Containers not able to be booted in an air gapped environment after an upgrade. 
+
 ## v5.4.2198
 
  ## Updates 
