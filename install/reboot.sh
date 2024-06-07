@@ -10,6 +10,9 @@ LOCAL_BIN_PATH='/usr/local/bin'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 
+# Clear out the old pods if they're still around
+$LOCAL_BIN_PATH/kubectl delete pods --all
+
 ###############################################################################
 # This script will be run when instance is first started up from an AMI,
 # as well as on every system reboot.
