@@ -51,8 +51,18 @@ if [ -f $VOLUME_VERSION_FILE ]; then
 
     if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
 
-        echo "VOLUME_VERSION $VOLUME_VERSION = AMI_VERSION $AMI_VERSION, restarting k3s and exiting script"
+        echo "VOLUME_VERSION $VOLUME_VERSION = AMI_VERSION $AMI_VERSION, restarting k3s, deleting pods, and exiting script"
+
+        # I'm not sure why we're restarting the k3s service as the instance just started up ~10 seconds
         sudo systemctl restart k3s
+
+        # Deleting any existing pods, forcing k3s to schedule new pods, seems to be necesssary for the app to come up
+        $LOCAL_BIN_PATH/kubectl delete pods --all
+
+        # Log a finishing message
+        DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "[$DATE_TIME] Finishing reboot.sh after restarting k3s and recreating all pods"
+
         exit 0
 
     fi
@@ -151,4 +161,4 @@ echo "HELM_APP_VERSION: $HELM_APP_VERSION"
 
 # Log a finishing message
 DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')
-echo "[$DATE_TIME] Finishing reboot.sh"
+echo "[$DATE_TIME] Finishing reboot.sh after redeploying the app"
