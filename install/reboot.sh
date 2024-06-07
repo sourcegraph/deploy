@@ -11,7 +11,9 @@
 
 # Set the log output file
 LOG_FILE='/var/log/reboot.sh.log'
-exec > >(tee -a "$LOG_FILE") 2>&1
+
+# Log to both console and file
+exec > >(sudo tee -a "$LOG_FILE") 2>&1
 
 # Log a starting message
 DATE_TIME=$(date '+%Y-%m-%d %H:%M:%S')
@@ -25,9 +27,6 @@ echo "[$DATE_TIME] Starting reboot.sh"
 # Set INSTANCE_USERNAME to either ec2-user, if that's the current running user, otherwise sourcegraph
 [ "$(whoami)" == 'ec2-user' ] && INSTANCE_USERNAME='ec2-user' || INSTANCE_USERNAME='sourcegraph'
 
-# Log INSTANCE_USERNAME
-echo "INSTANCE_USERNAME: $INSTANCE_USERNAME"
-
 # File paths
 AMI_VERSION_FILE="/home/$INSTANCE_USERNAME/.sourcegraph-version"
 DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
@@ -37,10 +36,7 @@ RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 VOLUME_VERSION_FILE='/mnt/data/.sourcegraph-version'
 
 # Get the Sourcegraph release version from the user's home directory, in the AMI's root directory
-AMI_VERSION=$(cat $AMI_VERSION_FILE)
-
-# Log AMI_VERSION
-echo "AMI_VERSION: $AMI_VERSION"
+AMI_VERSION=$(cat "$AMI_VERSION_FILE")
 
 
 ###############################################################################
@@ -52,9 +48,6 @@ echo "AMI_VERSION: $AMI_VERSION"
 # Restart k3s and exit
 if [ -f $VOLUME_VERSION_FILE ]; then
     VOLUME_VERSION=$(cat $VOLUME_VERSION_FILE)
-
-    # Log VOLUME_VERSION
-    echo "VOLUME_VERSION: $VOLUME_VERSION"
 
     if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
 
@@ -101,8 +94,12 @@ sudo systemctl restart k3s && sleep 30
 cd "$DEPLOY_PATH" || exit
 
 # Helm repo update
-# TODO: Check the $KUBECONFIG_FILE, see if this command fails without internet access
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo update
+# This command fails without internet access, but is not a breaking fail
+# Hang tight while we grab the latest from your chart repositories...
+# ...Unable to get an update from the "sourcegraph" chart repository (https://helm.sourcegraph.com/release):
+#         Get "https://helm.sourcegraph.com/release/index.yaml": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+# Update Complete. ⎈Happy Helming!⎈
 
 # Install or upgrade Prometheus
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-override.ConfigMap.yaml
