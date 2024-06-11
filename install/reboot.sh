@@ -10,6 +10,7 @@ LOCAL_BIN_PATH='/usr/local/bin'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 
+
 ###############################################################################
 # This script will be run when instance is first started up from an AMI,
 # as well as on every system reboot.
@@ -18,6 +19,9 @@ RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 if [ -f /mnt/data/.sourcegraph-version ]; then
     VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
     if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
+        # Clear out the old pods if they're still around
+        $LOCAL_BIN_PATH/kubectl delete pods --all
+
         sudo systemctl restart k3s
         exit 0
     fi
