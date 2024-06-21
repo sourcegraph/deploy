@@ -8,7 +8,7 @@ steps:
       bazel run //:packer -- init --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       # RELEASE_NUMBER comes from `github.ref_name` in the GHA that triggers this
       # Tag naems now include a "v", which we remove here
-      export NO_VERSION="\${$RELEASE_NUMBER//v}"
+      export NO_VERSION="$$(echo $RELEASE_NUMBER | tr -d v)"
       bazel run //:packer -- build -var "instance_version=$NO_VERSION" -var "dev=false" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:generate-changelog
       git checkout -b "release/$RELEASE_NUMBER"
