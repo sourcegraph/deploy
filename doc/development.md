@@ -38,7 +38,7 @@ We use Hashicorp Packer to build images:
 
 ## Building an AMI
 
-To create an AMI for a given T-shirt size, follow the instructions in our development docs and refer to the following tables.
+To create an AMI for a given T-shirt size, follow the instructions for creating a single AMI below and refer to the following tables.
 
 #### AWS
 
