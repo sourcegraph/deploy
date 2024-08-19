@@ -44,26 +44,46 @@ sudo systemctl restart k3s && sleep 30
 
 # Install or upgrade Sourcegraph and create ingress
 cd "$DEPLOY_PATH" || exit
+
+# Try to pull the latest Helm chart
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo update
+
+# Apply the Prometheus override
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-override.ConfigMap.yaml
+
+# If the Sourcegraph Helm charts exist on disk (they always should on a running instance), then use them
+# Otherwise, use the Helm charts at the default path
 if [ -f ./sourcegraph-charts.tgz ]; then
     $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" sourcegraph ./sourcegraph-charts.tgz
 else
     $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" sourcegraph sourcegraph/sourcegraph
 fi
+
+# Create the ingress
 $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f ./ingress.yaml
+
+# Give the ingress time to deploy
 sleep 5
+
+# If the Executor Helm charts exist on disk, then use them
+# Otherwise, use the Helm charts at the default path
 if [ -f ./sourcegraph-executor-k8s-charts.tgz ]; then
     $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" executor ./sourcegraph-executor-k8s-charts.tgz
 else
     $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" executor sourcegraph/sourcegraph-executor-k8s
 fi
-# Clear out the old pods if they're still around
+
+# Recycle all pods
 $LOCAL_BIN_PATH/kubectl delete pods --all
 
+# Wait a minute for the new pods to start up
+sleep 60
+
 # Restart k3s again in case it's still in crashloopbackoff
-# However, this should not affect a running instance
-sleep 60 && sudo systemctl restart k3s
+# This should not affect a running instance
+sudo systemctl restart k3s
+
+# Write the new version number to both volumes, to pass the version match check on next reboot
 HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
 [ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
 [ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /home/"$INSTANCE_USERNAME"/.sourcegraph-version
