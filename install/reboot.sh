@@ -8,19 +8,25 @@
 # VARIABLES
 ###############################################################################
 [ "$(whoami)" == 'ec2-user' ] && INSTANCE_USERNAME='ec2-user' || INSTANCE_USERNAME='sourcegraph'
-AMI_VERSION=$(cat /home/"$INSTANCE_USERNAME"/.sourcegraph-version)
+AMI_VERSION_PATH="/home/$INSTANCE_USERNAME/.sourcegraph-version"
+AMI_VERSION="$(cat $AMI_VERSION_PATH)"
+CUSTOMER_OVERRIDE_FILE='/mnt/data/override.yaml'
 DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
-LOCAL_BIN_PATH='/usr/local/bin'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
+LOCAL_BIN_PATH='/usr/local/bin'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
+VOLUME_VERSION_PATH='/mnt/data/.sourcegraph-version'
+HELM_UPGRADE_INSTALL_COMMAND="$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade --install --version $AMI_VERSION --values $DEPLOY_PATH/override.yaml"
 
 # If the Sourcegraph version stored on the data volume matches the version stored on the AMI's root volume
 # Then this is a regular reboot, not a first time startup or upgrade
 # Recycle pods and restart k3s to clear out any possible startup issues
 # Exit the script early
-if [ -f /mnt/data/.sourcegraph-version ]; then
-    VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
+if [ -f $VOLUME_VERSION_PATH ]; then
+    VOLUME_VERSION="$(cat $VOLUME_VERSION_PATH)"
     if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
+        # Apply changes if the customer made any
+        
         # Recycle all pods
         $LOCAL_BIN_PATH/kubectl delete pods --all
         # Restart k3s
@@ -64,9 +70,9 @@ $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-over
 # If the Sourcegraph Helm charts exist on disk (they always should on a running instance), then use them
 # Otherwise, use the Helm charts at the default path
 if [ -f ./sourcegraph-charts.tgz ]; then
-    $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" sourcegraph ./sourcegraph-charts.tgz
+    $HELM_UPGRADE_INSTALL_COMMAND sourcegraph ./sourcegraph-charts.tgz
 else
-    $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" sourcegraph sourcegraph/sourcegraph
+    $HELM_UPGRADE_INSTALL_COMMAND sourcegraph sourcegraph/sourcegraph
 fi
 
 # Create the ingress
@@ -78,9 +84,9 @@ sleep 5
 # If the Executor Helm charts exist on disk, then use them
 # Otherwise, use the Helm charts at the default path
 if [ -f ./sourcegraph-executor-k8s-charts.tgz ]; then
-    $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" executor ./sourcegraph-executor-k8s-charts.tgz
+    $HELM_UPGRADE_INSTALL_COMMAND executor ./sourcegraph-executor-k8s-charts.tgz
 else
-    $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$AMI_VERSION" executor sourcegraph/sourcegraph-executor-k8s
+    $HELM_UPGRADE_INSTALL_COMMAND executor sourcegraph/sourcegraph-executor-k8s
 fi
 
 # Recycle all pods
@@ -94,6 +100,6 @@ sleep 60
 sudo systemctl restart k3s
 
 # Write the new version number to both volumes, to pass the version match check on next reboot
-HELM_APP_VERSION=$(/usr/local/bin/helm --kubeconfig /etc/rancher/k3s/k3s.yaml history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)
-[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /mnt/data/.sourcegraph-version
-[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee /home/"$INSTANCE_USERNAME"/.sourcegraph-version
+HELM_APP_VERSION="$($LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)"
+[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee $VOLUME_VERSION_PATH
+[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee $AMI_VERSION_PATH
