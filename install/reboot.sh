@@ -1,4 +1,8 @@
 #!/usr/bin/bash
+###############################################################################
+# This script will be run when instance is first started up from an AMI,
+# as well as on every reboot.
+###############################################################################
 
 ##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
 # VARIABLES
@@ -10,25 +14,25 @@ LOCAL_BIN_PATH='/usr/local/bin'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 
-
-###############################################################################
-# This script will be run when instance is first started up from an AMI,
-# as well as on every system reboot.
-###############################################################################
-# Exit if AMI version is the same version as the volume
+# If the Sourcegraph version stored on the data volume matches the version stored on the AMI's root volume
+# Then this is a regular reboot, not a first time startup or upgrade
+# Recycle pods and restart k3s to clear out any possible startup issues
+# Exit the script early
 if [ -f /mnt/data/.sourcegraph-version ]; then
     VOLUME_VERSION=$(cat /mnt/data/.sourcegraph-version)
     if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
-        # Clear out the old pods if they're still around
+        # Recycle all pods
         $LOCAL_BIN_PATH/kubectl delete pods --all
-
+        # Restart k3s
         sudo systemctl restart k3s
         exit 0
     fi
 fi
 
-# Reset the containerd state if k3s is not starting
-# NOTE: Cluster data will NOT be deleted
+# Script continues if this is either a first time startup or an upgrade
+
+# If k3s is not starting / running successfully, then reset containerd state, so that it becomes ready for the Sourcegraph upgrade
+# NOTE: Cluster data is NOT deleted in this process
 if ! sudo systemctl status k3s.service | grep -q 'active (running)'; then
     # Stop all of the K3s containers and reset the containerd state
     sudo sh $LOCAL_BIN_PATH/k3s-killall.sh
@@ -37,15 +41,21 @@ if ! sudo systemctl status k3s.service | grep -q 'active (running)'; then
     # Enable k3s in this cluster and start the unit now
     sudo systemctl enable --now k3s
 else
-    # Delete any existing ingress from old instances before restarting k3s
+    # If k3s is running successfully, then delete the existing ingress, to prepare for the upgrade
     $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE delete ingress sourcegraph-ingress
 fi
-sudo systemctl restart k3s && sleep 30
+
+# Restart the k3s service after the above changes
+sudo systemctl restart k3s
+
+# Give k3s some time to start up
+sleep 30
 
 # Install or upgrade Sourcegraph and create ingress
 cd "$DEPLOY_PATH" || exit
 
 # Try to pull the latest Helm chart
+# This takes 30+ seconds to timeout if the instance does not have internet connectivity open to our Helm repo
 $LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo update
 
 # Apply the Prometheus override
