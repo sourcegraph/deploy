@@ -2,7 +2,9 @@
 ###############################################################################
 # This script is run when the instance is first deployed from the AMI,
 # and on every reboot.
-# Note: cron logs script output to /var/spool/mail/ec2-user
+# Logs:
+#   cron logs in /var/spool/mail/ec2-user
+#   script logs in $LOG_FILE
 ###############################################################################
 
 # Variables
@@ -32,6 +34,9 @@ exec > >(sudo tee -a "$LOG_FILE") 2>&1
 function log() {
     echo "$(date '+%Y-%m-%d - %H:%M:%S') - $0 - $1"
 }
+
+log "Script starting"
+START_TIME=$(date +%s)
 
 # If the customer has created an override file on the data volume, then use it
 if [ -f $CUSTOMER_OVERRIDE_FILE ]; then
@@ -101,20 +106,20 @@ $HELM_CMD repo update
 
 # Apply the Prometheus override
 log "Applying Prometheus override"
-$KUBECTL_CMD apply -f ./prometheus-override.ConfigMap.yaml
+$KUBECTL_CMD apply -f $DEPLOY_PATH/prometheus-override.ConfigMap.yaml
 
 # If the Sourcegraph Helm charts exist on disk (they always should on a running instance), then use them
 # Otherwise, use the Helm charts from the default path
 log "Upgrading Sourcegraph"
-if [ -f ./sourcegraph-charts.tgz ]; then
-    $HELM_UPGRADE_INSTALL_CMD sourcegraph ./sourcegraph-charts.tgz
+if [ -f $DEPLOY_PATH/sourcegraph-charts.tgz ]; then
+    $HELM_UPGRADE_INSTALL_CMD sourcegraph $DEPLOY_PATH/sourcegraph-charts.tgz
 else
     $HELM_UPGRADE_INSTALL_CMD sourcegraph sourcegraph/sourcegraph
 fi
 
 # Create the ingress
 log "Creating ingress"
-$KUBECTL_CMD create -f ./ingress.yaml
+$KUBECTL_CMD create -f $DEPLOY_PATH/ingress.yaml
 
 # Give the ingress time to deploy
 sleep 5
@@ -122,8 +127,8 @@ sleep 5
 # If the Executor Helm charts exist on disk, then use them
 # Otherwise, use the Helm charts from the default path
 log "Upgrading Executors"
-if [ -f ./sourcegraph-executor-k8s-charts.tgz ]; then
-    $HELM_UPGRADE_INSTALL_CMD executor ./sourcegraph-executor-k8s-charts.tgz
+if [ -f $DEPLOY_PATH/sourcegraph-executor-k8s-charts.tgz ]; then
+    $HELM_UPGRADE_INSTALL_CMD executor $DEPLOY_PATH/sourcegraph-executor-k8s-charts.tgz
 else
     $HELM_UPGRADE_INSTALL_CMD executor sourcegraph/sourcegraph-executor-k8s
 fi
@@ -152,3 +157,4 @@ else
 fi
 
 log "Successfully upgraded Sourcegraph to version $HELM_APP_VERSION"
+log "Script finishing after $(($(date +%s) - $START_TIME)) seconds"
