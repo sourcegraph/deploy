@@ -1,45 +1,68 @@
 #!/usr/bin/bash
 ###############################################################################
-# This script will be run when instance is first started up from an AMI,
-# as well as on every reboot.
+# This script is run when the instance is first deployed from the AMI,
+# and on every reboot.
+# Note: cron logs script output to /var/spool/mail/ec2-user
 ###############################################################################
 
-##################### NO CHANGES REQUIRED BELOW THIS LINE #####################
-# VARIABLES
-###############################################################################
+# Variables
 [ "$(whoami)" == 'ec2-user' ] && INSTANCE_USERNAME='ec2-user' || INSTANCE_USERNAME='sourcegraph'
-AMI_VERSION_PATH="/home/$INSTANCE_USERNAME/.sourcegraph-version"
-AMI_VERSION="$(cat $AMI_VERSION_PATH)"
+AMI_ROOT_VOLUME_VERSION_FILE="/home/$INSTANCE_USERNAME/.sourcegraph-version"
+AMI_VERSION="$(cat $AMI_ROOT_VOLUME_VERSION_FILE)"
 CUSTOMER_OVERRIDE_FILE='/mnt/data/override.yaml'
+DATA_VOLUME_VERSION_FILE='/mnt/data/.sourcegraph-version'
+DATA_VOLUME_VERSION=""
 DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 LOCAL_BIN_PATH='/usr/local/bin'
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
-VOLUME_VERSION_PATH='/mnt/data/.sourcegraph-version'
-HELM_UPGRADE_INSTALL_COMMAND="$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE upgrade --install --version $AMI_VERSION --values $DEPLOY_PATH/override.yaml"
+
+# Reusable commands to maintain consistency for the commands this script runs multiple times
+HELM_CMD="$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE"
+HELM_UPGRADE_INSTALL_CMD="$HELM_CMD upgrade --install --version $AMI_VERSION --values $DEPLOY_PATH/override.yaml"
+KUBECTL_CMD="$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE"
+KUBECTL_DELETE_PODS_ALL_CMD="$LOCAL_BIN_PATH/kubectl delete pods --all"
+RESTART_K3S_CMD="sudo systemctl restart k3s"
+
+# Define log function for consistent output format
+function log() {
+    echo "$(date '+%Y-%m-%d - %H:%M:%S') - $0 - $1"
+}
+
+# If the customer has created an override file on the data volume, then use it
+if [ -f $CUSTOMER_OVERRIDE_FILE ]; then
+    # Append the customer's override file last, so that values the customer sets override our default values
+    log "Found custom Helm values file at $CUSTOMER_OVERRIDE_FILE"
+    HELM_UPGRADE_INSTALL_CMD="$HELM_UPGRADE_INSTALL_CMD --values $CUSTOMER_OVERRIDE_FILE"
+fi
 
 # If the Sourcegraph version stored on the data volume matches the version stored on the AMI's root volume
 # Then this is a regular reboot, not a first time startup or upgrade
-# Recycle pods and restart k3s to clear out any possible startup issues
-# Exit the script early
-if [ -f $VOLUME_VERSION_PATH ]; then
-    VOLUME_VERSION="$(cat $VOLUME_VERSION_PATH)"
-    if [ "$VOLUME_VERSION" = "$AMI_VERSION" ]; then
-        # Apply changes if the customer made any
-        
-        # Recycle all pods
-        $LOCAL_BIN_PATH/kubectl delete pods --all
-        # Restart k3s
-        sudo systemctl restart k3s
+if [ -f $DATA_VOLUME_VERSION_FILE ]; then
+    DATA_VOLUME_VERSION="$(cat $DATA_VOLUME_VERSION_FILE)"
+    if [ "$DATA_VOLUME_VERSION" = "$AMI_VERSION" ]; then
+        log "Starting Sourcegraph on version $AMI_VERSION"
+        # Recycle pods and restart k3s to clear out any possible startup issues
+        log "Recycling pods"
+        $KUBECTL_DELETE_PODS_ALL_CMD
+        log "Restarting k3s service"
+        $RESTART_K3S_CMD
+        log "Started Sourcegraph on version $AMI_VERSION"
+        # Exit the script early
         exit 0
+    elif [[ "$DATA_VOLUME_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        log "Upgrading Sourcegraph from $DATA_VOLUME_VERSION to $AMI_VERSION"
+    elif [[ "$DATA_VOLUME_VERSION" =~ ^.*-base$ ]]; then
+        log "Starting Sourcegraph for the first time, on version $AMI_VERSION"
+    else
+        log "Sourcegraph data volume has invalid version '$DATA_VOLUME_VERSION', upgrading to $AMI_VERSION"
     fi
 fi
-
-# Script continues if this is either a first time startup or an upgrade
 
 # If k3s is not starting / running successfully, then reset containerd state, so that it becomes ready for the Sourcegraph upgrade
 # NOTE: Cluster data is NOT deleted in this process
 if ! sudo systemctl status k3s.service | grep -q 'active (running)'; then
+    log "k3s service not running, resetting state"
     # Stop all of the K3s containers and reset the containerd state
     sudo sh $LOCAL_BIN_PATH/k3s-killall.sh
     # Remove leftovers TLS certs and cred
@@ -48,58 +71,76 @@ if ! sudo systemctl status k3s.service | grep -q 'active (running)'; then
     sudo systemctl enable --now k3s
 else
     # If k3s is running successfully, then delete the existing ingress, to prepare for the upgrade
-    $LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE delete ingress sourcegraph-ingress
+    log "Deleting ingress"
+    $KUBECTL_CMD delete ingress sourcegraph-ingress
 fi
 
 # Restart the k3s service after the above changes
-sudo systemctl restart k3s
+log "Restarting k3s service"
+$RESTART_K3S_CMD
 
-# Give k3s some time to start up
+# Give k3s time to start up
+log "Waiting for the k3s service to come up"
 sleep 30
 
 # Install or upgrade Sourcegraph and create ingress
-cd "$DEPLOY_PATH" || exit
+cd "$DEPLOY_PATH" || exit 1
 
 # Try to pull the latest Helm chart
 # This takes 30+ seconds to timeout if the instance does not have internet connectivity open to our Helm repo
-$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE repo update
+log "Updating Helm chart"
+$HELM_CMD repo update
 
 # Apply the Prometheus override
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-override.ConfigMap.yaml
+log "Applying Prometheus override"
+$KUBECTL_CMD apply -f ./prometheus-override.ConfigMap.yaml
 
 # If the Sourcegraph Helm charts exist on disk (they always should on a running instance), then use them
-# Otherwise, use the Helm charts at the default path
+# Otherwise, use the Helm charts from the default path
+log "Upgrading Sourcegraph"
 if [ -f ./sourcegraph-charts.tgz ]; then
-    $HELM_UPGRADE_INSTALL_COMMAND sourcegraph ./sourcegraph-charts.tgz
+    $HELM_UPGRADE_INSTALL_CMD sourcegraph ./sourcegraph-charts.tgz
 else
-    $HELM_UPGRADE_INSTALL_COMMAND sourcegraph sourcegraph/sourcegraph
+    $HELM_UPGRADE_INSTALL_CMD sourcegraph sourcegraph/sourcegraph
 fi
 
 # Create the ingress
-$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE create -f ./ingress.yaml
+log "Creating ingress"
+$KUBECTL_CMD create -f ./ingress.yaml
 
 # Give the ingress time to deploy
 sleep 5
 
 # If the Executor Helm charts exist on disk, then use them
-# Otherwise, use the Helm charts at the default path
+# Otherwise, use the Helm charts from the default path
+log "Upgrading Executors"
 if [ -f ./sourcegraph-executor-k8s-charts.tgz ]; then
-    $HELM_UPGRADE_INSTALL_COMMAND executor ./sourcegraph-executor-k8s-charts.tgz
+    $HELM_UPGRADE_INSTALL_CMD executor ./sourcegraph-executor-k8s-charts.tgz
 else
-    $HELM_UPGRADE_INSTALL_COMMAND executor sourcegraph/sourcegraph-executor-k8s
+    $HELM_UPGRADE_INSTALL_CMD executor sourcegraph/sourcegraph-executor-k8s
 fi
 
 # Recycle all pods
-$LOCAL_BIN_PATH/kubectl delete pods --all
+log "Recycling pods"
+$KUBECTL_DELETE_PODS_ALL_CMD
 
-# Wait a minute for the new pods to start up
+# Give the new pods time to start up
+log "Waiting for pods to start up"
 sleep 60
 
-# Restart k3s again in case it's still in crashloopbackoff
+# Restart k3s again in case pods are still in crashloopbackoff
 # This should not affect a running instance
-sudo systemctl restart k3s
+log "Restarting k3s service"
+$RESTART_K3S_CMD
 
 # Write the new version number to both volumes, to pass the version match check on next reboot
-HELM_APP_VERSION="$($LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ":" -f 2 | xargs)"
-[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee $VOLUME_VERSION_PATH
-[ "$HELM_APP_VERSION" != "" ] && echo "$HELM_APP_VERSION" | sudo tee $AMI_VERSION_PATH
+HELM_APP_VERSION="$($HELM_CMD history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ':' -f 2 | xargs)"
+if [[ "$HELM_APP_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "$HELM_APP_VERSION" | sudo tee $AMI_ROOT_VOLUME_VERSION_FILE
+    echo "$HELM_APP_VERSION" | sudo tee $DATA_VOLUME_VERSION_FILE
+else
+    log "Error: Got invalid Sourcegraph app version from Helm history: $HELM_APP_VERSION"
+    exit 2
+fi
+
+log "Successfully upgraded Sourcegraph to version $HELM_APP_VERSION"
