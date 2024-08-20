@@ -15,6 +15,7 @@ DATA_VOLUME_VERSION=""
 DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 LOCAL_BIN_PATH='/usr/local/bin'
+LOG_FILE="/var/log/reboot.sh.log"
 RANCHER_SERVER_PATH='/var/lib/rancher/k3s/server'
 
 # Reusable commands to maintain consistency for the commands this script runs multiple times
@@ -23,6 +24,9 @@ HELM_UPGRADE_INSTALL_CMD="$HELM_CMD upgrade --install --version $AMI_VERSION --v
 KUBECTL_CMD="$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE"
 KUBECTL_DELETE_PODS_ALL_CMD="$LOCAL_BIN_PATH/kubectl delete pods --all"
 RESTART_K3S_CMD="sudo systemctl restart k3s"
+
+# Configure script to output to both console and file
+exec > >(sudo tee -a "$LOG_FILE") 2>&1
 
 # Define log function for consistent output format
 function log() {
@@ -40,7 +44,9 @@ fi
 # Then this is a regular reboot, not a first time startup or upgrade
 if [ -f $DATA_VOLUME_VERSION_FILE ]; then
     DATA_VOLUME_VERSION="$(cat $DATA_VOLUME_VERSION_FILE)"
-    if [ "$DATA_VOLUME_VERSION" = "$AMI_VERSION" ]; then
+    if [ -f $CUSTOMER_OVERRIDE_FILE ]; then
+        log "Reinstalling Sourcegraph to use the custom Helm values file"
+    elif [ "$DATA_VOLUME_VERSION" = "$AMI_VERSION" ]; then
         log "Starting Sourcegraph on version $AMI_VERSION"
         # Recycle pods and restart k3s to clear out any possible startup issues
         log "Recycling pods"
@@ -50,13 +56,15 @@ if [ -f $DATA_VOLUME_VERSION_FILE ]; then
         log "Started Sourcegraph on version $AMI_VERSION"
         # Exit the script early
         exit 0
-    elif [[ "$DATA_VOLUME_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        log "Upgrading Sourcegraph from $DATA_VOLUME_VERSION to $AMI_VERSION"
     elif [[ "$DATA_VOLUME_VERSION" =~ ^.*-base$ ]]; then
         log "Starting Sourcegraph for the first time, on version $AMI_VERSION"
+    elif [[ "$DATA_VOLUME_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        log "Upgrading Sourcegraph from $DATA_VOLUME_VERSION to $AMI_VERSION"
     else
-        log "Sourcegraph data volume has invalid version '$DATA_VOLUME_VERSION', upgrading to $AMI_VERSION"
+        log "Sourcegraph data volume has invalid version '$DATA_VOLUME_VERSION', installing $AMI_VERSION"
     fi
+else
+    log "Sourcegraph data volume is missing version file at $DATA_VOLUME_VERSION_FILE, installing $AMI_VERSION"
 fi
 
 # If k3s is not starting / running successfully, then reset containerd state, so that it becomes ready for the Sourcegraph upgrade
