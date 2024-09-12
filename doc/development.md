@@ -68,7 +68,6 @@ packer init packer/dev
 packer build -var-file=/packer/dev/dev-variables.hcl /packer/dev/dev-builder.pkr.hcl
 ```
 
-
 ### Creation procedure
 
 #### Batch
@@ -78,20 +77,21 @@ To create images for all cloud providers:
 1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build
    * If trying to create a non-development build, also set `dev = false`.
 2. Run `bash build.sh` from the root of this repository, which will:
-   - Build the images for all sizes for each supported cloud provider
-   - Copy them to the relevant regions
-   - Mark them as public
+   * Build the images for all sizes for each supported cloud provider
+   * Copy them to the relevant regions
+   * Mark them as public
 3. Update [CHANGELOG.md](/CHANGELOG.md) with the list of image IDs you just published for the new version
 
 #### AWS
 
-1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build 
+1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build
 2. Run `packer build --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl` from the root of this repository, which will:
-   - Build the AWS AMIs for all sizes
-   - Copy them to the relevant regions
+   * Build the AWS AMIs for all sizes
+   * Copy them to the relevant regions
 3. Update [CHANGELOG.md](/CHANGELOG.md) with the list of AMI IDs you just published for the new version
 
 #### AWS-Latest
+
 1. Run `packer build --var-file=./packer/build-variables.hcl ./packer/aws-latest/aws-builder.pkr.hcl`
 2. Copy the AMI ID output into `packer/aws-latest/_ami.yaml` - maintaining yaml structure
 3. Run `cd packer/aws-latest/ && cat _ami.yaml | yj | ./_convert.py`
@@ -100,11 +100,11 @@ To create images for all cloud providers:
 
 #### Google Compute Engine
 
-1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build 
+1. Update the `instance_version` variable on line 1 inside the [packer/build-variables.hcl file](../packer/build-variables.hcl) with the version number for the build
 2. Run `packer build --var-file=./packer/build-variables.hcl ./packer/gcp/gcp-builder.pkr.hcl` (insure version is _not_ specified) from the root of this repository, which will:
-   - Build the Google Compute Machine Images for all sizes
-   - Copy them to the storage buckets
-   - Mark them as public
+   * Build the Google Compute Machine Images for all sizes
+   * Copy them to the storage buckets
+   * Mark them as public
 3. Update [CHANGELOG.md](/CHANGELOG.md) with the list of image IDs you just published for the new version, along with the links to the storage buckets
 
 ### Publishing a release

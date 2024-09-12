@@ -12,8 +12,8 @@ DEPLOY_PATH="/home/$INSTANCE_USERNAME/deploy/install"
 SOURCEGRAPH_VERSION=$(cat "/home/$INSTANCE_USERNAME/.sourcegraph-version")
 
 if [ -f /mnt/data/.sourcegraph-version ]; then
-    sleep 25 && bash $DEPLOY_PATH/reboot.sh
-    exit 0
+  sleep 25 && bash $DEPLOY_PATH/reboot.sh
+  exit 0
 fi
 
 ###############################################################################
@@ -22,8 +22,8 @@ fi
 # Format (if necessary) and mount the EBS volume
 device_fs=$(sudo lsblk $VOLUME_DEVICE_NAME --noheadings --output fsType)
 if [ "$device_fs" == "" ]; then
-    sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard $VOLUME_DEVICE_NAME
-    sudo e2label $VOLUME_DEVICE_NAME /mnt/data # Add label to volume device
+  sudo mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard $VOLUME_DEVICE_NAME
+  sudo e2label $VOLUME_DEVICE_NAME /mnt/data # Add label to volume device
 fi
 sudo mount $VOLUME_DEVICE_NAME /mnt/data
 # Mount data disk on reboots by linking disk label to data root path
@@ -40,8 +40,8 @@ sudo mkdir -p /mnt/data/storage
 # Prepare the system
 ###############################################################################
 if [ -f /mnt/data/.sourcegraph-size ]; then
-    SOURCEGRAPH_SIZE=$(cat /mnt/data/.sourcegraph-size)
-    cp "$DEPLOY_PATH/override.$SOURCEGRAPH_SIZE.yaml" "$DEPLOY_PATH/override.yaml"
+  SOURCEGRAPH_SIZE=$(cat /mnt/data/.sourcegraph-size)
+  cp "$DEPLOY_PATH/override.$SOURCEGRAPH_SIZE.yaml" "$DEPLOY_PATH/override.yaml"
 fi
 
 # cd into the deployment repository
