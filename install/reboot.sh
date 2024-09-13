@@ -61,8 +61,15 @@ function exit_script() {
   log "Checking pod statuses"
   $KUBECTL_CMD get pods -A
   log "Started Sourcegraph on version $1"
+  override_coredns
   log "Script finished after $(($(date +%s) - START_TIME)) seconds"
   exit 0
+}
+
+# Allows for instances to resolve internal DNS in AWS/GPC VPCs via internal metadata endpoint
+function override_coredns() {
+  log "Writing override to coredns"
+  sudo sed -i 's#^\(\s*\)forward .*#\1forward . 169.254.169.254 /etc/resolv.conf { policy sequential }#' /var/lib/rancher/k3s/server/manifests/coredns.yaml
 }
 
 ### Script execution starts here
