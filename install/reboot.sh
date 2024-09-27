@@ -51,7 +51,7 @@ function check_pod_statuses() {
   PODS_NOT_RUNNING=$($KUBECTL_GET_PODS_CMD | grep -v -e Running -e Completed -e NAMESPACE -c)
   if [[ $PODS_NOT_RUNNING -ne 0 ]]; then
     log "WARNING: $PODS_NOT_RUNNING pods not running:"
-    $KUBECTL_GET_PODS_CMD | grep -v -e Running -e Completed -e NAMESPACE
+    $KUBECTL_GET_PODS_CMD | grep -v -e Running -e Completed
   fi
 }
 
