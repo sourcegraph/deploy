@@ -30,6 +30,7 @@ COREDNS_FILE="$RANCHER_SERVER_PATH/manifests/coredns.yaml"
 HELM_CMD="$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE"
 HELM_UPGRADE_INSTALL_CMD="$HELM_CMD upgrade --install --values $DEPLOY_PATH/override.yaml"
 KUBECTL_CMD="$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE"
+KUBECTL_GET_PODS_CMD="$KUBECTL_CMD get pods -A"
 KUBECTL_DELETE_PODS_ALL_CMD="$LOCAL_BIN_PATH/kubectl delete pods --all"
 RESTART_K3S_CMD="sudo systemctl restart k3s"
 
@@ -41,17 +42,41 @@ exec > >(sudo tee -a "$LOG_FILE") 2>&1
 
 
 ### Functions
-function log() {
-  # Define log function for consistent output format
-  echo "$(date '+%Y-%m-%d - %H:%M:%S') - $0 - $1"
+function check_pod_statuses() {
+  # Output the statuses of all pods
+  log "Checking pod statuses"
+  $KUBECTL_GET_PODS_CMD
+
+  # If any pods are not running, then call them out specifically with a warning
+  PODS_NOT_RUNNING=$($KUBECTL_GET_PODS_CMD | grep -v -e Running -e Completed -e NAMESPACE -c)
+  if $PODS_NOT_RUNNING -ne 0; then
+    log "WARNING: Pods not running: "
+    grep -v -e Running -e Completed -e NAMESPACE
+  fi
+}
+
+# Pass the version number when calling this function
+function exit_script() {
+  check_pod_statuses
+  log "Giving a 10 second cooling period"
+  sleep 10
+  check_pod_statuses
+  log "Started Sourcegraph on version $1"
+  log "Script finished after $(($(date +%s) - START_TIME)) seconds"
+  exit 0
+}
+
+function get_sourcegraph_version_from_helm() {
+  $HELM_CMD history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ':' -f 2 | xargs
 }
 
 function k3s_not_running() {
   ! sudo systemctl status k3s.service | grep -q 'active (running)'
 }
 
-function get_sourcegraph_version_from_helm() {
-  $HELM_CMD history sourcegraph -o yaml --max 1 | grep 'app_version' | head -1 | cut -d ':' -f 2 | xargs
+function log() {
+  # Define log function for consistent output format
+  echo "$(date '+%Y-%m-%d - %H:%M:%S') - $0 - $1"
 }
 
 function override_coredns() {
@@ -61,8 +86,10 @@ function override_coredns() {
   # After
   # forward . 169.254.169.254 /etc/resolv.conf { policy sequential }
   # This sed command appears to be safe to be re-run
-  log "Writing override to k3s coredns"
+  log "Overriding k3s coredns"
   sudo sed -i 's#^\(\s*\)forward .*#\1forward . 169.254.169.254 /etc/resolv.conf { policy sequential }#' $COREDNS_FILE
+  log "Restarting the k3s service"
+  $RESTART_K3S_CMD
 }
 
 function recycle_pods_and_restart_k3s() {
@@ -93,16 +120,7 @@ function reset_and_enable_k3s() {
   sudo systemctl enable --now k3s
 }
 
-# Pass the version number when calling this function
-function exit_script() {
-  log "Giving a 10 second cooling period"
-  sleep 10
-  log "Checking pod statuses"
-  $KUBECTL_CMD get pods -A
-  log "Started Sourcegraph on version $1"
-  log "Script finished after $(($(date +%s) - START_TIME)) seconds"
-  exit 0
-}
+
 
 ### Script execution starts here
 log "Script started"
@@ -111,6 +129,9 @@ START_TIME=$(date +%s)
 # Fix the DNS issue at the beginning of the script
 # so that any network connections in the script are more likely to work
 override_coredns
+
+# Check the pod statuses at the start of the script to log the starting state
+check_pod_statuses
 
 ### Get the Sourcegraph version numbers from the root and data volume
 ### Try multiple sources in case there's an issue
