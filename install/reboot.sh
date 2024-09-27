@@ -88,8 +88,7 @@ function override_coredns() {
   # This sed command appears to be safe to be re-run
   log "Overriding k3s coredns"
   sudo sed -i 's#^\(\s*\)forward .*#\1forward . 169.254.169.254 /etc/resolv.conf { policy sequential }#' $COREDNS_FILE
-  log "Restarting the k3s service"
-  $RESTART_K3S_CMD
+  restart_k3s
 }
 
 function recycle_pods_and_restart_k3s() {
@@ -100,8 +99,7 @@ function recycle_pods_and_restart_k3s() {
   sleep 60
   # Restart k3s in case pods are stuck in a crashloopbackoff
   # This should not affect a running instance
-  log "Restarting the k3s service"
-  $RESTART_K3S_CMD
+  restart_k3s
 }
 
 function reset_and_enable_k3s() {
@@ -120,6 +118,10 @@ function reset_and_enable_k3s() {
   sudo systemctl enable --now k3s
 }
 
+function restart_k3s() {
+  log "Restarting the k3s service"
+  $RESTART_K3S_CMD
+}
 
 
 ### Script execution starts here
@@ -233,8 +235,7 @@ log "Deleting ingress"
 $KUBECTL_CMD delete ingress sourcegraph-ingress
 
 # Restart the k3s service after either of the above changes
-log "Restarting the k3s service"
-$RESTART_K3S_CMD
+restart_k3s
 
 # Give k3s time to start up
 # To try and keep the user downtime as short as possible,
