@@ -5,6 +5,9 @@ storageClass:
 frontend:
   replicaCount: 2
   resources:
+    limits:
+      cpu: "4"
+      memory: 8G
     requests:
       cpu: "250m"
       memory: 256M
@@ -15,6 +18,9 @@ frontend:
 gitserver:
   replicaCount: 1
   resources:
+    limits:
+      cpu: "4"
+      memory: 8G
     requests:
       cpu: "250m"
       memory: 256M
@@ -24,6 +30,9 @@ gitserver:
 indexedSearch:
   replicaCount: 2
   resources:
+    limits:
+      cpu: "8"
+      memory: 50G
     requests:
       cpu: "250m"
       memory: 256M
@@ -31,6 +40,9 @@ indexedSearch:
 indexedSearchIndexer:
   replicaCount: 2
   resources:
+    limits:
+      cpu: "4"
+      memory: 16G
     requests:
       cpu: "250m"
       memory: 256M
@@ -38,6 +50,9 @@ indexedSearchIndexer:
 searcher:
   replicaCount: 1
   resources:
+    limits:
+      cpu: "2"
+      memory: 2G
     requests:
       cpu: "250m"
       memory: 256M
@@ -45,6 +60,9 @@ searcher:
 repoUpdater:
   replicaCount: 1
   resources:
+    limits:
+      cpu: "4"
+      memory: 4G
     requests:
       cpu: "250m"
       memory: 256M
@@ -52,6 +70,9 @@ repoUpdater:
 preciseCodeIntel:
   replicaCount: 1
   resources:
+    limits:
+      cpu: "2"
+      memory: 4G
     requests:
       cpu: "250m"
       memory: 256M
@@ -59,6 +80,9 @@ preciseCodeIntel:
 worker:
   replicaCount: 1
   resources:
+    limits:
+      cpu: "4"
+      memory: 4G
     requests:
       cpu: "250m"
       memory: 256M
@@ -66,12 +90,18 @@ worker:
 syntectServer:
   replicaCount: 1
   resources:
+    limits:
+      cpu: "4"
+      memory: 6G
     requests:
       cpu: "250m"
       memory: 256M
 
 symbols:
   resources:
+    limits:
+      cpu: "4"
+      memory: 4G
     requests:
       cpu: "250m"
       memory: 256M
@@ -85,6 +115,9 @@ symbols:
 
 grafana:
   resources:
+    limits:
+      cpu: "1"
+      memory: 1G
     requests:
       cpu: "250m"
       memory: 256M
@@ -92,6 +125,9 @@ grafana:
 blobstore:
   enabled: true
   resources:
+    limits:
+      cpu: "2"
+      memory: "2G"
     requests:
       cpu: "250m"
       memory: 256M
@@ -100,6 +136,9 @@ codeInsightsDB:
   enabled: true
   replicaCount: 1
   resources:
+    limits:
+      cpu: "4"
+      memory: 2G
     requests:
       cpu: "250m"
       memory: 256M
@@ -108,6 +147,9 @@ codeIntelDB:
   enabled: true
   replicaCount: 1
   resources:
+    limits:
+      cpu: "4"
+      memory: 4G
     requests:
       cpu: "250m"
       memory: 256M
@@ -116,6 +158,9 @@ pgsql:
   enabled: true
   replicaCount: 1
   resources:
+    limits:
+      cpu: "4"
+      memory: 4G
     requests:
       cpu: "250m"
       memory: 256M
@@ -124,6 +169,9 @@ redisStore:
   enabled: true
   replicaCount: 1
   resources:
+    limits:
+      cpu: "1"
+      memory: 3G
     requests:
       cpu: "250m"
       memory: 256M
@@ -132,12 +180,18 @@ redisCache:
   enabled: true
   replicaCount: 1
   resources:
+    limits:
+      cpu: "1"
+      memory: 3G
     requests:
       cpu: "250m"
       memory: 256M
 
 prometheus:
   resources:
+    limits:
+      cpu: "4"
+      memory: 8G
     requests:
       cpu: "250m"
       memory: 256M
@@ -147,6 +201,9 @@ openTelemetry:
   enabled: true
   replicaCount: 1
   resources:
+    limits:
+      cpu: "3"
+      memory: 3G
     requests:
       cpu: "250m"
       memory: 256M
@@ -157,6 +214,9 @@ embeddings:
     ENABLE_EMBEDDINGS_SEARCH_SIMD:
       value: "true"
   resources:
+    limits:
+      cpu: "4"
+      memory: 8G
     requests:
       cpu: "250m"
       memory: 256M
