@@ -1,5 +1,22 @@
 #!/usr/bin/env bash
 
+# ami_cleanup.sh - Deletes AWS AMIs and their associated snapshots across all regions
+#
+# Usage: ./ami_cleanup.sh <AMI_NAME__REGEX_PATTERN>
+#
+# Example: ./ami_cleaup.sh "Sourcegraph-* (v5.1.4)*"
+#          ./ami_cleanup.sh "DEV-*"
+#
+# The script will:
+# 1. Search for AMIs matching the name pattern in all enabled AWS regions
+# 2. Display found AMIs and request confirmation before deletion
+# 3. Delete matched AMIs and their associated snapshots
+#
+# Requires:
+# - AWS CLI configured with appropriate permissions
+#   - AWS_SECRET_ACCESS_KEY and AWS_ACCESS_KEY_ID environment variables
+# - Permissions to deregister AMIs and delete snapshots
+
 # Ensure that the AMI name pattern is provided as an argument
 if [ "$#" -ne 1 ]; then
   echo "Usage: $0 <AMI Name Pattern>"
