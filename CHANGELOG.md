@@ -72,6 +72,130 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 ### XL -->
 
+## v5.10.1164
+
+ ## Updates 
+
+### XS
+- af-south-1: ami-023aff503c7fda031
+- ap-east-1: ami-086d6bd60f6e68a3a
+- ap-northeast-1: ami-050b1ab3e53576322
+- ap-northeast-2: ami-0979bc4498c8bd7d9
+- ap-south-1: ami-02a5302553514adc7
+- ap-southeast-1: ami-0126274e24482101d
+- ap-southeast-2: ami-070aaca05bacf4086
+- ap-southeast-3: ami-0894af09a569abce4
+- ca-central-1: ami-0252a56f32560d2c6
+- eu-central-1: ami-01199cf595d3774e4
+- eu-north-1: ami-012260f450844c327
+- eu-south-1: ami-0b2a45c342d4be2ed
+- eu-west-1: ami-089f9ca7ad50bb54c
+- eu-west-2: ami-0eb4d8b2aa3122c31
+- eu-west-3: ami-0479c3983a4e42d26
+- me-central-1: ami-0d9a56efe8c79c55f
+- me-south-1: ami-03a9e9bb912b9b936
+- sa-east-1: ami-037e842af8ac953a8
+- us-east-1: ami-0e133f8be6bf26d14
+- us-east-2: ami-0f6b65ebd29b05960
+- us-west-1: ami-0131f6ffd8023dcca
+- us-west-2: ami-007c51a28b4ed3679
+
+### XL
+- af-south-1: ami-06f836d15cf9b5eaf
+- ap-east-1: ami-022dcfd708db82fad
+- ap-northeast-1: ami-0f9c1319e988148c8
+- ap-northeast-2: ami-02804c61ecbce883d
+- ap-south-1: ami-049c432b7070315c7
+- ap-southeast-1: ami-027218fb8dbb0c722
+- ap-southeast-2: ami-05ff47c6b1a582c71
+- ap-southeast-3: ami-0e5f79340f881d1cc
+- ca-central-1: ami-01169ac3c64fa540e
+- eu-central-1: ami-0243622b95f781c60
+- eu-north-1: ami-08c73cdebe9e48cb9
+- eu-south-1: ami-073ac780f4db9424e
+- eu-west-1: ami-053f5e78892a97fd1
+- eu-west-2: ami-090baa52dc050edb0
+- eu-west-3: ami-0020df431ebb85204
+- me-central-1: ami-0cb7ed403d7266c6b
+- me-south-1: ami-0c35097e7d805ddc4
+- sa-east-1: ami-09241d8325a09964b
+- us-east-1: ami-0175f76ac87a4ba42
+- us-east-2: ami-0ad62277ede5692c0
+- us-west-1: ami-0eba82610d1f0026f
+- us-west-2: ami-0abb224f4f559fc28
+
+### L
+- af-south-1: ami-0efa5a399b5a4d1c5
+- ap-east-1: ami-026e9cf7cc38176ab
+- ap-northeast-1: ami-0cb16b9da5f5ca9fc
+- ap-northeast-2: ami-06088566112a1ce0e
+- ap-south-1: ami-0f62c4ea2c1c6ea8a
+- ap-southeast-1: ami-09b5bc956248fd294
+- ap-southeast-2: ami-0da330388fbfa59ca
+- ap-southeast-3: ami-09f52acaef9d7f555
+- ca-central-1: ami-0f0479284a26f4d6f
+- eu-central-1: ami-03b865f2bb6d93fd7
+- eu-north-1: ami-032a7c5df094b2a08
+- eu-south-1: ami-03f703d409a8e9a96
+- eu-west-1: ami-05901b94104815136
+- eu-west-2: ami-04e083f4097486b21
+- eu-west-3: ami-0fe323f3561791e7b
+- me-central-1: ami-09d343c0ec4f5b426
+- me-south-1: ami-0cfe3f128d07f4807
+- sa-east-1: ami-05aacc85ff54eebc8
+- us-east-1: ami-0f09ef41fc9248dea
+- us-east-2: ami-0571efdad2b5835f3
+- us-west-1: ami-0f6b018cbef5429cd
+- us-west-2: ami-0e575f07b5f1f7826
+
+### S
+- af-south-1: ami-0e7cc661d940bda9a
+- ap-east-1: ami-08bbf0c0533b4e77b
+- ap-northeast-1: ami-05e09d74cd70c5022
+- ap-northeast-2: ami-02e43ec077e120307
+- ap-south-1: ami-0d57aa7c02ea55559
+- ap-southeast-1: ami-07ac2c7c53fd11658
+- ap-southeast-2: ami-0959a5536e7f19a4e
+- ap-southeast-3: ami-029993d7a4796fa0a
+- ca-central-1: ami-0f8ed0d1849152b3a
+- eu-central-1: ami-05282f629cbf5f7e4
+- eu-north-1: ami-051b5ffb856dff895
+- eu-south-1: ami-054a259d5c7c77f14
+- eu-west-1: ami-0861be510ac50fb31
+- eu-west-2: ami-0cf1f74556327b0fc
+- eu-west-3: ami-07e62137a408ac6c7
+- me-central-1: ami-058df84d6dffa84c5
+- me-south-1: ami-07be22f7c98513ac1
+- sa-east-1: ami-09a83643dab52b637
+- us-east-1: ami-02338347b288a5bcc
+- us-east-2: ami-0ae9f2884d2a4e28c
+- us-west-1: ami-004b9ff2dd889149c
+- us-west-2: ami-099505adc61caa2d5
+
+### M
+- af-south-1: ami-03f1893090322a733
+- ap-east-1: ami-0a1eca4fe140e2de9
+- ap-northeast-1: ami-00aac3f8382d5a8b9
+- ap-northeast-2: ami-0b49e8f4b07749a0c
+- ap-south-1: ami-0b881f06e6d183083
+- ap-southeast-1: ami-058ca675970eadcf6
+- ap-southeast-2: ami-06c5c80b1a7cf470d
+- ap-southeast-3: ami-06c77a24241ebe517
+- ca-central-1: ami-0e099152df7768cd3
+- eu-central-1: ami-0d6fc915a791062a8
+- eu-north-1: ami-0faf0b1866bfdea4e
+- eu-south-1: ami-02a2e92affb47c234
+- eu-west-1: ami-06fd5e5ca26ade598
+- eu-west-2: ami-0192c348bca2ff2f4
+- eu-west-3: ami-011ba7161718bfbee
+- me-central-1: ami-0f1209dfef2e71d41
+- me-south-1: ami-0974edd1938a8f5eb
+- sa-east-1: ami-0986e43a90e627c6e
+- us-east-1: ami-03df6cac285ecf06a
+- us-east-2: ami-0f745d65450e24cc8
+- us-west-1: ami-017a1e96d7b91b79a
+- us-west-2: ami-01a74a9bd01dfde7c
+
 ## v5.8.1579
 
  ## Updates 
