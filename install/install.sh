@@ -14,7 +14,6 @@ set -exuo pipefail
 SOURCEGRAPH_VERSION=$INSTANCE_VERSION
 SOURCEGRAPH_SIZE=$INSTANCE_SIZE
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
-SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy'
 DEPLOY_PATH='/home/ec2-user/deploy/install'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 
@@ -39,7 +38,7 @@ sudo yum update -y
 sudo yum install git -y
 
 cd $DEPLOY_PATH
-cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
+cp override.burst.yaml override.yaml
 
 ###############################################################################
 # Configure EBS data volume
