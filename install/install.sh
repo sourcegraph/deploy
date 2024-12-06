@@ -38,9 +38,6 @@ fi
 sudo yum update -y
 sudo yum install git -y
 
-# Clone the deployment repository
-cd /home/ec2-user
-git clone $SOURCEGRAPH_DEPLOY_REPO_URL
 cd $DEPLOY_PATH
 cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
 
