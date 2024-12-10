@@ -200,7 +200,16 @@ source "googlecompute" "XL" {
 build {
   name    = "sourcegraph-amis"
   sources = local.source_group
-  // Move the install.sh script to VM to run on next reboot 
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /home/sourcegraph/deploy",
+    ]
+  }
+  provisioner "file" {
+    destination = "/home/sourcegraph/deploy"
+    source = "./"
+  }
+  // Move the install.sh script to VM to run on next reboot
   provisioner "file" {
     source      = "./packer/gcp/install.sh"
     destination = "/home/sourcegraph/install.sh"
