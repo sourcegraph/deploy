@@ -10,6 +10,7 @@ steps:
       # Tag names now include a "v", which we remove here
       bazel run //:packer -- build -var "instance_version=$$(echo $RELEASE_NUMBER | tr -d v)" -var "dev=false" --var-file=./packer/build-variables.hcl ./packer/aws/aws-builder.pkr.hcl
       bazel run //:generate-changelog
+      ./volume_cleanup.sh
       git checkout -b "release/$RELEASE_NUMBER"
       git add CHANGELOG.md
       git commit -m "Update Changelog"
