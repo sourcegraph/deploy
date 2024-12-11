@@ -13,7 +13,6 @@ INSTANCE_VERSION="" # e.g. 4.0.1
 ###############################################################################
 SOURCEGRAPH_VERSION=$INSTANCE_VERSION
 SOURCEGRAPH_SIZE=$INSTANCE_SIZE
-SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy.git'
 USER_ROOT_PATH="/home/sourcegraph"
 
 ###############################################################################
@@ -26,9 +25,8 @@ sudo apt-get update -y
 DEPLOY_PATH="$USER_ROOT_PATH/deploy/install"
 cd
 # git clone https://github.com/sourcegraph/SetupWizard.git
-git clone $SOURCEGRAPH_DEPLOY_REPO_URL
 cd "$DEPLOY_PATH" || exit 1
-cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
+cp override.burst.yaml override.yaml
 
 sudo mkdir -p /mnt/data
 

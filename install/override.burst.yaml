@@ -1,0 +1,187 @@
+storageClass:
+  create: false
+  name: local-path
+
+frontend:
+  replicaCount: 2
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+  env:
+    DEPLOY_TYPE:
+      value: k3s
+
+gitserver:
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+  #sshSecret: gitserver-ssh
+
+# zoekt-webserver
+indexedSearch:
+  replicaCount: 2
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+indexedSearchIndexer:
+  replicaCount: 2
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+searcher:
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+repoUpdater:
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+preciseCodeIntel:
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+worker:
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+syntectServer:
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+symbols:
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+  env:
+    # Enables Rockskip
+    USE_ROCKSKIP:
+      value: "true"
+    # Uses Rockskip for all repositories over 1GB
+    ROCKSKIP_MIN_REPO_SIZE_MB:
+      value: "1000"
+
+prometheus:
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+  existingConfig: prometheus-override
+
+grafana:
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+blobstore:
+  enabled: true
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+codeInsightsDB:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+codeIntelDB:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+pgsql:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+redisStore:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+redisCache:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+openTelemetry:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+      
+embeddings:
+  enabled: true
+  env:
+    ENABLE_EMBEDDINGS_SEARCH_SIMD:
+      value: "true"
+  resources:
+    limits: null
+    requests:
+      cpu: "250m"
+      memory: 256M
+
+executor:
+  frontendUrl: "http://sourcegraph-frontend:30080"
+  frontendPassword: "sourcegraph-ami-password"
+  queueNames: ["batches", "codeintel"]

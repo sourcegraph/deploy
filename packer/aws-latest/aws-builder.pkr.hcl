@@ -228,10 +228,15 @@ build {
     "source.amazon-ebs.io2",
   ]
 
-  // Move the install.sh script to VM to run on next reboot 
+  provisioner "shell" {
+    inline = [
+      "mkdir -p /home/ec2-user/deploy",
+    ]
+  }
+
   provisioner "file" {
-    source      = "./packer/aws-latest/install.sh"
-    destination = "/home/ec2-user/install.sh"
+    destination = "/home/ec2-user/deploy"
+    source = "./"
   }
 
   provisioner "shell" {

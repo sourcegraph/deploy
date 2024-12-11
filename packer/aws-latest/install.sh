@@ -48,7 +48,7 @@ sleep 30
 export KUBECONFIG='/etc/rancher/k3s/k3s.yaml'
 
 cd $DEPLOY_PATH || exit
-cp override."$SOURCEGRAPH_SIZE".yaml override.yaml
+cp override.burst.yaml override.yaml
 
 # Update information of available charts from Sourcegraph chart repository
 attempt=1

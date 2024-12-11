@@ -5,7 +5,6 @@ set -exuo pipefail
 # Variables
 ###############################################################################
 EBS_VOLUME_DEVICE_NAME='/dev/nvme1n1'
-SOURCEGRAPH_DEPLOY_REPO_URL='https://github.com/sourcegraph/deploy'
 KUBECONFIG_FILE='/etc/rancher/k3s/k3s.yaml'
 
 ###############################################################################
@@ -30,7 +29,6 @@ sudo yum install git -y
 
 # Clone the deployment repository
 cd /home/ec2-user
-git clone $SOURCEGRAPH_DEPLOY_REPO_URL
 
 ###############################################################################
 # Configure EBS data volume
