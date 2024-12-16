@@ -398,6 +398,15 @@ build {
     "source.amazon-ebs.XL"
   ]
   provisioner "shell" {
+    inline = [
+      "mkdir -p /home/ec2-user/deploy",
+    ]
+  }
+  provisioner "file" {
+    destination = "/home/ec2-user/deploy"
+    source = "./"
+  }
+  provisioner "shell" {
     except           = ["amazon-ebs.DEV"]
     environment_vars = ["INSTANCE_SIZE=${upper(source.name)}", "INSTANCE_VERSION=${var.instance_version}"]
     scripts          = ["./install/install.sh"]
