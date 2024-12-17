@@ -148,9 +148,15 @@ echo "${SOURCEGRAPH_SIZE}" | sudo tee /home/ec2-user/.sourcegraph-size
 
 # Create override configMap for prometheus before startup Sourcegraph
 kubectl --kubeconfig $KUBECONFIG_FILE apply -f ./prometheus-override.ConfigMap.yaml
+
+# Install the Sourcegraph Helm chart
 helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOURCEGRAPH_VERSION" sourcegraph ./sourcegraph-charts.tgz
+
 sleep 5
+
+# Install the Executors Helm chart
 helm --kubeconfig $KUBECONFIG_FILE upgrade -i -f ./override.yaml --version "$SOURCEGRAPH_VERSION" executor ./sourcegraph-executor-k8s-charts.tgz
+
 # Skip ingress start-up during AMI creation step:
 # kubectl --kubeconfig $KUBECONFIG_FILE create -f $DEPLOY_PATH/ingress.yaml
 
