@@ -116,8 +116,8 @@ locals {
 }
 
 source "amazon-ebs" "XS" {
-  ami_name                    = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
-  ami_description             = "Sourcegraph-XS (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_name                    = "Sourcegraph (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_description             = "Sourcegraph (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
   instance_type               = var.instance_sizes.xs.instance_type
   region                      = var.build_in_region
   ami_regions                 = local.regions
@@ -392,10 +392,10 @@ build {
   name = "sourcegraph-amis"
   sources = var.dev ? ["source.amazon-ebs.DEV"] : [
     "source.amazon-ebs.XS",
-    "source.amazon-ebs.S",
-    "source.amazon-ebs.M",
-    "source.amazon-ebs.L",
-    "source.amazon-ebs.XL"
+    # "source.amazon-ebs.S",
+    # "source.amazon-ebs.M",
+    # "source.amazon-ebs.L",
+    # "source.amazon-ebs.XL"
   ]
   provisioner "shell" {
     inline = [
@@ -404,7 +404,7 @@ build {
   }
   provisioner "file" {
     destination = "/home/ec2-user/deploy"
-    source = "./"
+    source      = "./"
   }
   provisioner "shell" {
     except           = ["amazon-ebs.DEV"]
@@ -420,7 +420,7 @@ build {
     inline = ["sudo rm /home/ec2-user/.ssh/authorized_keys && sudo rm /root/.ssh/authorized_keys"]
   }
   post-processor "manifest" {
-    output = "manifest.json"
+    output     = "manifest.json"
     strip_path = true
     custom_data = {
       sourcegraph_version = "v${var.instance_version}"
