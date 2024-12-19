@@ -207,7 +207,18 @@ openTelemetry:
     requests:
       cpu: "250m"
       memory: 256M
-      
+
+jaeger:
+  enabled: true
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: "1"
+      memory: 1G
+    requests:
+      cpu: "250m"
+      memory: 256M
+
 embeddings:
   enabled: true
   env:
