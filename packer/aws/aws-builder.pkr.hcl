@@ -116,8 +116,8 @@ locals {
 }
 
 source "amazon-ebs" "XS" {
-  ami_name                    = "Sourcegraph (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
-  ami_description             = "Sourcegraph (v${var.instance_version}) ${var.instance_sizes.xs.instance_type}"
+  ami_name                    = "Sourcegraph v${var.instance_version}"
+  ami_description             = "Sourcegraph v${var.instance_version}"
   instance_type               = var.instance_sizes.xs.instance_type
   region                      = var.build_in_region
   ami_regions                 = local.regions
