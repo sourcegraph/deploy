@@ -13,7 +13,7 @@ This repository is home of Sourcegraph one-click deployments (AMIs, VM images, e
 
 ## Instance size chart
 
-We use T-shirt sizes which are [load tested with specific configurations](https://github.com/sourcegraph/reference-architecture-test).
+We no longer provide dedicated images for each instance size. However, we suggest using our T-shirt sizes to estimate the size of instance you will need.
 
 | Size | Users  | Repositories | Largest Repo Size | Concurrent Users | 
 |------|--------|--------------|-------------------|------------------|
