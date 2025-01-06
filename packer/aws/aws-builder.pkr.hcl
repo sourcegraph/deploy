@@ -404,7 +404,7 @@ build {
   }
   provisioner "file" {
     destination = "/home/ec2-user/deploy"
-    source      = "./"
+    source      = "./install"
   }
   provisioner "shell" {
     except           = ["amazon-ebs.DEV"]
