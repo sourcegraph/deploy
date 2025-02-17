@@ -72,6 +72,34 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 af-south-1: ami-0233b88a2a2b6e146
 ap-east-1: ami-07e6ff85e88a9984f
+## v6.1.0
+
+ ## Updates 
+
+### XS
+- af-south-1: ami-0f768120a6e0f7b4a
+- ap-east-1: ami-06e31ec97ed77d252
+- ap-northeast-1: ami-0195322eb3fca032c
+- ap-northeast-2: ami-086f89a3661293cef
+- ap-south-1: ami-071da1e0d2be2db41
+- ap-southeast-1: ami-090783a94d4132258
+- ap-southeast-2: ami-0978d6a24f22c638c
+- ap-southeast-3: ami-070d95c5cb42472cd
+- ca-central-1: ami-0e0fb0befb9c88409
+- eu-central-1: ami-0174708ae8d817ab7
+- eu-north-1: ami-088982bce26474bb8
+- eu-south-1: ami-05b9b5348dcbf09dc
+- eu-west-1: ami-0731989d0d27b80d3
+- eu-west-2: ami-096b1663d684fc464
+- eu-west-3: ami-0ce64e136e711f485
+- me-central-1: ami-0244b8b81afcc2f94
+- me-south-1: ami-0af6da47f5c88beee
+- sa-east-1: ami-0dff07bbc834b532f
+- us-east-1: ami-0788dcc0fe3ab38ee
+- us-east-2: ami-0558af7f9b245d407
+- us-west-1: ami-0d5c681648fdab763
+- us-west-2: ami-0219adbca2b06a7a2
+
 ap-northeast-1: ami-05c9d1222c3faba14
 ap-northeast-2: ami-0918b70b8d7949d47
 ap-south-1: ami-07257a57edc72258a
