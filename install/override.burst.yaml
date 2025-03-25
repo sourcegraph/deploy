@@ -11,7 +11,7 @@ frontend:
       memory: 256M
   env:
     DEPLOY_TYPE:
-      value: k3s
+      value: AMI
 
 gitserver:
   replicaCount: 1
