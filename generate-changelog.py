@@ -10,7 +10,6 @@ def marshall_artifacts(artifact_id):
 
 def append_to_output(output, name, artifact_id):
     output += "\n"
-    output += "### " + name + "\n"
     output += marshall_artifacts(artifact_id) + "\n"
     return output
 
