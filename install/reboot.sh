@@ -31,7 +31,7 @@ HELM_CMD="$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE"
 HELM_UPGRADE_INSTALL_CMD="$HELM_CMD upgrade --install --values $DEPLOY_PATH/override.yaml"
 KUBECTL_CMD="$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE"
 KUBECTL_GET_PODS_CMD="$KUBECTL_CMD get pods -A -o wide"
-KUBECTL_GET_ALL_CMD="$KUBECTL_CMD get all -A -o wide"
+KUBECTL_GET_ALL_CMD="$KUBECTL_CMD get all -A"
 KUBECTL_DELETE_PODS_ALL_CMD="$LOCAL_BIN_PATH/kubectl delete rs,pods --all"
 RESTART_K3S_CMD="sudo systemctl restart k3s"
 
