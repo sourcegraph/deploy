@@ -30,8 +30,9 @@ COREDNS_FILE="$RANCHER_SERVER_PATH/manifests/coredns.yaml"
 HELM_CMD="$LOCAL_BIN_PATH/helm --kubeconfig $KUBECONFIG_FILE"
 HELM_UPGRADE_INSTALL_CMD="$HELM_CMD upgrade --install --values $DEPLOY_PATH/override.yaml"
 KUBECTL_CMD="$LOCAL_BIN_PATH/kubectl --kubeconfig $KUBECONFIG_FILE"
-KUBECTL_GET_PODS_CMD="$KUBECTL_CMD get pods -A"
-KUBECTL_DELETE_PODS_ALL_CMD="$LOCAL_BIN_PATH/kubectl delete pods --all"
+KUBECTL_GET_PODS_CMD="$KUBECTL_CMD get pods -A -o wide"
+KUBECTL_GET_ALL_CMD="$KUBECTL_CMD get all -A"
+KUBECTL_DELETE_PODS_ALL_CMD="$LOCAL_BIN_PATH/kubectl delete rs,pods --all"
 RESTART_K3S_CMD="sudo systemctl restart k3s"
 
 
@@ -43,15 +44,18 @@ exec > >(sudo tee -a "$LOG_FILE") 2>&1
 
 ### Functions
 function check_pod_statuses() {
+
   # Output the statuses of all pods
-  log "Checking pod statuses"
-  $KUBECTL_GET_PODS_CMD
+  log "Checking statuses of all resources"
+  $KUBECTL_GET_ALL_CMD
 
   # If any pods are not running, then call them out specifically with a warning
-  PODS_NOT_RUNNING=$($KUBECTL_GET_PODS_CMD | grep -v -e Running -e Completed -e NAMESPACE -c)
-  if [[ $PODS_NOT_RUNNING -ne 0 ]]; then
-    log "WARNING: $PODS_NOT_RUNNING pods not running:"
+  COUNT_OF_PODS_NOT_RUNNING=$($KUBECTL_GET_PODS_CMD | grep -v -e Running -e Completed -e NAMESPACE -c)
+  if [[ $COUNT_OF_PODS_NOT_RUNNING -ne 0 ]]; then
+    printf "\n\n"
+    log "WARNING: $COUNT_OF_PODS_NOT_RUNNING pods not running:"
     $KUBECTL_GET_PODS_CMD | grep -v -e Running -e Completed
+    printf "\n\n"
   fi
 }
 
@@ -92,7 +96,7 @@ function override_coredns() {
 }
 
 function recycle_pods_and_restart_k3s() {
-  log "Recycling pods"
+  log "Recycling replicaSets and pods"
   $KUBECTL_DELETE_PODS_ALL_CMD
   # Could change this to a while [ kubectl get pods | grep -v Running ], with a maximum wait time of 60 seconds, then sleep 5 seconds
   log "Giving pods 60 seconds to start up"
