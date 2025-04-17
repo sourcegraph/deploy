@@ -229,7 +229,7 @@ build {
     post-processor "shell-local" {
       except = ["googlecompute.dev"]
       inline = [
-        "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-${lower(source.name)}-${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imageUser'",
+        "gcloud compute images add-iam-policy-binding --project=sourcegraph-amis 'sourcegraph-${lower(source.name)}-${local.image_version}' --member='allAuthenticatedUsers' --role='roles/compute.imagesUser'",
       ]
     }
     post-processor "googlecompute-export" {
