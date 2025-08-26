@@ -72,6 +72,33 @@ Use AWS CloudFormation to deploy an AMI running the latest Sourcegraph version! 
 
 af-south-1: ami-0233b88a2a2b6e146
 ap-east-1: ami-07e6ff85e88a9984f
+## v6.7.1104
+
+ ## Updates 
+
+- af-south-1: ami-0f4ae00d1d12ac592
+- ap-east-1: ami-0eaac4c625d529b5d
+- ap-northeast-1: ami-0b1101ddfd1a032d4
+- ap-northeast-2: ami-053e9571d2e93816a
+- ap-south-1: ami-02a69f387a2dad7de
+- ap-southeast-1: ami-09eabe91cf3f87691
+- ap-southeast-2: ami-00ff0990af89c4886
+- ap-southeast-3: ami-04762adcb3b0f5b89
+- ca-central-1: ami-03de51fdb64c6ae16
+- eu-central-1: ami-02fe64ead63d530d4
+- eu-north-1: ami-004fd6b30ac969c22
+- eu-south-1: ami-0c96e64a02a6164d7
+- eu-west-1: ami-0748b0a2004fc57af
+- eu-west-2: ami-0ec2e3d03057293ac
+- eu-west-3: ami-09cad0018fee359df
+- me-central-1: ami-0c98b0a258c788165
+- me-south-1: ami-0eaedf5f9a3b2d18f
+- sa-east-1: ami-09afac8280fa758eb
+- us-east-1: ami-079a45b7774692a96
+- us-east-2: ami-09aff15508d28c0fa
+- us-west-1: ami-090980d787e87a786
+- us-west-2: ami-0c379ea5807ee1720
+
 ## v6.5.2654
 
  ## Updates 
