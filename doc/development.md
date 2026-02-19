@@ -1,5 +1,7 @@
 # Development
 
+> **⚠️ DEPRECATION NOTICE:** AMI/k3s deployments will be sunset in Sourcegraph 7.0.0. AMI build processes described in this document will be discontinued.
+
 ## Prerequisites
 
 We use Hashicorp Packer to build images:

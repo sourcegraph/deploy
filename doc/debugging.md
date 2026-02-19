@@ -1,5 +1,7 @@
 # Debugging Sourcegraph AMI deployments
 
+> **⚠️ DEPRECATION NOTICE:** AMI deployments will be sunset in Sourcegraph 7.0.0. For new deployments, please use [Kubernetes Helm](https://docs.sourcegraph.com/self-hosted/deploy/kubernetes) or [Docker Compose](https://docs.sourcegraph.com/self-hosted/deploy/docker-compose).
+
 Run all the commands listed below from the root of this repository.
 
 ## Missing cluster metrics in Grafana

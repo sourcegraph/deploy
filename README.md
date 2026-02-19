@@ -1,5 +1,7 @@
 # sourcegraph/deploy: one-click Sourcegraph deployments
 
+> **⚠️ DEPRECATION NOTICE:** This repository and the AMI/k3s deployment methods will be sunset in Sourcegraph 7.0.0. For new deployments, please use [Kubernetes Helm](https://docs.sourcegraph.com/self-hosted/deploy/kubernetes) or [Docker Compose](https://docs.sourcegraph.com/self-hosted/deploy/docker-compose).
+
 **This repository is for Sourcegraph developers: for how to deploy Sourcegraph, please see [docs.sourcegraph.com](https://docs.sourcegraph.com)**
 
 This repository is home of Sourcegraph one-click deployments (AMIs, VM images, etc.) distributed through various cloud providers.

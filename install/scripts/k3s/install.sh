@@ -1,6 +1,16 @@
 #!/usr/bin/bash
 
 ###############################################################################
+# DEPRECATION NOTICE
+# The k3s install script deployment method will be sunset in Sourcegraph 7.0.0.
+# For new deployments, please use Kubernetes Helm or Docker Compose.
+# See: https://docs.sourcegraph.com/self-hosted/deploy/kubernetes
+###############################################################################
+echo "⚠️  DEPRECATION NOTICE: The k3s install script deployment method will be sunset in Sourcegraph 7.0.0."
+echo "For new deployments, please use Kubernetes Helm or Docker Compose."
+echo "See: https://docs.sourcegraph.com/self-hosted/deploy/kubernetes"
+
+###############################################################################
 # This scripts is for deploying Sourcegraph in a VM environment
 # Customizable Variables
 ###############################################################################

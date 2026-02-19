@@ -1,5 +1,7 @@
 # Manually creating a new AMI
 
+> **⚠️ DEPRECATION NOTICE:** AMI deployments will be sunset in Sourcegraph 7.0.0. This process will be discontinued.
+
 ## Creating a VPC
 
 <details>
