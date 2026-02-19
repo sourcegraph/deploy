@@ -2,6 +2,16 @@
 set -exuo pipefail
 
 ###############################################################################
+# DEPRECATION NOTICE
+# AMI deployments will be sunset in Sourcegraph 7.0.0.
+# For new deployments, please use Kubernetes Helm or Docker Compose.
+# See: https://docs.sourcegraph.com/self-hosted/deploy/kubernetes
+###############################################################################
+echo "⚠️  DEPRECATION NOTICE: AMI deployments will be sunset in Sourcegraph 7.0.0."
+echo "For new deployments, please use Kubernetes Helm or Docker Compose."
+echo "See: https://docs.sourcegraph.com/self-hosted/deploy/kubernetes"
+
+###############################################################################
 # ACTION REQUIRED IF RUNNING THIS SCRIPT MANUALLY
 # IMPORTANT: Keep this commented when building with the packer pipeline
 ###############################################################################
